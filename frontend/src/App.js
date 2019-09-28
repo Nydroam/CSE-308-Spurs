@@ -1,10 +1,12 @@
 import React from 'react';
-import MyMap from './components/MyMap.js';
+import Map from './components/Map/LeafletMap';
+import Sidebar from './components/Sidebar/Sidebar';
 import './App.css';
 function App() {
   return (
-    <div className="App" id="mapid">
-      <MyMap></MyMap>
+    <div className="App flex" >
+      <Sidebar></Sidebar>
+      <Map></Map>
     </div>
   );
 }

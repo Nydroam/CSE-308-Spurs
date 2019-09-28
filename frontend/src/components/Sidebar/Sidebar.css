@@ -1,0 +1,28 @@
+#sidebar{
+    width:300px;
+    padding-top: 10px;
+}
+#state-select{
+    width:100%;
+    justify-content: space-evenly;
+}
+.state-button{
+    display:flex;
+    justify-content: center;
+    align-items: center;
+    width:calc(30% - 10px);
+    height:50px;
+}
+.state-button.ri{
+    background-color:#fec500;
+}
+.state-button.ca{
+    background-color:#fec500;
+}
+.state-button.pa{
+    background-color:#fec500;
+}
+.tab{
+    width:20%;
+    
+}
