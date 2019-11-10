@@ -5,7 +5,7 @@ import {TabView,TabPanel} from 'primereact/tabview';
 import {Fieldset} from 'primereact/fieldset';
 import {InputText} from 'primereact/inputtext';
 import {Slider} from 'primereact/slider';
-const lorum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque mi neque, ornare at tincidunt id, sollicitudin nec neque. Morbi vitae efficitur dui. Vivamus sodales vitae quam in aliquet. Fusce laoreet eleifend sodales. Nam eleifend lorem quis vehicula imperdiet. Aliquam pulvinar dapibus tellus, et convallis odio suscipit a. Morbi ex orci, dictum at lectus quis, placerat blandit erat. Nunc sit amet tempor leo. Donec vitae arcu a lectus luctus sollicitudin at in mauris. Vivamus ligula ante, auctor sit amet iaculis in, efficitur eu nibh. Suspendisse nec nunc semper, hendrerit nunc fermentum, sagittis nisl. Mauris interdum eros sollicitudin massa aliquet tempus. Praesent mattis fringilla dolor, vitae auctor sem congue vitae.Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque mi neque, ornare at tincidunt id, sollicitudin nec neque. Morbi vitae efficitur dui. Vivamus sodales vitae quam in aliquet. Fusce laoreet eleifend sodales. Nam eleifend lorem quis vehicula imperdiet. Aliquam pulvinar dapibus tellus, et convallis odio suscipit a. Morbi ex orci, dictum at lectus quis, placerat blandit erat. Nunc sit amet tempor leo. Donec vitae arcu a lectus luctus sollicitudin at in mauris. Vivamus ligula ante, auctor sit amet iaculis in, efficitur eu nibh. Suspendisse nec nunc semper, hendrerit nunc fermentum, sagittis nisl. Mauris interdum eros sollicitudin massa aliquet tempus. Praesent mattis fringilla dolor, vitae auctor sem congue vitae."
+import {Button} from 'primereact/button';
 
 const states=[
     {label:"California", value:"CA"},
@@ -36,8 +36,10 @@ class Sidebar extends React.Component{
         this.state = {
             state: null,
             view: null,
-            distNum: null,
-            mDistNum: null,
+            distNum: 0,
+            mDistNum: 0,
+            voteThresh: 0,
+            popThresh: 0,
             ethnic: "AI",
             rangeValues:{"AI":[0,100],
             "A":[0,100],
@@ -47,28 +49,21 @@ class Sidebar extends React.Component{
             election: "2016P",
         }
     }
-    onChangeSlider2 = (e) => {
-        var newValue;
-        if (e.target && e.target.name === "distNum") {
+
+
+
+    onChangeSlider = (name, e) => {
+        let newValue;
+
+        if (e.target) {
             newValue = e.target.value;
         }
         else {
             newValue = e.value;
         }
-
-        this.setState({ distNum: newValue });
+        this.setState({ [name]: newValue });
     }
-    onChangeSlider3 = (e) => {
-        var newValue;
-        if (e.target && e.target.name === "mDistNum") {
-            newValue = e.target.value;
-        }
-        else {
-            newValue = e.value;
-        }
-
-        this.setState({ distNum: newValue });
-    }
+    
     onChangeRangeSlider = (e) => {
         var tempList = this.state.rangeValues;
         tempList[this.state.ethnic] = e.value;
@@ -80,7 +75,7 @@ class Sidebar extends React.Component{
                 <Dropdown placeholder="Select State" value={this.state.state} options={states} onChange={(e) => {this.setState({state: e.value})}}></Dropdown>
                 <Dropdown placeholder="Select View" value={this.state.view} options={views} onChange={(e) => {this.setState({view: e.value})}}></Dropdown>
                 <TabView activeIndex={this.state.tab} onTabChange={(e) => this.setState({tab: e.index})}>
-                    <TabPanel contentClassName="content" header={this.state.tab===0?" Voting Data":""} leftIcon="pi pi-check-circle" >
+                    <TabPanel contentClassName="content" header={this.state.tab===0?" Vote Data":""} leftIcon="pi pi-check-circle" >
                         <Dropdown placeholder="Select Election" value={this.state.election} options={elections} onChange={(e) => {this.setState({election: e.value})}}></Dropdown>
                         <Fieldset className="fieldset"legend="State Statistics">
                             <div>Population:</div>
@@ -93,7 +88,7 @@ class Sidebar extends React.Component{
                             <div>Republican Votes:</div>
                         </Fieldset>
                     </TabPanel>
-                    <TabPanel contentClassName="content" header={this.state.tab===1?" Demographics":""} leftIcon="pi pi-users">
+                    <TabPanel contentClassName="content" header={this.state.tab===1?" Info":""} leftIcon="pi pi-users">
                     <Fieldset className="fieldset"legend="State Statistics">
                             <div>American Indian or Alaska Native:</div>
                             <div>Asian:</div>
@@ -109,17 +104,38 @@ class Sidebar extends React.Component{
                             <div>White:</div>
                         </Fieldset>
                     </TabPanel>
-                    <TabPanel contentClassName="content" header={this.state.tab===2?" Redistrict":""} leftIcon="pi pi-caret-right">
+                    <TabPanel contentClassName="content" header={this.state.tab===2?" Phase 0":""} leftIcon="pi pi-angle-right">
+                        <div className="center">
+                        <div>Vote Threshold</div>
+                        <InputText name="voteThresh" value={this.state.voteThresh} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("voteThresh",e)}/>
+                        <Slider name="voteThresh"value={this.state.voteThresh} onChange={(e)=>this.onChangeSlider("voteThresh",e)} style={{width: '14em'}} />
+                        <div>Population Threshold</div>
+                        <InputText name="popThresh" value={this.state.popThresh} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("popThresh",e)}/>
+                        <Slider name="popThresh"value={this.state.popThresh} onChange={(e)=>this.onChangeSlider("popThresh",e)} style={{width: '14em'}} />
+                        <Button label="Submit"></Button>
+                        <Fieldset className="fieldset" legend="Phase 0 Data">
+                            <div>Precinct 1</div>
+                            <div>Data on Precinct 1</div>
+                            <br></br>
+                            <div>Precinct 2</div>
+                            <div>Data on Precinct 2</div>
+                            <br></br>
+                            <div>Precinct 3</div>
+                            <div>Data on Precinct 3</div>
+                        </Fieldset>
+                        </div>
+                    </TabPanel>
+                    <TabPanel contentClassName="content" header={this.state.tab===3?" Phase 1/2":""} leftIcon="pi pi-angle-double-right">
                         <div className="center play"><i className="pi pi-step-backward" style={{'fontSize':'15px'}}></i>
                         <i className="pi pi-caret-right" style={{'fontSize':'30px'}}></i>
                         <i className="pi pi-step-forward" style={{'fontSize':'15px'}}></i></div>
                         <div className="center">
                         <div>Number of Districts:</div>
-                        <InputText name="distNum"value={this.state.distNum} style={{width: '100%'}} type="number" onChange={this.onChangeSlider2} />
-                        <Slider name="distNum"value={this.state.distNum} onChange={this.onChangeSlider2} style={{width: '14em'}} />
+                        <InputText name="distNum"value={this.state.distNum} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("distNum",e)} />
+                        <Slider name="distNum"value={this.state.distNum} onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '14em'}} />
                         <div>Number of Maj-min Districts:</div>
-                        <InputText name="mDistNum"value={this.state.mDistNum} style={{width: '100%'}} type="number" onChange={this.onChangeSlider3} />
-                        <Slider name="mDistNum"value={this.state.mDistNum} onChange={this.onChangeSlider3} style={{width: '14em'}} />
+                        <InputText name="mDistNum"value={this.state.mDistNum} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("mDistNum",e)} />
+                        <Slider name="mDistNum"value={this.state.mDistNum} onChange={(e)=>this.onChangeSlider("mDistNum",e)} style={{width: '14em'}} />
                         <Dropdown placeholder="Select Ethnic Group" value={this.state.ethnic} options={ethnics} onChange={(e) => {this.setState({ethnic: e.value})}}></Dropdown>
                         <div>Min,Max: {this.state.rangeValues[this.state.ethnic][0]},{this.state.rangeValues[this.state.ethnic][1]}</div>
                         <Slider value={this.state.rangeValues[this.state.ethnic]} onChange={this.onChangeRangeSlider} range={true} style={{width: '14em'}} />
@@ -132,6 +148,7 @@ class Sidebar extends React.Component{
                         </Fieldset>
                     </div>
                     </TabPanel>
+                    
                 </TabView>
 
             </div>

@@ -34,7 +34,10 @@ margin:0;
 body .p-tabview.p-tabview-top .p-tabview-nav li a .p-tabview-left-icon.pi.pi-users{
     margin:0;
 }
-body .p-tabview.p-tabview-top .p-tabview-nav li a .p-tabview-left-icon.pi.pi-caret-right{
+body .p-tabview.p-tabview-top .p-tabview-nav li a .p-tabview-left-icon.pi.pi-angle-right{
+    margin:0;
+}
+body .p-tabview.p-tabview-top .p-tabview-nav li a .p-tabview-left-icon.pi.pi-angle-double-right{
     margin:0;
 }
 .p-tabview-panels{
