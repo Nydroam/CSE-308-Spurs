@@ -40,6 +40,7 @@ class Sidebar extends React.Component{
             mDistNum: 0,
             voteThresh: 0,
             popThresh: 0,
+            blocInfo: "",
             ethnic: "AI",
             rangeValues:{"AI":[0,100],
             "A":[0,100],
@@ -49,8 +50,6 @@ class Sidebar extends React.Component{
             election: "2016P",
         }
     }
-
-
 
     onChangeSlider = (name, e) => {
         let newValue;
@@ -64,6 +63,15 @@ class Sidebar extends React.Component{
         this.setState({ [name]: newValue });
     }
     
+    onSubmitPhase0 = async () => {
+        let response = await fetch("localhost:5000/phase0",
+         {method:"POST", body: JSON.stringify([this.state.popThresh,this.state.voteThresh])}
+
+         ).then( (res) => res.json())
+         .catch( (err) => {console.log(err); return "Data Retrieval Failed";});
+        this.setState({blocInfo:[response]})
+    }
+
     onChangeRangeSlider = (e) => {
         var tempList = this.state.rangeValues;
         tempList[this.state.ethnic] = e.value;
@@ -112,16 +120,9 @@ class Sidebar extends React.Component{
                         <div>Population Threshold</div>
                         <InputText name="popThresh" value={this.state.popThresh} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("popThresh",e)}/>
                         <Slider name="popThresh"value={this.state.popThresh} onChange={(e)=>this.onChangeSlider("popThresh",e)} style={{width: '14em'}} />
-                        <Button label="Submit"></Button>
+                        <Button label="Submit" onClick={this.onSubmitPhase0}></Button>
                         <Fieldset className="fieldset" legend="Phase 0 Data">
-                            <div>Precinct 1</div>
-                            <div>Data on Precinct 1</div>
-                            <br></br>
-                            <div>Precinct 2</div>
-                            <div>Data on Precinct 2</div>
-                            <br></br>
-                            <div>Precinct 3</div>
-                            <div>Data on Precinct 3</div>
+                            {this.state.blocInfo}
                         </Fieldset>
                         </div>
                     </TabPanel>
