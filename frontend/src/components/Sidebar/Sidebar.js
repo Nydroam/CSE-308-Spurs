@@ -64,12 +64,14 @@ class Sidebar extends React.Component{
     }
     
     onSubmitPhase0 = async () => {
+        let seconds = new Date().getTime();
         let response = await fetch("localhost:5000/phase0",
          {method:"POST", body: JSON.stringify([this.state.popThresh,this.state.voteThresh])}
 
          ).then( (res) => res.json())
          .catch( (err) => {console.log(err); return "Data Retrieval Failed";});
-        this.setState({blocInfo:[response]})
+        console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
+         this.setState({blocInfo:[response]})
     }
 
     onChangeRangeSlider = (e) => {
