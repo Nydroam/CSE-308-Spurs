@@ -6,7 +6,8 @@ import {Fieldset} from 'primereact/fieldset';
 import {InputText} from 'primereact/inputtext';
 import {Slider} from 'primereact/slider';
 import {Button} from 'primereact/button';
-
+import {ListBox} from 'primereact/listbox';
+import {Checkbox} from 'primereact/checkbox';
 const states=[
     {label:"California", value:"CA"},
     {label:"Pennsylvania", value:"PA"},
@@ -19,10 +20,10 @@ const views=[
     {label:"New Districts", value:"ND"},
 ]
 const ethnics= [
-    {label:"American Indian or Alaskan Native", value:"AI"},
+    {label:"American Indian/Alaskan Native", value:"AI"},
     {label:"Asian", value:"A"},
-    {label:"Black or African American", value:"AA"},
-    {label:"Hawaiian or Pacific Islander", value:"HPI"},
+    {label:"African American", value:"AA"},
+    {label:"Hawaiian/Pacific Islander", value:"HPI"},
 ]
 const elections=[
     {label:"2016 Presidential Election", value: "2016P"},
@@ -41,13 +42,11 @@ class Sidebar extends React.Component{
             voteThresh: 0,
             popThresh: 0,
             blocInfo: "",
-            ethnic: "AI",
-            rangeValues:{"AI":[0,100],
-            "A":[0,100],
-            "AA":[0,100],
-            "HPI":[0,100],},
+            ethnic: null,
+            rangeValues:[0,0],
             tab:0,
             election: "2016P",
+            allowStep : false,
         }
     }
 
@@ -75,9 +74,7 @@ class Sidebar extends React.Component{
     }
 
     onChangeRangeSlider = (e) => {
-        var tempList = this.state.rangeValues;
-        tempList[this.state.ethnic] = e.value;
-        this.setState({ rangeValues: tempList });
+        this.setState({ rangeValues: e.value});
     }
     render(){
         return(
@@ -139,16 +136,13 @@ class Sidebar extends React.Component{
                         <div>Number of Maj-min Districts:</div>
                         <InputText name="mDistNum"value={this.state.mDistNum} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("mDistNum",e)} />
                         <Slider name="mDistNum"value={this.state.mDistNum} onChange={(e)=>this.onChangeSlider("mDistNum",e)} style={{width: '14em'}} />
-                        <Dropdown placeholder="Select Ethnic Group" value={this.state.ethnic} options={ethnics} onChange={(e) => {this.setState({ethnic: e.value})}}></Dropdown>
-                        <div>Min,Max: {this.state.rangeValues[this.state.ethnic][0]},{this.state.rangeValues[this.state.ethnic][1]}</div>
-                        <Slider value={this.state.rangeValues[this.state.ethnic]} onChange={this.onChangeRangeSlider} range={true} style={{width: '14em'}} />
-                        <Fieldset className="fieldset" legend="Selected Region Statistics">
-                        <div>American Indian or Alaska Native:</div>
-                            <div>Asian:</div>
-                            <div>Black or African American:</div>
-                            <div>Hawaiian or Pacific Islander:</div>
-                            <div>White:</div>
-                        </Fieldset>
+                        <ListBox style={{display:'inline-block',width:'100%'}} value={this.state.ethnic} options={ethnics} onChange={(e) => this.setState({ethnic: e.value})} multiple={true}/>
+                        <div>Min,Max: {this.state.rangeValues[0]},{this.state.rangeValues[1]}</div>
+                        <Slider value={this.state.rangeValues} onChange={this.onChangeRangeSlider} range={true} style={{width: '14em'}} />
+                        <div>
+                        <Checkbox id="cb1" onChange={e => this.setState({allowStep: e.checked})} checked={this.state.allowStep}></Checkbox>
+                        <label htmlFor="cb1"> Update every iteration</label>
+                        </div>                        
                     </div>
                     </TabPanel>
                     
