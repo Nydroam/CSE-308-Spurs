@@ -12,8 +12,17 @@ class LeafletMap extends React.Component{
       super(props);
       this.mapRef = React.createRef();
     }
-    handleClick = (e,element)=>{
+    handleClick = (e)=>{
       this.mapRef.current.leafletElement.fitBounds(e.layer.getBounds())
+    }
+    setStyle = (feature) =>{
+      return{
+        fillColor: 'blue',
+        fillOpacity:1,
+        color:'white',
+        weight:1,
+        opacity:1,
+      }
     }
     render(){
         return(
@@ -21,11 +30,11 @@ class LeafletMap extends React.Component{
               <TileLayer
       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
-    />        <FeatureGroup>
-                <GeoJSON data={pa['default']} onClick={(e)=>this.handleClick(e,this)} ></GeoJSON>
-                <GeoJSON data={ri['default']} onClick={(e)=>this.handleClick(e,this)}></GeoJSON>
-                <GeoJSON data={ca['default']} onClick={(e)=>this.handleClick(e,this)}></GeoJSON>
-                </FeatureGroup>
+    />        <FeatureGroup >
+                <GeoJSON data={pa['default']} style={this.setStyle} onClick={(e)=>this.handleClick(e)} ></GeoJSON>
+                <GeoJSON data={ri['default']} style={this.setStyle} onClick={(e)=>this.handleClick(e)}></GeoJSON>
+                <GeoJSON data={ca['default']} style={this.setStyle} onClick={(e)=>this.handleClick(e)}></GeoJSON>
+              </FeatureGroup>
           </Map>
         );
     }
