@@ -43,7 +43,7 @@ class Sidebar extends React.Component{
             popThresh: 0,
             blocInfo: "",
             ethnic: null,
-            rangeValues:[0,0],
+            rangeValues:[0,100],
             tab:0,
             election: "2016P",
             allowStep : false,
@@ -113,10 +113,10 @@ class Sidebar extends React.Component{
                     </TabPanel>
                     <TabPanel contentClassName="content" header={this.state.tab===2?" Phase 0":""} leftIcon="pi pi-angle-right">
                         <div className="center">
-                        <div>Vote Threshold</div>
+                        <div>Vote Threshold (%)</div>
                         <InputText name="voteThresh" value={this.state.voteThresh} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("voteThresh",e)}/>
                         <Slider name="voteThresh"value={this.state.voteThresh} onChange={(e)=>this.onChangeSlider("voteThresh",e)} style={{width: '14em'}} />
-                        <div>Population Threshold</div>
+                        <div>Population Threshold (%)</div>
                         <InputText name="popThresh" value={this.state.popThresh} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("popThresh",e)}/>
                         <Slider name="popThresh"value={this.state.popThresh} onChange={(e)=>this.onChangeSlider("popThresh",e)} style={{width: '14em'}} />
                         <Button label="Submit" onClick={this.onSubmitPhase0}></Button>
@@ -130,14 +130,17 @@ class Sidebar extends React.Component{
                         <i className="pi pi-caret-right" style={{'fontSize':'30px'}}></i>
                         <i className="pi pi-step-forward" style={{'fontSize':'15px'}}></i></div>
                         <div className="center">
-                        <div>Number of Districts:</div>
+                        <div>Number of Districts Required:</div>
                         <InputText name="distNum"value={this.state.distNum} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("distNum",e)} />
                         <Slider name="distNum"value={this.state.distNum} onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '14em'}} />
-                        <div>Number of Maj-min Districts:</div>
+                        
+                        <div>Number of Majority-Minority Districts Required:</div>
                         <InputText name="mDistNum"value={this.state.mDistNum} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("mDistNum",e)} />
                         <Slider name="mDistNum"value={this.state.mDistNum} onChange={(e)=>this.onChangeSlider("mDistNum",e)} style={{width: '14em'}} />
+                        
+                        <div>Choose Minorities</div>
                         <ListBox style={{display:'inline-block',width:'100%'}} value={this.state.ethnic} options={ethnics} onChange={(e) => this.setState({ethnic: e.value})} multiple={true}/>
-                        <div>Min,Max: {this.state.rangeValues[0]},{this.state.rangeValues[1]}</div>
+                        <div>Min, Max (%): {this.state.rangeValues[0]},{this.state.rangeValues[1]}</div>
                         <Slider value={this.state.rangeValues} onChange={this.onChangeRangeSlider} range={true} style={{width: '14em'}} />
                         <div>
                         <Checkbox id="cb1" onChange={e => this.setState({allowStep: e.checked})} checked={this.state.allowStep}></Checkbox>

@@ -14,6 +14,12 @@
 }
 .p-slider{
     display:inline-block;
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
+body .p-listbox{
+    margin-bottom: 20px;
 }
 .p-dropdown.p-component{
     margin-top:10px;
