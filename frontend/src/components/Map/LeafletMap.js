@@ -5,7 +5,10 @@ import * as padist from '../../data/pa_district_clean.json';
 import * as ridist from '../../data/ri_district_clean.json';
 import * as cadist from '../../data/ca_district_clean.json';
 import * as ripre from '../../data/ri_precinct_clean.json';
+//import * as capre from '../../data/ca_precinct_clean.json';
+import * as papre from '../../data/pa_precinct_clean.json';
 
+//position of center of US for initial load
 const position = [38, -98]
 class LeafletMap extends React.Component{
 
@@ -47,10 +50,12 @@ class LeafletMap extends React.Component{
         weight:0.5,
         opacity:1,
       })
+      console.log("HOVER")
     }
 
     onHoverOff = (e)=>{
-      e.layer.setStyle(this.setStyle(e.layer.feature))
+      console.log("HOVEROFF")
+      //e.layer.setStyle(this.setStyle(e.layer.feature))
     }
     setStyle = (feature) =>{
       let {election} = this.props;
@@ -117,7 +122,13 @@ class LeafletMap extends React.Component{
           }
         }
         if (this.props.state === "PA"){
+          if(this.props.view !== "VP"){
           features = <GeoJSON data={padist['default']} key={2} style={this.setStyle} ></GeoJSON>
+          }
+          else{
+            features = <GeoJSON data={papre['default']} key={5} style={this.setStyle} ></GeoJSON>
+
+          }
         }
         if (this.props.state === "CA"){
           features = <GeoJSON data={cadist['default']} key={1} style={this.setStyle} ></GeoJSON>
@@ -128,7 +139,8 @@ class LeafletMap extends React.Component{
               <TileLayer
       url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
-    />        <FeatureGroup ref={this.groupRef}>{features}</FeatureGroup>
+    /> 
+           <FeatureGroup ref={this.groupRef}>{features}</FeatureGroup>
           </Map>
         );
     }

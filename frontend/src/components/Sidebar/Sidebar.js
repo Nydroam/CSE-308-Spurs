@@ -63,9 +63,12 @@ class Sidebar extends React.Component{
     
     onSubmitPhase0 = async () => {
         let seconds = new Date().getTime();
-        let response = await fetch("localhost:5000/phase0",
-         {method:"POST", body: JSON.stringify([this.state.popThresh,this.state.voteThresh])}
-
+        let response = await fetch("localhost:8080/spurs/state/runPhase0",
+         {method:"POST", body: JSON.stringify(
+             {stateId:this.props.state,
+            electionType:this.props.election,
+            popThresh:this.state.popThresh,
+            voteThresh:this.state.voteThresh})}
          ).then( (res) => res.json())
          .catch( (err) => {console.log(err); return "Data Retrieval Failed";});
         console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
@@ -75,6 +78,7 @@ class Sidebar extends React.Component{
     onChangeRangeSlider = (e) => {
         this.setState({ rangeValues: e.value});
     }
+
     render(){
         let {election,demo} = this.props;
         let rvotes = null;
@@ -82,16 +86,18 @@ class Sidebar extends React.Component{
             rvotes = <div>Republican Votes: {demo[election+"R"]}</div>
         let dvotes = null;
         if (demo[election+"D"])
-            dvotes = <div>Democrat Votes: {demo[election+"D"]}</div>
+            dvotes = <div>Democratic Votes: {demo[election+"D"]}</div>
         return(
             <div id="sidebar">
+                
                 <Dropdown placeholder="Select State" value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value)}}></Dropdown>
                 <Dropdown placeholder="Select View" value={this.props.view} options={views} onChange={(e) => {this.props.changeState("view",e.value)}}></Dropdown>
+               
                 <TabView activeIndex={this.state.tab} onTabChange={(e) => this.setState({tab: e.index})}>
+                    
                     <TabPanel contentClassName="content" header={this.state.tab===0?" Vote Data":""} leftIcon="pi pi-check-circle" >
                         <Dropdown placeholder="Select Election" value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
                         <Fieldset className="fieldset"legend="State Statistics">
-                            
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Votes">
                             {demo["NAME"]?<div>Name: {demo["NAME"]}</div>:null}
@@ -99,6 +105,7 @@ class Sidebar extends React.Component{
                             {dvotes}
                         </Fieldset>
                     </TabPanel>
+                    
                     <TabPanel contentClassName="content" header={this.state.tab===1?" Info":""} leftIcon="pi pi-users">
                     <Fieldset className="fieldset"legend="State Statistics">
                             <div>American Indian or Alaska Native:</div>
@@ -118,9 +125,11 @@ class Sidebar extends React.Component{
                             {this.props.demo["WHITE"]?<div>{"White: " + this.props.demo["WHITE"]}</div>:null}
                         </Fieldset>
                     </TabPanel>
+                    
                     <TabPanel contentClassName="content" header={this.state.tab===2?" Phase 0":""} leftIcon="pi pi-angle-right">
                         <div className="center">
-                        <div>Vote Threshold (%)</div>
+                        <Dropdown placeholder="Select Election" value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
+                        <div className="top-margin">Vote Threshold (%)</div>
                         <InputText name="voteThresh" value={this.state.voteThresh} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("voteThresh",e)}/>
                         <Slider name="voteThresh"value={this.state.voteThresh} onChange={(e)=>this.onChangeSlider("voteThresh",e)} style={{width: '14em'}} />
                         <div>Population Threshold (%)</div>
@@ -132,6 +141,7 @@ class Sidebar extends React.Component{
                         </Fieldset>
                         </div>
                     </TabPanel>
+                    
                     <TabPanel contentClassName="content" header={this.state.tab===3?" Phase 1/2":""} leftIcon="pi pi-angle-double-right">
                         <div className="center play"><i className="pi pi-step-backward" style={{'fontSize':'15px'}}></i>
                         <i className="pi pi-caret-right" style={{'fontSize':'30px'}}></i>
