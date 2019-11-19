@@ -22,7 +22,8 @@ const views=[
 const ethnics= [
     {label:"American Indian/Alaskan Native", value:"AI"},
     {label:"Asian", value:"A"},
-    {label:"African American", value:"AA"},
+    {label:"Black or African American", value:"AA"},
+    {label:"Hispanic", value:"HIS"},
     {label:"Hawaiian/Pacific Islander", value:"HPI"},
 ]
 const elections=[
@@ -35,8 +36,6 @@ class Sidebar extends React.Component{
     constructor(){
         super()
         this.state = {
-            state: null,
-            view: null,
             distNum: 0,
             mDistNum: 0,
             voteThresh: 0,
@@ -79,8 +78,8 @@ class Sidebar extends React.Component{
     render(){
         return(
             <div id="sidebar">
-                <Dropdown placeholder="Select State" value={this.state.state} options={states} onChange={(e) => {this.setState({state: e.value})}}></Dropdown>
-                <Dropdown placeholder="Select View" value={this.state.view} options={views} onChange={(e) => {this.setState({view: e.value})}}></Dropdown>
+                <Dropdown placeholder="Select State" value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value)}}></Dropdown>
+                <Dropdown placeholder="Select View" value={this.props.view} options={views} onChange={(e) => {this.props.changeState("view",e.value)}}></Dropdown>
                 <TabView activeIndex={this.state.tab} onTabChange={(e) => this.setState({tab: e.index})}>
                     <TabPanel contentClassName="content" header={this.state.tab===0?" Vote Data":""} leftIcon="pi pi-check-circle" >
                         <Dropdown placeholder="Select Election" value={this.state.election} options={elections} onChange={(e) => {this.setState({election: e.value})}}></Dropdown>
@@ -89,10 +88,8 @@ class Sidebar extends React.Component{
                             <div>Democrat Votes:</div>
                             <div>Republican Votes:</div>
                         </Fieldset>
-                        <Fieldset className="fieldset" legend="Selected Region Statistics">
-                            <div>Population:</div>
-                            <div>Democrat Votes:</div>
-                            <div>Republican Votes:</div>
+                        <Fieldset className="fieldset" legend="Selected Region Data">
+                            
                         </Fieldset>
                     </TabPanel>
                     <TabPanel contentClassName="content" header={this.state.tab===1?" Info":""} leftIcon="pi pi-users">
@@ -101,14 +98,17 @@ class Sidebar extends React.Component{
                             <div>Asian:</div>
                             <div>Black or African American:</div>
                             <div>Hawaiian or Pacific Islander:</div>
+                            <div>Hispanic</div>
                             <div>White:</div>
                         </Fieldset>
-                        <Fieldset className="fieldset" legend="Selected Region Statistics">
-                        <div>American Indian or Alaska Native:</div>
-                            <div>Asian:</div>
-                            <div>Black or African American:</div>
-                            <div>Hawaiian or Pacific Islander:</div>
-                            <div>White:</div>
+                        <Fieldset className="fieldset" legend="Selected Demographics">
+                        <div>Name: {this.props.demo["NAME"]}</div>
+                            {this.props.demo["AMIN"]?<div>{"American Indian or Alaska Native: " + this.props.demo["AMIN"]}</div>:null}
+                            {this.props.demo["ASIAN"]?<div>{"Asian: " + this.props.demo["ASIAN"]}</div>:null}
+                            {this.props.demo["BLACK"]?<div>{"Black or African American: " + this.props.demo["BLACK"]}</div>:null}
+                            {this.props.demo["NHPI"]?<div>{"Hawaiian or Pacific Islander: " + this.props.demo["NHPI"]}</div>:null}
+                            {this.props.demo["HISP"]?<div>{"Hispanic: " + this.props.demo["HISP"]}</div>:null}
+                            {this.props.demo["WHITE"]?<div>{"White: " + this.props.demo["WHITE"]}</div>:null}
                         </Fieldset>
                     </TabPanel>
                     <TabPanel contentClassName="content" header={this.state.tab===2?" Phase 0":""} leftIcon="pi pi-angle-right">
