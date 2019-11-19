@@ -59,7 +59,6 @@ class LeafletMap extends React.Component{
       })
     }
     setStyle = (feature) =>{
-      console.log(feature)
       let {election} = this.props;
       let properties = feature.properties;
       let c = 'blue'
@@ -72,7 +71,6 @@ class LeafletMap extends React.Component{
         dvotes = properties[election+"D"]
       let total = (rvotes + dvotes)?rvotes+dvotes:1;
       c = "rgb("+rvotes/total * 255+", 0, " + dvotes/total*255 + ")";
-      console.log(c)
       }
       return{
         fillColor: c,
