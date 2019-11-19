@@ -50,13 +50,7 @@ class LeafletMap extends React.Component{
     }
 
     onHoverOff = (e)=>{
-      e.layer.setStyle({
-        fillColor: 'blue',
-        fillOpacity:1,
-        color:'white',
-        weight:0.5,
-        opacity:1,
-      })
+      e.layer.setStyle(this.setStyle(e.layer.feature))
     }
     setStyle = (feature) =>{
       let {election} = this.props;
