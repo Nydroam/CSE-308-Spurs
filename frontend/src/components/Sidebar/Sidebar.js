@@ -27,9 +27,9 @@ const ethnics= [
     {label:"Hawaiian/Pacific Islander", value:"HPI"},
 ]
 const elections=[
-    {label:"2016 Presidential Election", value: "2016P"},
-    {label:"2016 Congressional Election", value: "2016C"},
-    {label:"2018 Congressional Election", value: "2018C"}
+    {label:"2016 Presidential Election", value: "PRES16"},
+    {label:"2016 Congressional Election", value: "SEN16"},
+    {label:"2018 Congressional Election", value: "SEN18"}
 ]
 class Sidebar extends React.Component{
    
@@ -76,20 +76,27 @@ class Sidebar extends React.Component{
         this.setState({ rangeValues: e.value});
     }
     render(){
+        let {election,demo} = this.props;
+        let rvotes = null;
+        if (demo[election+"R"])
+            rvotes = <div>Republican Votes: {demo[election+"R"]}</div>
+        let dvotes = null;
+        if (demo[election+"D"])
+            dvotes = <div>Democrat Votes: {demo[election+"D"]}</div>
         return(
             <div id="sidebar">
                 <Dropdown placeholder="Select State" value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value)}}></Dropdown>
                 <Dropdown placeholder="Select View" value={this.props.view} options={views} onChange={(e) => {this.props.changeState("view",e.value)}}></Dropdown>
                 <TabView activeIndex={this.state.tab} onTabChange={(e) => this.setState({tab: e.index})}>
                     <TabPanel contentClassName="content" header={this.state.tab===0?" Vote Data":""} leftIcon="pi pi-check-circle" >
-                        <Dropdown placeholder="Select Election" value={this.state.election} options={elections} onChange={(e) => {this.setState({election: e.value})}}></Dropdown>
+                        <Dropdown placeholder="Select Election" value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
                         <Fieldset className="fieldset"legend="State Statistics">
-                            <div>Population:</div>
-                            <div>Democrat Votes:</div>
-                            <div>Republican Votes:</div>
-                        </Fieldset>
-                        <Fieldset className="fieldset" legend="Selected Region Data">
                             
+                        </Fieldset>
+                        <Fieldset className="fieldset" legend="Selected Votes">
+                            {demo["NAME"]?<div>Name: {demo["NAME"]}</div>:null}
+                            {rvotes}
+                            {dvotes}
                         </Fieldset>
                     </TabPanel>
                     <TabPanel contentClassName="content" header={this.state.tab===1?" Info":""} leftIcon="pi pi-users">
@@ -102,7 +109,7 @@ class Sidebar extends React.Component{
                             <div>White:</div>
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Demographics">
-                        <div>Name: {this.props.demo["NAME"]}</div>
+                            {this.props.demo["NAME"]?<div>{"Name: " + this.props.demo["NAME"]}</div>:null}
                             {this.props.demo["AMIN"]?<div>{"American Indian or Alaska Native: " + this.props.demo["AMIN"]}</div>:null}
                             {this.props.demo["ASIAN"]?<div>{"Asian: " + this.props.demo["ASIAN"]}</div>:null}
                             {this.props.demo["BLACK"]?<div>{"Black or African American: " + this.props.demo["BLACK"]}</div>:null}

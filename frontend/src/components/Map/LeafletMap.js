@@ -28,7 +28,6 @@ class LeafletMap extends React.Component{
         val = "RI"
       if (val === "CALIFORNIA")
         val = "CA"
-      console.log(val)
       this.props.changeState("state",val)
       this.setState({currState:val})
     }
@@ -37,7 +36,6 @@ class LeafletMap extends React.Component{
       let properties = e.layer.feature.properties;
       if(this.state.currHover !== properties.NAME){
         this.props.changeState("demo",properties)
-        console.log(e.layer)
         this.setState({currHover:properties.name})
 
       }
@@ -61,8 +59,23 @@ class LeafletMap extends React.Component{
       })
     }
     setStyle = (feature) =>{
+      console.log(feature)
+      let {election} = this.props;
+      let properties = feature.properties;
+      let c = 'blue'
+      let rvotes = 0;
+      let dvotes = 0;
+      if(properties[election+"R"] || properties[election+"D"]){
+      if (properties[election+"R"])
+        rvotes = properties[election+"R"]
+      if (properties[election+"D"])
+        dvotes = properties[election+"D"]
+      let total = (rvotes + dvotes)?rvotes+dvotes:1;
+      c = "rgb("+rvotes/total * 255+", 0, " + dvotes/total*255 + ")";
+      console.log(c)
+      }
       return{
-        fillColor: 'blue',
+        fillColor: c,
         fillOpacity:1,
         color:'white',
         weight:0.5,
@@ -71,7 +84,6 @@ class LeafletMap extends React.Component{
     }
 
     setStyleHover = (feature) =>{
-      console.log("AA")
       return{
         fillColor: 'cyan',
         fillOpacity:1,
@@ -81,7 +93,6 @@ class LeafletMap extends React.Component{
       }
     } 
     componentDidUpdate(){
-      console.log("update")
       if(this.mapRef.current && this.groupRef.current && this.props.state != null && this.props.state!==this.state.currState)
         this.mapRef.current.leafletElement.fitBounds(this.groupRef.current.leafletElement.getBounds())
       if(this.groupRef.current){
@@ -108,6 +119,7 @@ class LeafletMap extends React.Component{
             features = <GeoJSON data={ridist['default']} key={3} style={this.setStyle} ></GeoJSON>
           }
           else{
+            
             features = <GeoJSON data={ripre['default']} key={6} style={this.setStyle} ></GeoJSON>
 
           }

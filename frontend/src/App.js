@@ -11,7 +11,8 @@ class App extends React.Component {
     this.state = {
       state: null,
       view: null,
-      demo: "",
+      election: "PRES16",
+      demo: {},
     }
   }
 
@@ -22,9 +23,9 @@ class App extends React.Component {
   render(){
     return (
       <div className="App flex" >
-        <Sidebar demo={this.state.demo} state={this.state.state} view={this.state.view} changeState={this.changeState}></Sidebar>
+        <Sidebar election={this.state.election} demo={this.state.demo} state={this.state.state} view={this.state.view} changeState={this.changeState}></Sidebar>
         
-        <Map state={this.state.state} view={this.state.view} changeState={this.changeState}></Map>
+        <Map election={this.state.election} state={this.state.state} view={this.state.view} changeState={this.changeState}></Map>
       </div>
     );
   }
