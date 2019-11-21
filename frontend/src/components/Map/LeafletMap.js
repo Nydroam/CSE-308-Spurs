@@ -10,7 +10,7 @@ import * as papre from '../../data/pa_precinct_clean.json';
 
 //position of center of US for initial load
 const position = [38, -98]
-class LeafletMap extends React.Component{
+class LeafletMap extends React.PureComponent{
 
     constructor(props) {
       super(props);
@@ -19,6 +19,7 @@ class LeafletMap extends React.Component{
       this.state = {
         currState: null,
         currHover: null,
+        currView: null,
       }
     }
     handleClick = (e)=>{
@@ -37,11 +38,8 @@ class LeafletMap extends React.Component{
 
     onHover = (e)=>{
       let properties = e.layer.feature.properties;
-      if(this.state.currHover !== properties.NAME){
         this.props.changeState("demo",properties)
-        this.setState({currHover:properties.name})
-
-      }
+        
       
       e.layer.setStyle({
         fillColor: 'cyan',
@@ -55,7 +53,7 @@ class LeafletMap extends React.Component{
 
     onHoverOff = (e)=>{
       console.log("HOVEROFF")
-      //e.layer.setStyle(this.setStyle(e.layer.feature))
+      e.layer.setStyle(this.setStyle(e.layer.feature))
     }
     setStyle = (feature) =>{
       let {election} = this.props;
@@ -90,9 +88,11 @@ class LeafletMap extends React.Component{
       }
     } 
     componentDidUpdate(){
+      console.log("UPDATE")
       if(this.mapRef.current && this.groupRef.current && this.props.state != null && this.props.state!==this.state.currState)
         this.mapRef.current.leafletElement.fitBounds(this.groupRef.current.leafletElement.getBounds())
-      if(this.groupRef.current){
+      if(this.groupRef.current && (this.state.currView !== this.props.view || this.state.currState !== this.props.state)){
+        console.log("HERE")
         let feature = this.groupRef.current.leafletElement;
         feature.eachLayer( layer => {
           layer.off()
@@ -131,7 +131,12 @@ class LeafletMap extends React.Component{
           }
         }
         if (this.props.state === "CA"){
+          if(this.props.view !== "VP"){
           features = <GeoJSON data={cadist['default']} key={1} style={this.setStyle} ></GeoJSON>
+          }
+          else{
+            //features = <GeoJSON data={capre['default']} key={4} style={this.setStyle}></GeoJSON>
+          }
         }
 
         return(
