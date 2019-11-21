@@ -7,7 +7,6 @@ import * as cadist from '../../data/ca_district_clean.json';
 import * as ripre from '../../data/ri_precinct_clean.json';
 //import * as capre from '../../data/ca_precinct_clean.json';
 import * as papre from '../../data/pa_precinct_clean.json';
-
 //position of center of US for initial load
 const position = [38, -98]
 class LeafletMap extends React.PureComponent{
@@ -20,6 +19,7 @@ class LeafletMap extends React.PureComponent{
         currState: null,
         currHover: null,
         currView: null,
+        capre:null,
       }
     }
     handleClick = (e)=>{
@@ -87,6 +87,9 @@ class LeafletMap extends React.PureComponent{
         opacity:1,
       }
     } 
+    componentDidMount(){
+      fetch("http://localhost:5000/geojson/ca_precinct_clean.json",{method:"get"}).then(res=> res.json()).then(data=>this.setState({capre:data})).catch(err=>console.log(err));
+    }
     componentDidUpdate(){
       console.log("UPDATE")
       if(this.mapRef.current && this.groupRef.current && this.props.state != null && this.props.state!==this.state.currState)
@@ -135,7 +138,7 @@ class LeafletMap extends React.PureComponent{
           features = <GeoJSON data={cadist['default']} key={1} style={this.setStyle} ></GeoJSON>
           }
           else{
-            //features = <GeoJSON data={capre['default']} key={4} style={this.setStyle}></GeoJSON>
+            features = <GeoJSON data={this.state.capre} key={4} style={this.setStyle}></GeoJSON>
           }
         }
 
