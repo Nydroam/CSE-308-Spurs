@@ -1,12 +1,7 @@
 import React from 'react';
 import {Map, TileLayer, GeoJSON, FeatureGroup} from 'react-leaflet';
 import './Map.css';
-import * as padist from '../../data/pa_district_clean.json';
-import * as ridist from '../../data/ri_district_clean.json';
-import * as cadist from '../../data/ca_district_clean.json';
-import * as ripre from '../../data/ri_precinct_clean.json';
-//import * as capre from '../../data/ca_precinct_clean.json';
-import * as papre from '../../data/pa_precinct_clean.json';
+
 //position of center of US for initial load
 const position = [38, -98]
 class LeafletMap extends React.PureComponent{
@@ -22,6 +17,7 @@ class LeafletMap extends React.PureComponent{
         capre:null,
       }
     }
+
     handleClick = (e)=>{
       console.log(e)
       this.mapRef.current.leafletElement.fitBounds(e.layer.getBounds())
@@ -38,9 +34,7 @@ class LeafletMap extends React.PureComponent{
 
     onHover = (e)=>{
       let properties = e.layer.feature.properties;
-        this.props.changeState("demo",properties)
-        
-      
+      this.props.changeState("demo",properties)
       e.layer.setStyle({
         fillColor: 'cyan',
         fillOpacity:1,
@@ -48,11 +42,9 @@ class LeafletMap extends React.PureComponent{
         weight:0.5,
         opacity:1,
       })
-      console.log("HOVER")
     }
 
     onHoverOff = (e)=>{
-      console.log("HOVEROFF")
       e.layer.setStyle(this.setStyle(e.layer.feature))
     }
     setStyle = (feature) =>{
@@ -88,7 +80,23 @@ class LeafletMap extends React.PureComponent{
       }
     } 
     componentDidMount(){
-      fetch("http://localhost:5000/geojson/ca_precinct_clean.json",{method:"get"}).then(res=> res.json()).then(data=>this.setState({capre:data})).catch(err=>console.log(err));
+      let data_server = "http://localhost:5000"
+      fetch(data_server+"/files")
+      .then(
+        res=>res.json()
+      ).then(
+        data=>{
+          data.forEach(
+            name=>{
+              let split = name.split("_");
+              let key = split[0] + split[1];
+              fetch(data_server+"/geojson/"+name).then(res=>res.json()).then(result => this.setState({[key]:result}));
+            }
+          )
+        }
+      )
+      
+      //fetch("http://localhost:5000/geojson/ca_precinct_clean.json",{method:"get"}).then(res=> res.json()).then(data=>this.setState({capre:data})).catch(err=>console.log(err));
     }
     componentDidUpdate(){
       console.log("UPDATE")
@@ -110,37 +118,19 @@ class LeafletMap extends React.PureComponent{
     render(){
         let features = 
          <React.Fragment>
-        <GeoJSON data={cadist['default']} key={1} style={this.setStyle} onClick={(e)=>this.handleClick(e)}></GeoJSON>
-        <GeoJSON data={padist['default']} key={2} style={this.setStyle} onClick={(e)=>this.handleClick(e)} ></GeoJSON>
-        <GeoJSON data={ridist['default']} key={3} style={this.setStyle} onClick={(e)=>this.handleClick(e)}></GeoJSON>
+        {this.state.cadistrict?<GeoJSON data={this.state.cadistrict} key={"cadistrict"} style={this.setStyle} onClick={(e)=>this.handleClick(e)}></GeoJSON>:null}
+        {this.state.padistrict?<GeoJSON data={this.state.padistrict} key={"padistrict"} style={this.setStyle} onClick={(e)=>this.handleClick(e)} ></GeoJSON>:null}
+        {this.state.ridistrict?<GeoJSON data={this.state.ridistrict} key={"ridistrict"} style={this.setStyle} onClick={(e)=>this.handleClick(e)}></GeoJSON>:null}
         </React.Fragment> ;
-        if (this.props.state === "RI"){
-          if (this.props.view !== "VP"){
-            features = <GeoJSON data={ridist['default']} key={3} style={this.setStyle} ></GeoJSON>
-          }
-          else{
-            
-            features = <GeoJSON data={ripre['default']} key={6} style={this.setStyle} ></GeoJSON>
-
-          }
+        if(this.props.state){
+        if(this.props.view !=="VP") {
+          let mapKey = this.props.state.toLowerCase()+"district";
+          features = <GeoJSON data={this.state[[mapKey]]} key={mapKey} style={this.setStyle}></GeoJSON>
+        }else{
+          let mapKey = this.props.state.toLowerCase()+"precinct";
+          features = <GeoJSON data={this.state[[mapKey]]} key={mapKey} style={this.setStyle}></GeoJSON>
         }
-        if (this.props.state === "PA"){
-          if(this.props.view !== "VP"){
-          features = <GeoJSON data={padist['default']} key={2} style={this.setStyle} ></GeoJSON>
-          }
-          else{
-            features = <GeoJSON data={papre['default']} key={5} style={this.setStyle} ></GeoJSON>
-
-          }
-        }
-        if (this.props.state === "CA"){
-          if(this.props.view !== "VP"){
-          features = <GeoJSON data={cadist['default']} key={1} style={this.setStyle} ></GeoJSON>
-          }
-          else{
-            features = <GeoJSON data={this.state.capre} key={4} style={this.setStyle}></GeoJSON>
-          }
-        }
+      }
 
         return(
           <Map center={position} ref={this.mapRef} zoom={5}id="map">
