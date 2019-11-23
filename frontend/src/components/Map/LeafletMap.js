@@ -60,6 +60,8 @@ class LeafletMap extends React.PureComponent{
         dvotes = properties[election+"D"]
       let total = (rvotes + dvotes)?rvotes+dvotes:1;
       c = "rgb("+rvotes/total * 255+", 0, " + dvotes/total*255 + ")";
+      }else{
+        c = 'gray';
       }
       return{
         fillColor: c,

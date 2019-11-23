@@ -49,6 +49,17 @@ class Sidebar extends React.Component{
         }
     }
 
+    convertNumber = (num) => {
+        let result = "";
+        while(num >= 1000){
+            result = ","+ num%1000 + result;
+            num = Math.floor(num/1000);
+        }
+        if(num>0)
+            result = num + result;
+        return result;
+    }
+
     onChangeSlider = (name, e) => {
         let newValue;
 
@@ -83,20 +94,20 @@ class Sidebar extends React.Component{
         let {election,demo} = this.props;
         let rvotes = null;
         if (demo[election+"R"])
-            rvotes = <div>Republican Votes: {demo[election+"R"]}</div>
+            rvotes = <div>Republican Votes: {this.convertNumber(demo[election+"R"])}</div>
         let dvotes = null;
         if (demo[election+"D"])
-            dvotes = <div>Democratic Votes: {demo[election+"D"]}</div>
+            dvotes = <div>Democratic Votes: {this.convertNumber(demo[election+"D"])}</div>
         return(
             <div id="sidebar">
                 
                 <Dropdown placeholder="Select State" value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value)}}></Dropdown>
-                <Dropdown placeholder="Select View" value={this.props.view} options={views} onChange={(e) => {this.props.changeState("view",e.value)}}></Dropdown>
+                <Dropdown placeholder="Select View" disabled={this.props.state===null} value={this.props.view} options={views} onChange={(e) => {this.props.changeState("view",e.value)}}></Dropdown>
                
                 <TabView activeIndex={this.state.tab} onTabChange={(e) => this.setState({tab: e.index})}>
                     
                     <TabPanel contentClassName="content" header={this.state.tab===0?" Vote Data":""} leftIcon="pi pi-check-circle" >
-                        <Dropdown placeholder="Select Election" value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
+                        <Dropdown placeholder="Select Election" disabled={this.props.state===null} value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
                         <Fieldset className="fieldset"legend="State Statistics">
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Votes">
@@ -117,18 +128,18 @@ class Sidebar extends React.Component{
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Demographics">
                             {this.props.demo["NAME"]?<div>{"Name: " + this.props.demo["NAME"]}</div>:null}
-                            {this.props.demo["AMIN"]?<div>{"American Indian or Alaska Native: " + this.props.demo["AMIN"]}</div>:null}
-                            {this.props.demo["ASIAN"]?<div>{"Asian: " + this.props.demo["ASIAN"]}</div>:null}
-                            {this.props.demo["BLACK"]?<div>{"Black or African American: " + this.props.demo["BLACK"]}</div>:null}
-                            {this.props.demo["NHPI"]?<div>{"Hawaiian or Pacific Islander: " + this.props.demo["NHPI"]}</div>:null}
-                            {this.props.demo["HISP"]?<div>{"Hispanic: " + this.props.demo["HISP"]}</div>:null}
-                            {this.props.demo["WHITE"]?<div>{"White: " + this.props.demo["WHITE"]}</div>:null}
+                            {this.props.demo["AMIN"]?<div>{"American Indian or Alaska Native: " + this.convertNumber(this.props.demo["AMIN"])}</div>:null}
+                            {this.props.demo["ASIAN"]?<div>{"Asian: " + this.convertNumber(this.props.demo["ASIAN"])}</div>:null}
+                            {this.props.demo["BLACK"]?<div>{"Black or African American: " + this.convertNumber(this.props.demo["BLACK"])}</div>:null}
+                            {this.props.demo["NHPI"]?<div>{"Hawaiian or Pacific Islander: " + this.convertNumber(this.props.demo["NHPI"])}</div>:null}
+                            {this.props.demo["HISP"]?<div>{"Hispanic: " + this.convertNumber(this.props.demo["HISP"])}</div>:null}
+                            {this.props.demo["WHITE"]?<div>{"White: " + this.convertNumber(this.props.demo["WHITE"])}</div>:null}
                         </Fieldset>
                     </TabPanel>
                     
                     <TabPanel contentClassName="content" header={this.state.tab===2?" Phase 0":""} leftIcon="pi pi-angle-right">
                         <div className="center">
-                        <Dropdown placeholder="Select Election" value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
+                        <Dropdown placeholder="Select Election" disabled={this.props.state===null} value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
                         <div className="top-margin">Vote Threshold (%)</div>
                         <InputText name="voteThresh" value={this.state.voteThresh} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("voteThresh",e)}/>
                         <Slider name="voteThresh"value={this.state.voteThresh} onChange={(e)=>this.onChangeSlider("voteThresh",e)} style={{width: '14em'}} />
