@@ -89,7 +89,7 @@ def develop_neighbor_map(inf, outf):
         prec = get_geo_by_name(prec_data, prec_name)
         for neighbor in neighbor_map[prec_name]:
             intersect = shape(prec["geometry"]).intersection(shape(neighbor["geometry"]))
-            if get_distance(intersect) >= MIN_BOUNDARY:
+            if get_distance(intersect) >= MIN_BOUNDARY: # get_distance returns an answer in meters
                 neighbor_map[prec["properties"]["NAME"]] = neighbor["properties"]["NAME"]
     with open(outf, "w") as f:
         json.dump(neighbor_map, f)
