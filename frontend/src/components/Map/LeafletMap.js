@@ -14,7 +14,6 @@ class LeafletMap extends React.PureComponent{
         currState: null,
         currHover: null,
         currView: null,
-        capre:null,
       }
     }
 
@@ -35,6 +34,7 @@ class LeafletMap extends React.PureComponent{
     onHover = (e)=>{
       let properties = e.layer.feature.properties;
       this.props.changeState("demo",properties)
+      console.log(properties)
       e.layer.setStyle({
         fillColor: 'cyan',
         fillOpacity:1,
@@ -97,8 +97,6 @@ class LeafletMap extends React.PureComponent{
           )
         }
       )
-      
-      //fetch("http://localhost:5000/geojson/ca_precinct_clean.json",{method:"get"}).then(res=> res.json()).then(data=>this.setState({capre:data})).catch(err=>console.log(err));
     }
     componentDidUpdate(){
       console.log("UPDATE")
@@ -124,14 +122,15 @@ class LeafletMap extends React.PureComponent{
         {this.state.padistrict?<GeoJSON data={this.state.padistrict} key={"padistrict"} style={this.setStyle} onClick={(e)=>this.handleClick(e)} ></GeoJSON>:null}
         {this.state.ridistrict?<GeoJSON data={this.state.ridistrict} key={"ridistrict"} style={this.setStyle} onClick={(e)=>this.handleClick(e)}></GeoJSON>:null}
         </React.Fragment> ;
-        if(this.props.state){
-        if(this.props.view !=="VP") {
-          let mapKey = this.props.state.toLowerCase()+"district";
-          features = <GeoJSON data={this.state[[mapKey]]} key={mapKey} style={this.setStyle}></GeoJSON>
-        }else{
-          let mapKey = this.props.state.toLowerCase()+"precinct";
-          features = <GeoJSON data={this.state[[mapKey]]} key={mapKey} style={this.setStyle}></GeoJSON>
-        }
+
+        if(this.props.state){//if state is selected
+          let mapkey = null;
+          if(this.props.view !=="VP") {//if precinct view is selected
+            mapkey = this.props.state.toLowerCase()+"district";
+          }else{
+            mapkey = this.props.state.toLowerCase()+"precinct";
+          }
+          features = <GeoJSON data={this.state[[mapkey]]} key={mapkey} style={this.setStyle}></GeoJSON>
       }
 
         return(

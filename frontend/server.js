@@ -23,5 +23,8 @@ app.get('/files', (req, res) =>{
     filenames.push(file);
   }
   );
+  filenames.sort(function(a, b) {
+    return fs.statSync('./src/data/'+a).size - fs.statSync('./src/data/'+b).size;
+  });
   res.send(filenames);
 });

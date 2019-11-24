@@ -8,12 +8,12 @@ import {Slider} from 'primereact/slider';
 import {Button} from 'primereact/button';
 import {ListBox} from 'primereact/listbox';
 import {Checkbox} from 'primereact/checkbox';
+import {ProgressBar} from 'primereact/progressbar';
 const states=[
     {label:"California", value:"CA"},
     {label:"Pennsylvania", value:"PA"},
     {label:"Rhode Island", value:"RI"},
 ]
-
 const views=[
     {label:"Original Districts", value:"OD"},
     {label:"Voting Precincts", value:"VP"},
@@ -51,6 +51,8 @@ class Sidebar extends React.Component{
 
     convertNumber = (num) => {
         let result = "";
+        if(num===0)
+            return 0;
         while(num >= 1000){
             result = ","+ num%1000 + result;
             num = Math.floor(num/1000);
@@ -72,18 +74,18 @@ class Sidebar extends React.Component{
         this.setState({ [name]: newValue });
     }
     
-    onSubmitPhase0 = async () => {
+    onSubmitPhase0 = () => {
         let seconds = new Date().getTime();
-        let response = await fetch("localhost:8080/spurs/state/runPhase0",
+        fetch("localhost:8080/spurs/state/runPhase0",
          {method:"POST", body: JSON.stringify(
              {stateId:this.props.state,
             electionType:this.props.election,
             popThresh:this.state.popThresh,
             voteThresh:this.state.voteThresh})}
          ).then( (res) => res.json())
-         .catch( (err) => {console.log(err); return "Data Retrieval Failed";});
+         .then( (data) => this.setState({blockInfo:data}))
+         .catch( (err) => {console.log(err); this.setState({blockInfo:"Data Retrieval Failed"});});
         console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
-         this.setState({blocInfo:[response]})
     }
 
     onChangeRangeSlider = (e) => {
@@ -93,11 +95,31 @@ class Sidebar extends React.Component{
     render(){
         let {election,demo} = this.props;
         let rvotes = null;
-        if (demo[election+"R"])
+        if (demo[election+"R"]!=null)
             rvotes = <div>Republican Votes: {this.convertNumber(demo[election+"R"])}</div>
         let dvotes = null;
-        if (demo[election+"D"])
+        if (demo[election+"D"]!=null)
             dvotes = <div>Democratic Votes: {this.convertNumber(demo[election+"D"])}</div>
+        let ovotes = null;
+        if (demo[election+"O"]!=null)
+            ovotes = <div>Other Votes: {this.convertNumber(demo[election+"O"])}</div>
+
+        let totalvotes = null;
+        if (demo[election+"R"])
+            totalvotes += demo[election+"R"]
+        if (demo[election+"D"])
+            totalvotes += demo[election+"D"]
+        if (demo[election+"O"])
+            totalvotes += demo[election+"O"]
+
+        let totalpop = null;
+        totalpop += demo["AMIN"]?demo["AMIN"]:0;
+        totalpop += demo["ASIAN"]?demo["ASIAN"]:0;
+        totalpop += demo["BLACK"]?demo["BLACK"]:0;
+        totalpop += demo["NHPI"]?demo["NHPI"]:0;
+        totalpop += demo["HISP"]?demo["HISP"]:0;
+        totalpop += demo["WHITE"]?demo["WHITE"]:0;
+
         return(
             <div id="sidebar">
                 
@@ -113,7 +135,11 @@ class Sidebar extends React.Component{
                         <Fieldset className="fieldset" legend="Selected Votes">
                             {demo["NAME"]?<div>Name: {demo["NAME"]}</div>:null}
                             {rvotes}
+                            {rvotes && totalvotes?<ProgressBar value={Math.round(demo[election+"R"]/totalvotes*100)}/>:null}
                             {dvotes}
+                            {dvotes && totalvotes?<ProgressBar value={Math.round(demo[election+"D"]/totalvotes*100)}/>:null}
+                            {ovotes}
+                            {ovotes && totalvotes?<ProgressBar value={Math.round(demo[election+"O"]/totalvotes*100)}/>:null}
                         </Fieldset>
                     </TabPanel>
                     
@@ -127,13 +153,19 @@ class Sidebar extends React.Component{
                             <div>White:</div>
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Demographics">
-                            {this.props.demo["NAME"]?<div>{"Name: " + this.props.demo["NAME"]}</div>:null}
-                            {this.props.demo["AMIN"]?<div>{"American Indian or Alaska Native: " + this.convertNumber(this.props.demo["AMIN"])}</div>:null}
-                            {this.props.demo["ASIAN"]?<div>{"Asian: " + this.convertNumber(this.props.demo["ASIAN"])}</div>:null}
-                            {this.props.demo["BLACK"]?<div>{"Black or African American: " + this.convertNumber(this.props.demo["BLACK"])}</div>:null}
-                            {this.props.demo["NHPI"]?<div>{"Hawaiian or Pacific Islander: " + this.convertNumber(this.props.demo["NHPI"])}</div>:null}
-                            {this.props.demo["HISP"]?<div>{"Hispanic: " + this.convertNumber(this.props.demo["HISP"])}</div>:null}
-                            {this.props.demo["WHITE"]?<div>{"White: " + this.convertNumber(this.props.demo["WHITE"])}</div>:null}
+                            {demo["NAME"]!=null?<div>{"Name: " + demo["NAME"]}</div>:null}
+                            {demo["AMIN"]!=null?<div>{"American Indian or Alaska Native: " + this.convertNumber(demo["AMIN"])}</div>:null}
+                            {demo["AMIN"]!=null?<ProgressBar value={Math.round(demo["AMIN"]/totalpop*100)}/>:null}
+                            {demo["ASIAN"]!=null?<div>{"Asian: " + this.convertNumber(demo["ASIAN"])}</div>:null}
+                            {demo["ASIAN"]!=null?<ProgressBar value={Math.round(demo["ASIAN"]/totalpop*100)}/>:null}
+                            {demo["BLACK"]!=null?<div>{"Black or African American: " + this.convertNumber(demo["BLACK"])}</div>:null}
+                            {demo["BLACK"]!=null?<ProgressBar value={Math.round(demo["BLACK"]/totalpop*100)}/>:null}
+                            {demo["NHPI"]!=null?<div>{"Hawaiian or Pacific Islander: " + this.convertNumber(demo["NHPI"])}</div>:null}
+                            {demo["NHPI"]!=null?<ProgressBar value={Math.round(demo["NHPI"]/totalpop*100)}/>:null}
+                            {demo["HISP"]!=null?<div>{"Hispanic: " + this.convertNumber(demo["HISP"])}</div>:null}
+                            {demo["HISP"]!=null?<ProgressBar value={Math.round(demo["HISP"]/totalpop*100)}/>:null}
+                            {demo["WHITE"]!=null?<div>{"White: " + this.convertNumber(demo["WHITE"])}</div>:null}
+                            {demo["WHITE"]!=null?<ProgressBar value={Math.round(demo["WHITE"]/totalpop*100)}/>:null}
                         </Fieldset>
                     </TabPanel>
                     
