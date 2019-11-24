@@ -1,0 +1,49 @@
+precinct.json - unfiltered data
+precinct_clean.json - filtered data, only the below fields are kept
+precinct_sparse.json, census.json, elections.json - separated by the three categories below (NAME, RACE, ELECTION)
+
+Sources:
+Geographic Data
+RI - mggg-states
+PA - mggg-states
+CA - stateswidedatabase (srprec, 2016)
+
+Election Data
+RI - mggg-states
+PA - mggg-states, openelectiondata (2018)
+CA - stateswidedatabase, inference (?)
+
+Demographic Data
+RI - mggg-states
+PA - mggg-states
+CA - stateswidedatabase
+
+
+KEYS:
+
+We use CVAP data for race.
+
+NAME
+- NAME
+- GEOID (DISTRICTS ONLY)
+
+
+RACE
+- ASIAN
+- BLACK
+- WHITE
+- HISP
+- NHPI
+- AMIN
+
+ELECTION
+- SEN18R
+- SEN18D
+- SEN18O
+- SEN16R
+- SEN16D
+- SEN16O
+
+- PRES16R
+- PRES16D
+- PRES16O

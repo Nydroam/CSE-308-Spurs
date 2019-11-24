@@ -70,7 +70,7 @@ class Node:
 
 def load_geometry(filepath):
   with open(filepath,"r") as f:
-    return json.load(f)["features"]
+    return json.load(f)
   return None
 
 '''
@@ -83,19 +83,28 @@ def load_geometry(filepath):
   }]
 }
 '''
-def load_graph(geojson_data):
+def load_graph(geojson_data, isPrecinct=True):
   intersections=[]
   graph={}
 
   g = Graph("Main Graph")
 
   #print geojson_data["features"][0]["geometry"]
-  shape_collection = GeometryCollection([shape(f["geometry"]) for f in geojson_data])
+  #shape_collection = GeometryCollection([shape(f["geometry"]) for f in geojson_data])
+  if isPrecinct:
+    shape_collection = [(f["properties"]["NAME10"], shape(f["geometry"])) for f in geojson_data]
+  else:
+    shape_collection = [(f["properties"]["NAMELSAD"], shape(f["geometry"])) for f in geojson_data]
+
   for s1 in range(len(shape_collection)):
     for s2 in range(s1+1,len(shape_collection)):
-      if shape_collection[s1].intersects(shape_collection[s2]):
-        s1_name=geojson_data[s1]["properties"]["NAMELSAD"]
-        s2_name=geojson_data[s2]["properties"]["NAMELSAD"]
+      if shape_collection[s1][1].intersects(shape_collection[s2][1]):
+        if "NAMELSAD" in geojson_data[s1]["properties"]: # ID for congressional districts
+          s1_name=geojson_data[s1]["properties"]["NAMELSAD"]
+          s2_name=geojson_data[s2]["properties"]["NAMELSAD"]
+        else:
+          s1_name=geojson_data[s1]["properties"]["NAME10"]
+          s2_name=geojson_data[s2]["properties"]["NAME10"]
         intersections.append((s1_name,s2_name))
         if s1_name not in graph:
           graph[s1_name]=[]
@@ -109,17 +118,22 @@ def load_graph(geojson_data):
         n2.add_neighbor(n1,1)
         g.add_node(n1)
         g.add_node(n2)
-        g.add_edge(Edge(n1,n2))
 
         graph[s1_name].append(s2_name)
         graph[s2_name].append(s1_name)
-  keys = graph.keys()
-  print(g)
-  print("mergeset")
-  g.naivemerge_step()
-  print(g)
-  return shape_collection
+  return g, shape_collection
+
+def save(precincts, name):
+  with open("data/boundary/ri/precinct.json","r") as f:
+    template = json.load(f)
+    updated = []
+    for i in template["features"]:
+      if i["properties"]["NAME"] in precincts:
+        updated.append(i)
+    template["features"] = updated
+    with open(name,"w") as newf:
+      json.dump(template, newf)
 
 if __name__=="__main__":
   dat = load_geometry(sys.argv[1])
-  adj_mat = load_graph(dat)
+  adj_mat = load_graph(dat["features"])

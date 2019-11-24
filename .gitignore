@@ -1,1 +1,17 @@
 algorithm/env
+*.zip
+*.pyc
+*.json
+*.shp
+*.dbf
+*.txt
+*.csv
+*.shx
+*.cpg
+*.qpj
+*.prj
+*.xls
+*.xml
+*.xlxs
+*.sbn
+*.sbx
