@@ -31,7 +31,7 @@ const elections=[
     {label:"2016 Congressional Election", value: "SEN16"},
     {label:"2018 Congressional Election", value: "SEN18"}
 ]
-class Sidebar extends React.Component{
+class Sidebar extends React.PureComponent{
    
     constructor(){
         super()
