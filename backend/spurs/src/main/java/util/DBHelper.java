@@ -12,7 +12,7 @@ public class DBHelper {
 	
 	public static void saveOrUpdate(Object object) {
 
-		Session session = SpursServlet.sessionFactory.getCurrentSession();
+		Session session = SpursServlet.sessionFactory.openSession();
 		session.beginTransaction();
 		session.saveOrUpdate(object);
 		session.getTransaction().commit();
@@ -20,7 +20,7 @@ public class DBHelper {
 	}
 	
 	public static Object getObject(Class c, Serializable id) {
-		Session session = SpursServlet.sessionFactory.getCurrentSession();
+		Session session = SpursServlet.sessionFactory.openSession();
 		session.beginTransaction();
 		Object o = session.get(c, id);
 		session.close();

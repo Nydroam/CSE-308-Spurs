@@ -22,16 +22,14 @@ import model.Election.Race;
 @Entity
 public class District extends GeoEntity{
 	
-	@ManyToOne
 	private State state;
-	@OneToOne
 	private Geometry geometry;
-	@OneToMany(targetEntity=Precinct.class, mappedBy="district", cascade=CascadeType.ALL)
 	private Set<Precinct> precincts;
 	
 	public District() {
 	}
-
+	
+	@OneToOne
 	public Geometry getGeometry() {
 		return geometry;
 	}
@@ -40,6 +38,7 @@ public class District extends GeoEntity{
 		this.geometry = geometry;
 	}
 
+	@OneToMany(targetEntity=Precinct.class, mappedBy="district", cascade=CascadeType.ALL)
 	public Set<Precinct> getPrecincts() {
 		return precincts;
 	}
@@ -47,7 +46,8 @@ public class District extends GeoEntity{
 	public void setPrecincts(Set<Precinct> precincts) {
 		this.precincts = precincts;
 	}
-
+	
+	@ManyToOne
 	public State getState() {
 		return state;
 	}

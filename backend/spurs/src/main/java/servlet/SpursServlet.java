@@ -40,16 +40,13 @@ public abstract class SpursServlet extends HttpServlet {
 			.addAnnotatedClass(Demographic.class)
 			.addAnnotatedClass(Votes.class)
 			.buildSessionFactory();
+	
 	protected void doGet(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		System.out.println("GET " + request.getServletPath() + request.getPathInfo());
 		get(request, response);
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
-	 *      response)
-	 */
 	protected void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		System.out.println("POST " + request.getServletPath() + request.getPathInfo());

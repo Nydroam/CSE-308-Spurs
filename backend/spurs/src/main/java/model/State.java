@@ -23,24 +23,24 @@ import model.Election.Race;
 enum StateName {
 	CALIFORNIA, RHODEISLAND, PENNSYLVANIA;
 }
+
 @Entity
-public class State extends GeoEntity{
-	
-	@Column
+public class State extends GeoEntity {
+
 	private StateName stateName;
-	@OneToMany(targetEntity=District.class, mappedBy="state", cascade=CascadeType.ALL)
 	private Set<District> districts;
-	@OneToMany(targetEntity=Precinct.class, mappedBy="state", cascade=CascadeType.ALL)
 	private Set<Precinct> precincts;
-	@OneToOne
+	
 	private Geometry geometry;
+
 	public State() {
 	}
 
-	public State(long id) {
+	public State(long id, Geometry geometry) {
 		this.id = id;
+		this.geometry = geometry;
 	}
-	
+
 	public StateName getStateName() {
 		return stateName;
 	}
@@ -48,7 +48,7 @@ public class State extends GeoEntity{
 	public void setStateName(StateName stateName) {
 		this.stateName = stateName;
 	}
-	
+	@OneToOne
 	public Geometry getGeometry() {
 		return geometry;
 	}
@@ -56,7 +56,7 @@ public class State extends GeoEntity{
 	public void setGeometry(Geometry geometry) {
 		this.geometry = geometry;
 	}
-
+	@OneToMany(targetEntity = District.class, mappedBy = "state", cascade = CascadeType.ALL)
 	public Set<District> getDistricts() {
 		return districts;
 	}
@@ -64,19 +64,19 @@ public class State extends GeoEntity{
 	public void setDistricts(Set<District> districts) {
 		this.districts = districts;
 	}
-
-	public Set<Precinct> getPRECINCTS() {
+	@OneToMany(targetEntity = Precinct.class, mappedBy = "state", cascade = CascadeType.ALL)
+	public Set<Precinct> getPrecincts() {
 		return precincts;
 	}
 
-	public void setPRECINCTS(Set<Precinct> precincts) {
+	public void setPrecincts(Set<Precinct> precincts) {
 		this.precincts = precincts;
 	}
-	
+
 	public List<Demographic> isVotingAsBloc(ElectionType electionType, float voteThresh, float raceThresh) {
 		List<Demographic> validDemographics = new ArrayList<Demographic>();
-		for (Precinct precinct: precincts) {
-			Demographic d = precinct.isBloc(electionType, voteThresh, raceThresh); 
+		for (Precinct precinct : precincts) {
+			Demographic d = precinct.isBloc(electionType, voteThresh, raceThresh);
 			if (d != null) {
 				validDemographics.add(d);
 			}
@@ -113,6 +113,5 @@ public class State extends GeoEntity{
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	
-	
+
 }

@@ -3,6 +3,7 @@ package model;
 import java.util.List;
 
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -18,16 +19,16 @@ import model.Election.Party;
 import model.Election.Race;
 
 
-@MappedSuperclass
+@Entity
+@Inheritance(strategy=InheritanceType.JOINED)
 public abstract class GeoEntity {
 
-	@Id
-	@Column(name="id")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	protected long id;
 	//@OneToMany(targetEntity=Edge.class)
 	//protected List<Edge> adjacentEdges;
-	
+	@Id
+	@Column(name="id")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	public long getId() {
 		return id;
 	}

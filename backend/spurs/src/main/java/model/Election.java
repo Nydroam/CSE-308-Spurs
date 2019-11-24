@@ -23,7 +23,6 @@ public class Election {
 	public enum ElectionType {
 		PRESIDENTIAL2016, SENATE2014, SENATE2016, SENATE2018, GUBERNATORIAL2014, GUBERNATORIAL2018;
 	}
-
 	
 	@Id
 	private ElectionKey electionKey;
@@ -77,12 +76,11 @@ public class Election {
 						Votes::getNumVotes));
 	}
 
-	@Transient
 	public long getVotes(){
 		long sum = 0;
         for (Votes v: votesByParty) {
         	sum += v.getNumVotes();
         }
-        return sum;
-    }
+		return sum;
+	}
 }

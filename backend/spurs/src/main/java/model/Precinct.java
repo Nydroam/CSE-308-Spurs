@@ -27,27 +27,15 @@ import model.Election.Race;
 @Entity
 public class Precinct extends GeoEntity {
 	
-	@ManyToOne
 	private District district;
-	
-	@ManyToOne
 	private State state;
-	
-	@OneToMany(targetEntity=Election.class, cascade=CascadeType.ALL)
-	private List<Election> elections;
-	
-	@OneToOne
 	private Geometry geometry;
-	
-	@OneToMany(targetEntity=Demographic.class, cascade=CascadeType.ALL)
+	private List<Election> elections;
 	private List<Demographic> demographics;
-	
-	@OneToMany(targetEntity=Edge.class)
-	protected List<Edge> adjacentEdges;
-	
+	private List<Edge> adjacentEdges;
 	private float compactnessScore;
 	private long population;
-
+	
 	public Precinct() {
 	}
 	
@@ -59,7 +47,7 @@ public class Precinct extends GeoEntity {
 		this.elections = null;
 	}
 
-	
+	@ManyToOne
 	public District getDistrict() {
 		return district;
 	}
@@ -68,7 +56,7 @@ public class Precinct extends GeoEntity {
 		this.district = district;
 	}
 
-	
+	@ManyToOne
 	public State getState() {
 		return state;
 	}
@@ -77,6 +65,15 @@ public class Precinct extends GeoEntity {
 		this.state = state;
 	}
 
+	@OneToMany(targetEntity=Edge.class)
+	public List<Edge> getAdjacentEdges() {
+		return adjacentEdges;
+	}
+
+	public void setAdjacentEdges(List<Edge> adjacentEdges) {
+		this.adjacentEdges = adjacentEdges;
+	}
+	
 	public HashMap<Race, Integer> getPopulationByRace() {
 		return null;
 	}
@@ -117,18 +114,19 @@ public class Precinct extends GeoEntity {
 		return compactnessScore;
 	}
 
+	@OneToOne
 	public Geometry getGeometry() {
 		return geometry;
 	}
 	
-	@Transient
 	public Demographic isBloc(ElectionType electiontype, float voteThresh, float raceThresh) {
 		Map<ElectionType, Election> electionMap = getElectionsAsMap();
-		
 		Election election = electionMap.get(electiontype);
 		Map<Party, Integer> votesByParty = election.getVotesByPartyAsMap();
+		
 		for (Demographic d: demographics) {
-			if (d.getPopulation()/population > raceThresh && votesByParty.get(election.getWinningParty())/election.getVotes() > voteThresh) {
+			int winningPartyVotes = votesByParty.get(election.getWinningParty());
+			if (d.getPopulation() / population > raceThresh && winningPartyVotes / election.getVotes() > voteThresh) {
 				return d;
 			}
 		}
@@ -139,6 +137,7 @@ public class Precinct extends GeoEntity {
 		return null;
 	}
 
+	@OneToMany(targetEntity=Demographic.class, cascade=CascadeType.ALL)
 	public List<Demographic> getDemographics() {
 		return demographics;
 	}
@@ -147,6 +146,7 @@ public class Precinct extends GeoEntity {
 		this.demographics = demographics;
 	}
 	
+	@OneToMany(targetEntity=Election.class, cascade=CascadeType.ALL)
 	public List<Election> getElections() {
 		return elections;
 	}

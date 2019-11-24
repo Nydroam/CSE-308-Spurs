@@ -11,7 +11,7 @@ import javax.persistence.MappedSuperclass;
 @Entity
 public class Edge {
 	
-	@Id
+	
 	private EdgeEndpoints endpts;
     private float mmJoinability;
     private float nonMMJoinability;
@@ -19,24 +19,33 @@ public class Edge {
     public Edge() {
     }
     
-    public Edge(Precinct a, Precinct b, float mmJoinability, float nonMMJoinability) {
+    public Edge(GeoEntity a, GeoEntity b, float mmJoinability, float nonMMJoinability) {
     	endpts = new EdgeEndpoints(a, b);
     	this.mmJoinability = mmJoinability;
     	this.nonMMJoinability = nonMMJoinability;
+    }
+    
+    @Id
+    public EdgeEndpoints getEdgeEndpoints() {
+    	return endpts;
+    }
+    
+    public void setEdgeEndpoints(EdgeEndpoints endpts) {
+    	this.endpts = endpts;
     }
     
     public PrecinctCluster generateCluster(){
         return null;
     }
     
-    public List<Precinct> getEndPoints(){
-		List<Precinct> l = new ArrayList<Precinct>();
+    public List<GeoEntity> getEndPoints(){
+		List<GeoEntity> l = new ArrayList<GeoEntity>();
 		l.add(endpts.getEndpoint1());
 		l.add(endpts.getEndpoint2());
 		return l;
 	}
 
-    public void setClusters(Precinct a, Precinct b) {
+    public void setClusters(GeoEntity a, GeoEntity b) {
     	
     	endpts.setEndpoint1(a);;
     	endpts.setEndpoint2(b);;

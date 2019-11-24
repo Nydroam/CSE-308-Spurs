@@ -15,10 +15,8 @@ import model.Election.Party;
 import model.Election.Race;
 
 public class PrecinctCluster extends GeoEntity{
-	
-	@OneToMany(targetEntity=Precinct.class, mappedBy="district", cascade=CascadeType.ALL)
+
 	private Set<Precinct> precincts;
-	@ManyToMany(targetEntity=Edge.class)
     private Set<Edge> interiorEdges;
     private float cumulativeMMJoinability;
     private float cumulativeNonMMJoinability;
@@ -26,7 +24,7 @@ public class PrecinctCluster extends GeoEntity{
     public PrecinctCluster() {
     }
 
-    @ManyToMany
+    @OneToMany(targetEntity=Edge.class)
     public Set<Edge> getInteriorEdges(){
         return interiorEdges;
     }
@@ -35,6 +33,7 @@ public class PrecinctCluster extends GeoEntity{
     	this.interiorEdges = interiorEdges;
     }
     
+    @OneToMany(targetEntity=Precinct.class, mappedBy="district", cascade=CascadeType.ALL)
     public Set<Precinct> getPrecincts(){
         return precincts;
     }
