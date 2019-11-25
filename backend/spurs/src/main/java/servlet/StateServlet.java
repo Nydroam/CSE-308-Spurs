@@ -1,6 +1,9 @@
 package servlet;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -8,11 +11,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.gson.JsonObject;
 
+import antlr.collections.List;
 import model.Algorithm;
 import model.Coordinate;
+import model.District;
 import model.Election.ElectionType;
 import model.Geometry;
 import model.State;
+import model.State.StateName;
 import util.DBHelper;
 
 /**
@@ -21,18 +27,14 @@ import util.DBHelper;
 public class StateServlet extends SpursServlet{
 	private static final long serialVersionUID = 1L;
 
+	public StateServlet() {
+	}
+	
 	@Override
 	protected void get(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException {
 		String path = req.getPathInfo();
 		switch (path) {
 		case "/create":{
-			Geometry g = new Geometry();
-			g.add(new Coordinate(5,1));
-			State s = new State(5, g);
-		
-			DBHelper.saveOrUpdate(s);
-			
-			System.out.println(s.getId());
 			break;
 		}
 		case "/get":{

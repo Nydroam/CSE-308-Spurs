@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
@@ -14,22 +12,23 @@ import model.Election.ElectionType;
 import model.Election.Party;
 import model.Election.Race;
 
+@Entity
 public class PrecinctCluster extends GeoEntity{
 
 	private Set<Precinct> precincts;
-    private Set<Edge> interiorEdges;
+    private Set<PrecinctEdge> interiorEdges;
     private float cumulativeMMJoinability;
     private float cumulativeNonMMJoinability;
     
     public PrecinctCluster() {
     }
 
-    @OneToMany(targetEntity=Edge.class)
-    public Set<Edge> getInteriorEdges(){
+    @OneToMany(targetEntity=PrecinctEdge.class)
+    public Set<PrecinctEdge> getInteriorEdges(){
         return interiorEdges;
     }
     
-    public void setInteriorEdges(Set<Edge> interiorEdges) {
+    public void setInteriorEdges(Set<PrecinctEdge> interiorEdges) {
     	this.interiorEdges = interiorEdges;
     }
     
@@ -100,7 +99,11 @@ public class PrecinctCluster extends GeoEntity{
         return total/precincts.size();
     }
     
-    public Geometry getGeometry(){
+    public List<Coordinate> getGeometry(){
         return null;
+    }
+    
+    public void setGeometry(List<Coordinate> geometry) {
+    	this.geometry = geometry;
     }
 }

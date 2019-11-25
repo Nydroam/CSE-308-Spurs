@@ -4,32 +4,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 
 @Entity
 public class Geometry {
 	
-	private long id;
 	private GeoEntity geoEntity;
 	private List<Coordinate> coordinates;
 	
 	public Geometry() {
 	}
 	
-	public Geometry(long id) {
-		this.id = id;
+	public Geometry(GeoEntity geoEntity) {
+		this.geoEntity = geoEntity;
 	}
 	
-	@Id
-	public long getId() {
-		return id;
-	}
-
-	public void setId(long id) {
-		this.id = id;
-	}
-	
+	@Id	
+	@OneToOne
 	public GeoEntity getGeoEntity() {
 		return geoEntity;
 	}

@@ -15,14 +15,12 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 import model.Election.ElectionType;
 import model.Election.Party;
 import model.Election.Race;
 
-enum StateName {
-	CALIFORNIA, RHODEISLAND, PENNSYLVANIA;
-}
 
 @Entity
 public class State extends GeoEntity {
@@ -30,14 +28,21 @@ public class State extends GeoEntity {
 	private StateName stateName;
 	private Set<District> districts;
 	private Set<Precinct> precincts;
-	
-	private Geometry geometry;
+
+	public enum StateName {
+		CALIFORNIA, RHODEISLAND, PENNSYLVANIA;
+	}
 
 	public State() {
 	}
 
-	public State(long id, Geometry geometry) {
+	public State(long id, StateName stateName) {
 		this.id = id;
+		this.stateName = stateName;
+	}
+	
+	public State(long id, StateName stateName, List<Coordinate> geometry) {
+		this(id, stateName);
 		this.geometry = geometry;
 	}
 
@@ -48,12 +53,12 @@ public class State extends GeoEntity {
 	public void setStateName(StateName stateName) {
 		this.stateName = stateName;
 	}
-	@OneToOne
-	public Geometry getGeometry() {
+	@OneToMany(targetEntity=Coordinate.class, fetch = FetchType.LAZY, cascade=CascadeType.ALL)
+	public List<Coordinate> getGeometry() {
 		return geometry;
 	}
 
-	public void setGeometry(Geometry geometry) {
+	public void setGeometry(List<Coordinate> geometry) {
 		this.geometry = geometry;
 	}
 	@OneToMany(targetEntity = District.class, mappedBy = "state", cascade = CascadeType.ALL)
@@ -85,6 +90,7 @@ public class State extends GeoEntity {
 	}
 
 	@Override
+	@Transient
 	public long getPopulation() {
 		// TODO Auto-generated method stub
 		return 0;
@@ -109,6 +115,7 @@ public class State extends GeoEntity {
 	}
 
 	@Override
+	@Transient
 	public float getCompactnessScore() {
 		// TODO Auto-generated method stub
 		return 0;

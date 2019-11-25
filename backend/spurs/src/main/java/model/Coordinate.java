@@ -1,50 +1,59 @@
 package model;
 
-import javax.persistence.CascadeType;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 @Entity
 public class Coordinate {
 	
-	private double x;
-	private double y;
-	@Id
-	private String coorKey;
-	@ManyToOne
-	private Geometry geometry;
+	private CoordinateKey coordinateKey;
+	private GeoEntity geoEntity;
 	
 	public Coordinate() {
 	}
 
-	public Coordinate(double x, double y){
-		this.x = x;
-		this.y = y;
-		coorKey = x + "," + y;
+	public Coordinate(double x, double y, GeoEntity geoEntity){
+		coordinateKey = new CoordinateKey(x,y,geoEntity.getId());
 	}
 	
-	public String getCoorKey() {
-		return coorKey;
+	@Id
+	public CoordinateKey getCoordinateKey() {
+		return coordinateKey;
 	}
 	
-	public void setCoorKey(String coorKey) {
-		this.coorKey = coorKey;
+	public void setCoordinateKey(CoordinateKey coordinateKey) {
+		this.coordinateKey = coordinateKey;
 	}
 	
+	@Transient
 	public double getX() {
-		return x;
+		return coordinateKey.getX();
 	}
 
 	public void setX(double x) {
-		this.x = x;
+		coordinateKey.setX(x);
 	}
-
+	
+	@Transient
 	public double getY() {
-		return y;
+		return coordinateKey.getY();
 	}
 
 	public void setY(double y) {
-		this.y = y;
+		coordinateKey.setY(y);
+	}
+	
+	@ManyToOne
+	@JoinColumn(name="geoEntityId", insertable=false, updatable=false)
+	public GeoEntity getGeoEntity() {
+		return geoEntity;
+	}
+	
+	public void setGeoEntity(GeoEntity geoEntity) {
+		this.geoEntity = geoEntity;
 	}
 }

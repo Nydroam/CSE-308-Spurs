@@ -7,30 +7,30 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.Transient;
 
 @Entity
-public class Edge {
+public class PrecinctEdge {
 	
-	
-	private EdgeEndpoints endpts;
+	private PrecinctEdgeEndpoints endpts;
     private float mmJoinability;
     private float nonMMJoinability;
 
-    public Edge() {
+    public PrecinctEdge() {
     }
     
-    public Edge(GeoEntity a, GeoEntity b, float mmJoinability, float nonMMJoinability) {
-    	endpts = new EdgeEndpoints(a, b);
+    public PrecinctEdge(Precinct a, Precinct b, float mmJoinability, float nonMMJoinability) {
+    	endpts = new PrecinctEdgeEndpoints(a, b);
     	this.mmJoinability = mmJoinability;
     	this.nonMMJoinability = nonMMJoinability;
     }
     
     @Id
-    public EdgeEndpoints getEdgeEndpoints() {
+    public PrecinctEdgeEndpoints getEdgeEndpoints() {
     	return endpts;
     }
     
-    public void setEdgeEndpoints(EdgeEndpoints endpts) {
+    public void setEdgeEndpoints(PrecinctEdgeEndpoints endpts) {
     	this.endpts = endpts;
     }
     
@@ -38,17 +38,18 @@ public class Edge {
         return null;
     }
     
-    public List<GeoEntity> getEndPoints(){
-		List<GeoEntity> l = new ArrayList<GeoEntity>();
+    @Transient
+    public List<Precinct> getEndPoints(){
+		List<Precinct> l = new ArrayList<Precinct>();
 		l.add(endpts.getEndpoint1());
 		l.add(endpts.getEndpoint2());
 		return l;
 	}
 
-    public void setClusters(GeoEntity a, GeoEntity b) {
+    public void setEndpoints(Precinct endpoint1, Precinct endpoint2) {
     	
-    	endpts.setEndpoint1(a);;
-    	endpts.setEndpoint2(b);;
+    	endpts.setEndpoint1(endpoint1);
+    	endpts.setEndpoint2(endpoint2);
     }
     
     public float getMMJoinability(){

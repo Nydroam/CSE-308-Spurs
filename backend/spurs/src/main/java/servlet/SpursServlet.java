@@ -16,7 +16,7 @@ import com.google.gson.Gson;
 import model.Coordinate;
 import model.Demographic;
 import model.District;
-import model.Edge;
+import model.PrecinctEdge;
 import model.Election;
 import model.GeoEntity;
 import model.Geometry;
@@ -30,12 +30,12 @@ public abstract class SpursServlet extends HttpServlet {
 	protected static Gson GSON = new Gson();
 	public static SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml")
 			.addAnnotatedClass(GeoEntity.class)
-			.addAnnotatedClass(Geometry.class)
+			//.addAnnotatedClass(Geometry.class)
 			.addAnnotatedClass(State.class)
 			.addAnnotatedClass(Coordinate.class)
 			.addAnnotatedClass(Precinct.class)
 			.addAnnotatedClass(District.class)
-			.addAnnotatedClass(Edge.class)
+			.addAnnotatedClass(PrecinctEdge.class)
 			.addAnnotatedClass(Election.class)
 			.addAnnotatedClass(Demographic.class)
 			.addAnnotatedClass(Votes.class)

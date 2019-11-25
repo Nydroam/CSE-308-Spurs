@@ -9,34 +9,34 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 
 @Embeddable
-public class EdgeEndpoints implements Serializable{
+public class PrecinctEdgeEndpoints implements Serializable{
 	
-	@ManyToOne
-	private GeoEntity endpoint1;
-	@ManyToOne
-	private GeoEntity endpoint2;
+	private Precinct endpoint1;
+	private Precinct endpoint2;
 	
-	public EdgeEndpoints() {
+	public PrecinctEdgeEndpoints() {
 	}
 	
-	public EdgeEndpoints(GeoEntity endpoint1, GeoEntity endpoint2) {
+	public PrecinctEdgeEndpoints(Precinct endpoint1, Precinct endpoint2) {
 		this.setEndpoint1(endpoint1);
 		this.setEndpoint2(endpoint2);
 	}
 
-	public GeoEntity getEndpoint1() {
+	@ManyToOne
+	public Precinct getEndpoint1() {
 		return endpoint1;
 	}
 
-	public void setEndpoint1(GeoEntity endpoint1) {
+	public void setEndpoint1(Precinct endpoint1) {
 		this.endpoint1 = endpoint1;
 	}
-
-	public GeoEntity getEndpoint2() {
+	
+	@ManyToOne
+	public Precinct getEndpoint2() {
 		return endpoint2;
 	}
 
-	public void setEndpoint2(GeoEntity endpoint2) {
+	public void setEndpoint2(Precinct endpoint2) {
 		this.endpoint2 = endpoint2;
 	}
 	

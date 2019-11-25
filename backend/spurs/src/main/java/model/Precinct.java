@@ -29,10 +29,9 @@ public class Precinct extends GeoEntity {
 	
 	private District district;
 	private State state;
-	private Geometry geometry;
 	private List<Election> elections;
 	private List<Demographic> demographics;
-	private List<Edge> adjacentEdges;
+	private List<PrecinctEdge> adjacentEdges;
 	private float compactnessScore;
 	private long population;
 	
@@ -65,12 +64,12 @@ public class Precinct extends GeoEntity {
 		this.state = state;
 	}
 
-	@OneToMany(targetEntity=Edge.class)
-	public List<Edge> getAdjacentEdges() {
+	@OneToMany(targetEntity=PrecinctEdge.class)
+	public List<PrecinctEdge> getAdjacentEdges() {
 		return adjacentEdges;
 	}
 
-	public void setAdjacentEdges(List<Edge> adjacentEdges) {
+	public void setAdjacentEdges(List<PrecinctEdge> adjacentEdges) {
 		this.adjacentEdges = adjacentEdges;
 	}
 	
@@ -82,7 +81,7 @@ public class Precinct extends GeoEntity {
 		
 	}
 
-	public void setGeometry(Geometry geometry) {
+	public void setGeometry(List<Coordinate> geometry) {
 		this.geometry = geometry;
 	}
 
@@ -114,8 +113,8 @@ public class Precinct extends GeoEntity {
 		return compactnessScore;
 	}
 
-	@OneToOne
-	public Geometry getGeometry() {
+	@OneToMany(targetEntity=Coordinate.class, fetch = FetchType.LAZY, cascade=CascadeType.ALL)
+	public List<Coordinate> getGeometry() {
 		return geometry;
 	}
 	
@@ -155,6 +154,7 @@ public class Precinct extends GeoEntity {
 		this.elections = elections;
 	}
 	
+	@Transient
 	public Map<ElectionType, Election> getElectionsAsMap(){
 		return elections.stream().collect(
 				Collectors.toMap(Election::getElectionType,

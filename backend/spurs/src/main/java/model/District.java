@@ -11,9 +11,11 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import javax.persistence.Transient;
 
 import model.Election.ElectionType;
 import model.Election.Party;
@@ -23,22 +25,26 @@ import model.Election.Race;
 public class District extends GeoEntity{
 	
 	private State state;
-	private Geometry geometry;
 	private Set<Precinct> precincts;
 	
 	public District() {
 	}
 	
-	@OneToOne
-	public Geometry getGeometry() {
+	public District(long id, State state) {
+		this.id = id;
+		this.state = state;
+	}
+	
+	@OneToMany(targetEntity=Coordinate.class, cascade=CascadeType.ALL)
+	public List<Coordinate> getGeometry() {
 		return geometry;
 	}
 
-	public void setGeometry(Geometry geometry) {
+	public void setGeometry(List<Coordinate> geometry) {
 		this.geometry = geometry;
 	}
 
-	@OneToMany(targetEntity=Precinct.class, mappedBy="district", cascade=CascadeType.ALL)
+	@OneToMany(targetEntity=Precinct.class, fetch = FetchType.LAZY, mappedBy="district", cascade=CascadeType.ALL)
 	public Set<Precinct> getPrecincts() {
 		return precincts;
 	}
@@ -48,6 +54,7 @@ public class District extends GeoEntity{
 	}
 	
 	@ManyToOne
+	@JoinColumn(name="stateId")
 	public State getState() {
 		return state;
 	}
@@ -57,6 +64,7 @@ public class District extends GeoEntity{
 	}
 
 	@Override
+	@Transient
 	public long getPopulation() {
 		// TODO Auto-generated method stub
 		return 0;
@@ -81,6 +89,7 @@ public class District extends GeoEntity{
 	}
 
 	@Override
+	@Transient
 	public float getCompactnessScore() {
 		// TODO Auto-generated method stub
 		return 0;
