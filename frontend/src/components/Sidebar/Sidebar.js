@@ -205,7 +205,7 @@ class Sidebar extends React.PureComponent{
         return(
             <div id="sidebar">
                 
-                <Dropdown placeholder="Select State" value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value);this.setState({resultInfo:null})}} disabled={this.state.running || this.state.runningStep}></Dropdown>
+                <Dropdown placeholder="Select State" value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value);this.props.changeState("demo",{});this.setState({resultInfo:null})}} disabled={this.state.running || this.state.runningStep}></Dropdown>
                 <Dropdown placeholder="Select View" disabled={this.props.state===null} value={this.props.view} options={views} onChange={(e) => {this.props.changeState("view",e.value)}}></Dropdown>
                
                 <TabView activeIndex={this.state.tab} onTabChange={(e) => this.setState({tab: e.index})}>
@@ -235,8 +235,8 @@ class Sidebar extends React.PureComponent{
                         <Fieldset className="fieldset"legend="State Statistics">
                             {Object.keys(demomap).map(key=>
                                 <React.Fragment>
-                                    {this.state[statekey] && this.state[statekey][key]?<div>{demomap[key] + ": " + this.convertNumber(this.state[statekey][key])} </div>:null}
-                                    {this.state[statekey] && this.state[statekey][key]?<ProgressBar value={Math.round(this.state[statekey][key]/statepop*100)}/>:null}
+                                    {this.state[statekey] && this.state[statekey][key]!=null?<div>{demomap[key] + ": " + this.convertNumber(this.state[statekey][key])} </div>:null}
+                                    {this.state[statekey] && this.state[statekey][key]!=null?<ProgressBar value={Math.round(this.state[statekey][key]/statepop*100)}/>:null}
                                 </React.Fragment>
                             )
                             }
