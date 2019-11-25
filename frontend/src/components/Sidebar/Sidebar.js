@@ -1,5 +1,4 @@
 import React from 'react';
-import './Sidebar.css';
 import {Dropdown} from 'primereact/dropdown';
 import {TabView,TabPanel} from 'primereact/tabview';
 import {Fieldset} from 'primereact/fieldset';
@@ -9,6 +8,7 @@ import {Button} from 'primereact/button';
 import {ListBox} from 'primereact/listbox';
 import {Checkbox} from 'primereact/checkbox';
 import {ProgressBar} from 'primereact/progressbar';
+import './Sidebar.css';
 const states=[
     {label:"California", value:"CA"},
     {label:"Pennsylvania", value:"PA"},
@@ -165,7 +165,7 @@ class Sidebar extends React.PureComponent{
                
                 <TabView activeIndex={this.state.tab} onTabChange={(e) => this.setState({tab: e.index})}>
                     
-                    <TabPanel contentClassName="content" header={this.state.tab===0?" Vote Data":""} leftIcon="pi pi-check-circle" >
+                    <TabPanel disabled={this.props.state===null} contentClassName="content" header={this.state.tab===0?" Vote Data":""} leftIcon="pi pi-check-circle" >
                         <Dropdown placeholder="Select Election" disabled={this.props.state===null} value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
                         <Fieldset className="fieldset"legend="State Statistics">
                             {this.state[statekey] && this.state[statekey][election+"R"]? <div>Republican Votes: {this.convertNumber(this.state[statekey][election+"R"])}</div>:null}
@@ -176,7 +176,7 @@ class Sidebar extends React.PureComponent{
                             {this.state[statekey] && this.state[statekey][election+"O"]? <ProgressBar value={Math.round(this.state[statekey][election+"O"]/statevotes*100)}/>:null}
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Votes">
-                            {demo["NAME"]?<div>Name: {demo["NAME"]}</div>:null}
+                            {demo["NAME"]?<div><b>{demo["NAME"]}</b></div>:null}
                             {rvotes}
                             {rvotes && totalvotes?<ProgressBar value={Math.round(demo[election+"R"]/totalvotes*100)}/>:null}
                             {dvotes}
@@ -186,7 +186,7 @@ class Sidebar extends React.PureComponent{
                         </Fieldset>
                     </TabPanel>
                     
-                    <TabPanel contentClassName="content" header={this.state.tab===1?" Info":""} leftIcon="pi pi-users">
+                    <TabPanel disabled={this.props.state===null} contentClassName="content" header={this.state.tab===1?" Info":""} leftIcon="pi pi-users">
                         <Fieldset className="fieldset"legend="State Statistics">
                             {Object.keys(demomap).map(key=>
                                 <React.Fragment>
@@ -197,7 +197,7 @@ class Sidebar extends React.PureComponent{
                             }
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Demographics">
-                            {demo["NAME"]!=null?<div>{"Name: " + demo["NAME"]}</div>:null}
+                            {demo["NAME"]!=null?<div><b>{+ demo["NAME"]}</b></div>:null}
                             {Object.keys(demomap).map(key=>
                                 <React.Fragment>
                                 {demo[key]!=null?<div>{demomap[key]+": " + this.convertNumber(demo[key])} </div>:null}
@@ -207,7 +207,7 @@ class Sidebar extends React.PureComponent{
                         </Fieldset>
                     </TabPanel>
                     
-                    <TabPanel contentClassName="content" header={this.state.tab===2?" Phase 0":""} leftIcon="pi pi-angle-right">
+                    <TabPanel disabled={this.props.state===null}  contentClassName="content" header={this.state.tab===2?" Phase 0":""} leftIcon="pi pi-angle-right">
                         <div className="center">
                         <Dropdown placeholder="Select Election" disabled={this.props.state===null} value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
                         <div className="top-margin">Vote Threshold (%)</div>
@@ -223,7 +223,7 @@ class Sidebar extends React.PureComponent{
                         </div>
                     </TabPanel>
                     
-                    <TabPanel contentClassName="content" header={this.state.tab===3?" Phase 1/2":""} leftIcon="pi pi-angle-double-right">
+                    <TabPanel  disabled={this.props.state===null}  contentClassName="content" header={this.state.tab===3?" Phase 1/2":""} leftIcon="pi pi-angle-double-right">
                         <div className="center play"><i className="pi pi-step-backward" style={{'fontSize':'15px'}}></i>
                         <i className="pi pi-caret-right" style={{'fontSize':'30px'}}></i>
                         <i className="pi pi-step-forward" style={{'fontSize':'15px'}}></i></div>
