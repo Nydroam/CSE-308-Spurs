@@ -197,7 +197,7 @@ class Sidebar extends React.PureComponent{
                             }
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Demographics">
-                            {demo["NAME"]!=null?<div><b>{+ demo["NAME"]}</b></div>:null}
+                            {demo["NAME"]!=null?<div><b>{demo["NAME"]}</b></div>:null}
                             {Object.keys(demomap).map(key=>
                                 <React.Fragment>
                                 {demo[key]!=null?<div>{demomap[key]+": " + this.convertNumber(demo[key])} </div>:null}
