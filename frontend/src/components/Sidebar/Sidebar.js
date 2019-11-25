@@ -49,11 +49,15 @@ class Sidebar extends React.PureComponent{
             voteThresh: 0,
             popThresh: 0,
             blocInfo: "",
+            resultInfo: null,
             ethnic: null,
             rangeValues:[0,100],
             tab:0,
             election: "2016P",
             allowStep : false,
+            running : false,
+            runningStep : false,
+            firstStep : true,
         }
     }
 
@@ -97,7 +101,48 @@ class Sidebar extends React.PureComponent{
          .catch( (err) => {console.log(err); this.setState({blockInfo:"Data Retrieval Failed"});});
         console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
     }
-
+    onSubmitPhase1 = () => {
+        let seconds = new Date().getTime();
+        if(this.state.allowStep){
+            if(!this.state.firstStep){
+                this.setState({runningStep:true});
+                fetch("localhost:8080/spurs/state/runPhase1step",
+                    {method:"POST",}).then( (res) => res.json())
+                    .then( (data) => {
+                        if(data["finished"]){
+                            this.setState({firstStep:true});
+                        }
+                        this.setState({resultInfo:data,runningStep:false});
+                    })
+                    .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",runningStep:false,firstStep:true});});}
+            else{
+                this.setState({runningStep:true,firstStep:false});
+                fetch("localhost:8080/spurs/state/runPhase1step",
+                {method:"POST", body: JSON.stringify(
+                    {stateId:this.props.state,
+                    mDistNum:this.state.mDistNum,
+                    distNum:this.state.distNum,
+                    ethnic:this.state.ethnic,
+                    rangeValues:this.state.rangeValues})}
+                ).then( (res) => res.json())
+                .then( (data) => this.setState({resultInfo:data,runningStep:false}))
+                .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",runningStep:false,firstStep:true});});
+            }
+        }
+        else{
+        this.setState({running:true});
+        fetch("localhost:8080/spurs/state/runPhase1",
+             {method:"POST", body: JSON.stringify(
+                {stateId:this.props.state,
+                mDistNum:this.state.mDistNum,
+                distNum:this.state.distNum,
+                ethnic:this.state.ethnic,
+                rangeValues:this.state.rangeValues})}
+         ).then( (res) => res.json())
+         .then( (data) => this.setState({resultInfo:data,running:false}))
+         .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",running:false});});}
+         console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
+    }
     onChangeRangeSlider = (e) => {
         this.setState({ rangeValues: e.value});
     }
@@ -160,7 +205,7 @@ class Sidebar extends React.PureComponent{
         return(
             <div id="sidebar">
                 
-                <Dropdown placeholder="Select State" value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value)}}></Dropdown>
+                <Dropdown placeholder="Select State" value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value);this.setState({resultInfo:null})}} disabled={this.state.running || this.state.runningStep}></Dropdown>
                 <Dropdown placeholder="Select View" disabled={this.props.state===null} value={this.props.view} options={views} onChange={(e) => {this.props.changeState("view",e.value)}}></Dropdown>
                
                 <TabView activeIndex={this.state.tab} onTabChange={(e) => this.setState({tab: e.index})}>
@@ -224,25 +269,24 @@ class Sidebar extends React.PureComponent{
                     </TabPanel>
                     
                     <TabPanel  disabled={this.props.state===null}  contentClassName="content" header={this.state.tab===3?" Phase 1/2":""} leftIcon="pi pi-angle-double-right">
-                        <div className="center play"><i className="pi pi-step-backward" style={{'fontSize':'15px'}}></i>
-                        <i className="pi pi-caret-right" style={{'fontSize':'30px'}}></i>
-                        <i className="pi pi-step-forward" style={{'fontSize':'15px'}}></i></div>
                         <div className="center">
-                        <div>Number of Districts Required:</div>
-                        <InputText name="distNum"value={this.state.distNum} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("distNum",e)} />
-                        <Slider name="distNum"value={this.state.distNum} onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '14em'}} />
+                        <div>Number of Districts Required: {this.state.distNum}</div>
+                        <Slider name="distNum"value={this.state.distNum} disabled={this.state.running} onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '14em'}} />
                         
-                        <div>Number of Majority-Minority Districts Required:</div>
-                        <InputText name="mDistNum"value={this.state.mDistNum} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("mDistNum",e)} />
-                        <Slider name="mDistNum"value={this.state.mDistNum} onChange={(e)=>this.onChangeSlider("mDistNum",e)} style={{width: '14em'}} />
+                        <div>Number of Majority-Minority Districts Required: {this.state.mDistNum}</div>
+                        <Slider name="mDistNum"value={this.state.mDistNum} disabled={this.state.running} onChange={(e)=>this.onChangeSlider("mDistNum",e)} style={{width: '14em'}} />
                         
                         <div>Choose Minorities</div>
-                        <ListBox style={{display:'inline-block',width:'100%'}} value={this.state.ethnic} options={ethnics} onChange={(e) => this.setState({ethnic: e.value})} multiple={true}/>
+                        <ListBox style={{display:'inline-block',width:'100%'}} disabled={this.state.running}value={this.state.ethnic} options={ethnics} onChange={(e) => this.setState({ethnic: e.value})} multiple={true}/>
                         <div>Min, Max (%): {this.state.rangeValues[0]},{this.state.rangeValues[1]}</div>
-                        <Slider value={this.state.rangeValues} onChange={this.onChangeRangeSlider} range={true} style={{width: '14em'}} />
+                        <Slider value={this.state.rangeValues} disabled={this.state.running}onChange={this.onChangeRangeSlider} range={true} style={{width: '14em'}} />
                         <div>
-                        <Checkbox id="cb1" onChange={e => this.setState({allowStep: e.checked})} checked={this.state.allowStep}></Checkbox>
+                        <Checkbox id="cb1" disabled={this.state.running} onChange={e => this.setState({allowStep: e.checked})} checked={this.state.allowStep}></Checkbox>
                         <label htmlFor="cb1"> Update every iteration</label>
+                        <br></br>
+                        <Button label="Run Algorithm"style={{marginRight:"10px",marginTop:"10px"}} disabled={this.state.running || this.state.runningStep}onClick={this.onSubmitPhase1}></Button>
+                        <Button label="View Results" ></Button>
+                        {(this.state.firstStep&&this.state.resultInfo)?<div>Algorithm has finished</div>:null}
                         </div>                        
                     </div>
                     </TabPanel>
