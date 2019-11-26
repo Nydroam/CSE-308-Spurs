@@ -8,6 +8,7 @@ import {Button} from 'primereact/button';
 import {ListBox} from 'primereact/listbox';
 import {Checkbox} from 'primereact/checkbox';
 import {ProgressBar} from 'primereact/progressbar';
+import {Dialog} from 'primereact/dialog';
 import './Sidebar.css';
 const states=[
     {label:"California", value:"CA"},
@@ -31,13 +32,18 @@ const elections=[
     {label:"2016 Congressional Election", value: "SEN16"},
     {label:"2018 Congressional Election", value: "SEN18"}
 ]
-const demomap={
+const demoMap={
     "AMIN":"American Indian or Alaskan Native",
     "ASIAN":"Asian",
     "BLACK":"Black or African American",
     "NHPI":"Hawaiian or Pacific Islander",
     "HISP":"Hispanic",
     "WHITE":"White",   
+}
+const partyMap={
+    "R":"Republican",
+    "D":"Democratic",
+    "O":"Other",
 }
 class Sidebar extends React.PureComponent{
    
@@ -102,6 +108,7 @@ class Sidebar extends React.PureComponent{
         console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
     }
     onSubmitPhase1 = () => {
+        this.props.changeState("view","ND")
         let seconds = new Date().getTime();
         if(this.state.allowStep){
             if(!this.state.firstStep){
@@ -123,7 +130,8 @@ class Sidebar extends React.PureComponent{
                     mDistNum:this.state.mDistNum,
                     distNum:this.state.distNum,
                     ethnic:this.state.ethnic,
-                    rangeValues:this.state.rangeValues})}
+                    rangeMin:this.state.rangeValues[0],
+                    rangeMax:this.state.rangeValues[1]})}
                 ).then( (res) => res.json())
                 .then( (data) => this.setState({resultInfo:data,runningStep:false}))
                 .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",runningStep:false,firstStep:true});});
@@ -137,7 +145,8 @@ class Sidebar extends React.PureComponent{
                 mDistNum:this.state.mDistNum,
                 distNum:this.state.distNum,
                 ethnic:this.state.ethnic,
-                rangeValues:this.state.rangeValues})}
+                rangeMin:this.state.rangeValues[0],
+                rangeMax:this.state.rangeValues[1]})}
          ).then( (res) => res.json())
          .then( (data) => this.setState({resultInfo:data,running:false}))
          .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",running:false});});}
@@ -157,7 +166,6 @@ class Sidebar extends React.PureComponent{
           data.forEach(
             name=>{
               let split = name.split("_");
-              console.log(name)
               if(split[1]==="state.json"){
                   
                 let key = split[0] + "state";
@@ -170,37 +178,20 @@ class Sidebar extends React.PureComponent{
     }
 
     render(){
-        console.log(this.state)
         let {election,demo} = this.props;
-        let rvotes = null;
-        if (demo[election+"R"]!=null)
-            rvotes = <div>Republican Votes: {this.convertNumber(demo[election+"R"])}</div>
-        let dvotes = null;
-        if (demo[election+"D"]!=null)
-            dvotes = <div>Democratic Votes: {this.convertNumber(demo[election+"D"])}</div>
-        let ovotes = null;
-        if (demo[election+"O"]!=null)
-            ovotes = <div>Other Votes: {this.convertNumber(demo[election+"O"])}</div>
 
-        let totalvotes = null;
-        if (demo[election+"R"])
-            totalvotes += demo[election+"R"]
-        if (demo[election+"D"])
-            totalvotes += demo[election+"D"]
-        if (demo[election+"O"])
-            totalvotes += demo[election+"O"]
+        let precinctVotes = null;
+        Object.keys(partyMap).forEach(party => precinctVotes += demo[election+party]?demo[election+party]:0 )
 
-        let totalpop = null;
-        Object.keys(demomap).forEach(key=>{totalpop += demo[key]?demo[key]:0})
+        let precinctPop = null;
+        Object.keys(demoMap).forEach(key=>{precinctPop += demo[key]?demo[key]:0})
 
-        let statekey = this.props.state? this.props.state.toLowerCase() +"state" : null;
-        let statevotes = 0;
-        statevotes += this.state[statekey] && this.state[statekey][election+"R"]?this.state[statekey][election+"R"]:0;
-        statevotes += this.state[statekey] && this.state[statekey][election+"D"]?this.state[statekey][election+"D"]:0;
-        statevotes += this.state[statekey] && this.state[statekey][election+"O"]?this.state[statekey][election+"O"]:0;
+        let stateKey = this.props.state? this.props.state.toLowerCase() +"state" : null;
+        let stateVotes = 0;
+        Object.keys(partyMap).forEach(party => stateVotes += this.state[stateKey] && this.state[stateKey][election+party]?this.state[stateKey][election+party]:0);
         
-        let statepop = 0;
-        Object.keys(demomap).forEach(key=>{statepop += this.state[statekey] && this.state[statekey][key]?this.state[statekey][key]:0})
+        let statePop = 0;
+        Object.keys(demoMap).forEach(key=>{statePop += this.state[stateKey] && this.state[stateKey][key]?this.state[stateKey][key]:0})
 
         return(
             <div id="sidebar">
@@ -213,40 +204,40 @@ class Sidebar extends React.PureComponent{
                     <TabPanel disabled={this.props.state===null} contentClassName="content" header={this.state.tab===0?" Vote Data":""} leftIcon="pi pi-check-circle" >
                         <Dropdown placeholder="Select Election" disabled={this.props.state===null} value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
                         <Fieldset className="fieldset"legend="State Statistics">
-                            {this.state[statekey] && this.state[statekey][election+"R"]? <div>Republican Votes: {this.convertNumber(this.state[statekey][election+"R"])}</div>:null}
-                            {this.state[statekey] && this.state[statekey][election+"R"]? <ProgressBar value={Math.round(this.state[statekey][election+"R"]/statevotes*100)}/>:null}
-                            {this.state[statekey] && this.state[statekey][election+"D"]? <div>Democratic Votes: {this.convertNumber(this.state[statekey][election+"D"])}</div>:null}
-                            {this.state[statekey] && this.state[statekey][election+"D"]? <ProgressBar value={Math.round(this.state[statekey][election+"D"]/statevotes*100)}/>:null}
-                            {this.state[statekey] && this.state[statekey][election+"O"]? <div>Other Votes: {this.convertNumber(this.state[statekey][election+"O"])}</div>:null}
-                            {this.state[statekey] && this.state[statekey][election+"O"]? <ProgressBar value={Math.round(this.state[statekey][election+"O"]/statevotes*100)}/>:null}
+                            {Object.keys(partyMap).map(party => 
+                                <React.Fragment>
+                                    {this.state[stateKey] && this.state[stateKey][election+party]? <div>{partyMap[party]} Votes: {this.convertNumber(this.state[stateKey][election+party])}</div>:null}
+                                    {this.state[stateKey] && this.state[stateKey][election+party]? <ProgressBar value={Math.round(this.state[stateKey][election+party]/stateVotes*100)}/>:null}
+                                </React.Fragment>
+                            )}
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Votes">
                             {demo["NAME"]?<div><b>{demo["NAME"]}</b></div>:null}
-                            {rvotes}
-                            {rvotes && totalvotes?<ProgressBar value={Math.round(demo[election+"R"]/totalvotes*100)}/>:null}
-                            {dvotes}
-                            {dvotes && totalvotes?<ProgressBar value={Math.round(demo[election+"D"]/totalvotes*100)}/>:null}
-                            {ovotes}
-                            {ovotes && totalvotes?<ProgressBar value={Math.round(demo[election+"O"]/totalvotes*100)}/>:null}
+                            {Object.keys(partyMap).map(party =>
+                                <React.Fragment>
+                                {demo[election+party]?<div>{partyMap[party]} Votes: {this.convertNumber(demo[election+party])}</div>:null}
+                                {demo[election+party]?<ProgressBar value={Math.round(demo[election+party]/precinctVotes*100)} />:null}
+                                </React.Fragment>
+                            )}
                         </Fieldset>
                     </TabPanel>
                     
                     <TabPanel disabled={this.props.state===null} contentClassName="content" header={this.state.tab===1?" Info":""} leftIcon="pi pi-users">
                         <Fieldset className="fieldset"legend="State Statistics">
-                            {Object.keys(demomap).map(key=>
+                            {Object.keys(demoMap).map(key=>
                                 <React.Fragment>
-                                    {this.state[statekey] && this.state[statekey][key]!=null?<div>{demomap[key] + ": " + this.convertNumber(this.state[statekey][key])} </div>:null}
-                                    {this.state[statekey] && this.state[statekey][key]!=null?<ProgressBar value={Math.round(this.state[statekey][key]/statepop*100)}/>:null}
+                                    {this.state[stateKey] && this.state[stateKey][key]!=null?<div>{demoMap[key] + ": " + this.convertNumber(this.state[stateKey][key])} </div>:null}
+                                    {this.state[stateKey] && this.state[stateKey][key]!=null?<ProgressBar value={Math.round(this.state[stateKey][key]/statePop*100)}/>:null}
                                 </React.Fragment>
                             )
                             }
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Demographics">
                             {demo["NAME"]!=null?<div><b>{demo["NAME"]}</b></div>:null}
-                            {Object.keys(demomap).map(key=>
+                            {Object.keys(demoMap).map(key=>
                                 <React.Fragment>
-                                {demo[key]!=null?<div>{demomap[key]+": " + this.convertNumber(demo[key])} </div>:null}
-                                {demo[key]!=null?<ProgressBar value={Math.round(demo[key]/totalpop*100)}/>:null}
+                                {demo[key]!=null?<div>{demoMap[key]+": " + this.convertNumber(demo[key])} </div>:null}
+                                {demo[key]!=null?<ProgressBar value={Math.round(demo[key]/precinctPop*100)}/>:null}
                                 </React.Fragment>)
                             }
                         </Fieldset>
@@ -285,14 +276,17 @@ class Sidebar extends React.PureComponent{
                         <label htmlFor="cb1"> Update every iteration</label>
                         <br></br>
                         <Button label="Run Algorithm"style={{marginRight:"10px",marginTop:"10px"}} disabled={this.state.running || this.state.runningStep}onClick={this.onSubmitPhase1}></Button>
-                        <Button label="View Results" ></Button>
-                        {(this.state.firstStep&&this.state.resultInfo)?<div>Algorithm has finished</div>:null}
-                        </div>                        
+                        
+                        <Button label="View Results" disabled={!this.state.resultInfo} onClick={e=>this.setState({resultsVisible:true})}></Button>
+                        {(this.state.firstStep&&this.state.resultInfo&&this.state.resultInfo!="Data Retrieval Failed")?<div>Algorithm has finished</div>:null}
+                        </div>
+                                              
                     </div>
                     </TabPanel>
                     
                 </TabView>
-
+                <Dialog header="Results" visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}>
+                            </Dialog>  
             </div>
         )
     }

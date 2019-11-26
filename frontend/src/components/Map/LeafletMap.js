@@ -2,6 +2,12 @@ import React from 'react';
 import {Map, TileLayer, GeoJSON, FeatureGroup} from 'react-leaflet';
 import './Map.css';
 
+const stateMap = {
+  "PENNSYLVANIA":"PA",
+  "CALIFORNIA":"CA",
+  "RHODE ISLAND":"RI",
+}
+
 //position of center of US for initial load
 const position = [38, -98]
 class LeafletMap extends React.PureComponent{
@@ -18,15 +24,9 @@ class LeafletMap extends React.PureComponent{
     }
 
     handleClick = (e)=>{
-      console.log(e)
       this.mapRef.current.leafletElement.fitBounds(e.layer.getBounds())
       let val = e.layer.feature.properties.STATE;
-      if (val === "PENNSYLVANIA")
-        val = "PA"
-      if (val === "RHODE ISLAND")
-        val = "RI"
-      if (val === "CALIFORNIA")
-        val = "CA"
+      val = stateMap[val];
       this.props.changeState("state",val)
       this.setState({currState:val})
     }
@@ -100,10 +100,14 @@ class LeafletMap extends React.PureComponent{
     }
     componentDidUpdate(){
       console.log("UPDATE")
-      if(this.mapRef.current && this.groupRef.current && this.props.state != null && this.props.state!==this.state.currState)
+      if(this.mapRef.current && this.groupRef.current && this.props.state != null && this.props.state!==this.state.currState){
+        try{
         this.mapRef.current.leafletElement.fitBounds(this.groupRef.current.leafletElement.getBounds())
+        }
+        catch{
+        }
+      }
       if(this.groupRef.current && (this.state.currView !== this.props.view || this.state.currState !== this.props.state)){
-        console.log("HERE")
         let feature = this.groupRef.current.leafletElement;
         feature.eachLayer( layer => {
           layer.off()
@@ -118,14 +122,12 @@ class LeafletMap extends React.PureComponent{
     render(){
         let features = 
          <React.Fragment>
-        {this.state.cadistrict?<GeoJSON data={this.state.cadistrict} key={"cadistrict"} style={this.setStyle} onClick={(e)=>this.handleClick(e)}></GeoJSON>:null}
-        {this.state.padistrict?<GeoJSON data={this.state.padistrict} key={"padistrict"} style={this.setStyle} onClick={(e)=>this.handleClick(e)} ></GeoJSON>:null}
-        {this.state.ridistrict?<GeoJSON data={this.state.ridistrict} key={"ridistrict"} style={this.setStyle} onClick={(e)=>this.handleClick(e)}></GeoJSON>:null}
+           {Object.values(stateMap).map(val=>{return (this.state[val.toLowerCase()+"district"]?<GeoJSON data={this.state[val.toLowerCase()+"district"]} style={this.setStyle} onClick={e=>this.handleClick(e)}></GeoJSON>:null)})}
         </React.Fragment> ;
 
-        if(this.props.state){//if state is selected
+        if(this.props.state){
           let mapkey = null;
-          if(this.props.view !=="VP") {//if precinct view is selected
+          if(this.props.view !=="VP") {
             mapkey = this.props.state.toLowerCase()+"district";
           }else{
             mapkey = this.props.state.toLowerCase()+"precinct";
