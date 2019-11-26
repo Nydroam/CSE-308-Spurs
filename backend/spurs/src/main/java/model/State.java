@@ -28,7 +28,8 @@ public class State extends GeoEntity {
 	private StateName stateName;
 	private Set<District> districts;
 	private Set<Precinct> precincts;
-
+	private Set<PrecinctCluster> precinctClusters;
+	
 	public enum StateName {
 		CALIFORNIA, RHODEISLAND, PENNSYLVANIA;
 	}
@@ -76,6 +77,11 @@ public class State extends GeoEntity {
 
 	public void setPrecincts(Set<Precinct> precincts) {
 		this.precincts = precincts;
+	}
+	
+	@Transient
+	public Set<PrecinctCluster> initializePrecinctClusters() {
+		return null;
 	}
 
 	public List<Demographic> isVotingAsBloc(ElectionType electionType, float voteThresh, float raceThresh) {

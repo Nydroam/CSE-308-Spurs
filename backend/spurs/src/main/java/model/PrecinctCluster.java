@@ -12,18 +12,25 @@ import model.Election.ElectionType;
 import model.Election.Party;
 import model.Election.Race;
 
-@Entity
 public class PrecinctCluster extends GeoEntity{
 
 	private Set<Precinct> precincts;
     private Set<PrecinctEdge> interiorEdges;
+    private Set<PrecinctClusterEdge> exteriorEdges;
     private float cumulativeMMJoinability;
     private float cumulativeNonMMJoinability;
     
     public PrecinctCluster() {
     }
 
-    @OneToMany(targetEntity=PrecinctEdge.class)
+    public Set<Precinct> getPrecincts(){
+        return precincts;
+    }
+    
+    public void setPrecincts(Set<Precinct> precincts) {
+    	this.precincts = precincts;
+    }
+    
     public Set<PrecinctEdge> getInteriorEdges(){
         return interiorEdges;
     }
@@ -32,15 +39,14 @@ public class PrecinctCluster extends GeoEntity{
     	this.interiorEdges = interiorEdges;
     }
     
-    @OneToMany(targetEntity=Precinct.class, mappedBy="district", cascade=CascadeType.ALL)
-    public Set<Precinct> getPrecincts(){
-        return precincts;
-    }
-    
-    public void setPrecincts(Set<Precinct> precincts) {
-    	this.precincts = precincts;
-    }
+    public Set<PrecinctClusterEdge> getExteriorEdges() {
+		return exteriorEdges;
+	}
 
+	public void setExteriorEdges(Set<PrecinctClusterEdge> exteriorEdges) {
+		this.exteriorEdges = exteriorEdges;
+	}
+    
     public float getCumulativeMMJoinability() {
 		return cumulativeMMJoinability;
 	}
@@ -57,7 +63,6 @@ public class PrecinctCluster extends GeoEntity{
 		this.cumulativeNonMMJoinability = cumulativeNonMMJoinability;
 	}
 
-	@Transient
     public long getPopulation(){
         long population = 0;
         for (Precinct precinct: precincts) {
@@ -90,7 +95,6 @@ public class PrecinctCluster extends GeoEntity{
         return votes;
     }
     
-    @Transient
     public float getCompactnessScore(){
         float total = 0;
         for (Precinct precinct: precincts){

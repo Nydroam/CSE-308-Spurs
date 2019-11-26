@@ -3,6 +3,8 @@ package model;
 import java.util.ArrayList;
 import java.util.List;
 
+import model.Election.Race;
+
 public class PrecinctClusterEdge {
 	
 	private PrecinctCluster endpoint1;
@@ -48,6 +50,13 @@ public class PrecinctClusterEdge {
 		this.endpoint2 = endpoint2;
 	}
 
+	public PrecinctCluster getOtherEndpoint(PrecinctCluster precinctCluster) {
+		if (precinctCluster.equals(endpoint1)) {
+			return endpoint2;
+		}
+		return endpoint1;
+	}
+	
 	public float getMMJoinability(){
         return mmJoinability;
     }
@@ -62,5 +71,9 @@ public class PrecinctClusterEdge {
     
     public void setNonMMJoinability(float nonMMJoinability) {
     	this.nonMMJoinability = nonMMJoinability;
+    }
+    
+    public void calculateMMJoinability(List<Race> races, float rangeMin, float rangeMax) {
+    	
     }
 }
