@@ -278,7 +278,7 @@ class Sidebar extends React.PureComponent{
                         <Button label="Run Algorithm"style={{marginRight:"10px",marginTop:"10px"}} disabled={this.state.running || this.state.runningStep}onClick={this.onSubmitPhase1}></Button>
                         
                         <Button label="View Results" disabled={!this.state.resultInfo} onClick={e=>this.setState({resultsVisible:true})}></Button>
-                        {(this.state.firstStep&&this.state.resultInfo&&this.state.resultInfo!="Data Retrieval Failed")?<div>Algorithm has finished</div>:null}
+                        {(this.state.firstStep&&this.state.resultInfo&&this.state.resultInfo!=="Data Retrieval Failed")?<div>Algorithm has finished</div>:null}
                         </div>
                                               
                     </div>
