@@ -1,0 +1,79 @@
+#sidebar{
+    width:320px;
+    padding-left: 10px;
+    padding-right:10px;
+    box-sizing:border-box;
+}
+body .p-toggleable-content{
+    position:relative;
+    bottom:10px;
+}
+body #sidebar .p-fieldset-content{
+    font-size:13px;
+}
+.center{
+    text-align:center;
+}
+.play{
+    display:flex;
+    align-items: center;
+    justify-content: center;
+}
+.p-slider{
+    display:inline-block;
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
+body .p-listbox{
+    margin-bottom: 20px;
+}
+.p-dropdown.p-component{
+    margin-top:10px;
+    width:100%;
+    text-align: center;
+}
+.p-tabview.p-component.p-tabview-top{
+    padding:0;
+    margin-top:10px;
+}
+div ul li a{
+    padding:0;
+}
+
+body .p-tabview.p-tabview-top .p-tabview-nav li a .p-tabview-left-icon.pi.pi-check-circle{
+margin:0;
+}
+body .p-tabview.p-tabview-top .p-tabview-nav li a .p-tabview-left-icon.pi.pi-users{
+    margin:0;
+}
+body .p-tabview.p-tabview-top .p-tabview-nav li a .p-tabview-left-icon.pi.pi-angle-right{
+    margin:0;
+}
+body .p-tabview.p-tabview-top .p-tabview-nav li a .p-tabview-left-icon.pi.pi-angle-double-right{
+    margin:0;
+}
+.p-tabview-panels{
+    height:calc(100% - 40px);
+    max-height:calc(100% - 40px);
+    
+}
+.p-tabview{
+    height:calc(100vh - 106px);
+}
+.content{
+    max-height:100%;
+    overflow-y:auto;
+    height:100%;
+}
+.top-margin{
+    margin-top:10px;
+}
+body #sidebar .p-progressbar{
+    height:17px;
+}
+
+body #sidebar .p-progressbar .p-progressbar-label{
+    line-height:17px;
+    font-size: 13px;
+}
