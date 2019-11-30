@@ -52,8 +52,8 @@ class Sidebar extends React.PureComponent{
         this.state = {
             distNum: 0,
             mDistNum: 0,
-            voteThresh: 0,
-            popThresh: 0,
+            voteThresh: 50,
+            popThresh: 50,
             blocInfo: "",
             resultInfo: null,
             ethnic: null,
@@ -246,12 +246,10 @@ class Sidebar extends React.PureComponent{
                     <TabPanel disabled={this.props.state===null}  contentClassName="content" header={this.state.tab===2?" Phase 0":""} leftIcon="pi pi-angle-right">
                         <div className="center">
                         <Dropdown placeholder="Select Election" disabled={this.props.state===null} value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
-                        <div className="top-margin">Vote Threshold (%)</div>
-                        <InputText name="voteThresh" value={this.state.voteThresh} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("voteThresh",e)}/>
-                        <Slider name="voteThresh"value={this.state.voteThresh} onChange={(e)=>this.onChangeSlider("voteThresh",e)} style={{width: '14em'}} />
-                        <div>Population Threshold (%)</div>
-                        <InputText name="popThresh" value={this.state.popThresh} style={{width: '100%'}} type="number" onChange={(e)=>this.onChangeSlider("popThresh",e)}/>
-                        <Slider name="popThresh"value={this.state.popThresh} onChange={(e)=>this.onChangeSlider("popThresh",e)} style={{width: '14em'}} />
+                        <div className="top-margin">Vote Threshold: {this.state.voteThresh}%</div>
+                        <Slider min={50}name="voteThresh"value={this.state.voteThresh} onChange={(e)=>this.onChangeSlider("voteThresh",e)} style={{width: '90%'}} />
+                        <div>Population Threshold: {this.state.popThresh}%</div>
+                        <Slider min={50}name="popThresh"value={this.state.popThresh} onChange={(e)=>this.onChangeSlider("popThresh",e)} style={{width: '90%'}} />
                         <Button label="Submit" onClick={this.onSubmitPhase0}></Button>
                         <Fieldset className="fieldset" legend="Phase 0 Data">
                             {this.state.blocInfo}
@@ -262,15 +260,15 @@ class Sidebar extends React.PureComponent{
                     <TabPanel  disabled={this.props.state===null}  contentClassName="content" header={this.state.tab===3?" Phase 1/2":""} leftIcon="pi pi-angle-double-right">
                         <div className="center">
                         <div>Number of Districts Required: {this.state.distNum}</div>
-                        <Slider name="distNum"value={this.state.distNum} disabled={this.state.running} onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '14em'}} />
+                        <Slider name="distNum"value={this.state.distNum} disabled={this.state.running} onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '90%'}} />
                         
                         <div>Number of Majority-Minority Districts Required: {this.state.mDistNum}</div>
-                        <Slider name="mDistNum"value={this.state.mDistNum} disabled={this.state.running} onChange={(e)=>this.onChangeSlider("mDistNum",e)} style={{width: '14em'}} />
+                        <Slider name="mDistNum"value={this.state.mDistNum} disabled={this.state.running} onChange={(e)=>this.onChangeSlider("mDistNum",e)} style={{width: '90%'}} />
                         
                         <div>Choose Minorities</div>
                         <ListBox style={{display:'inline-block',width:'100%'}} disabled={this.state.running}value={this.state.ethnic} options={ethnics} onChange={(e) => this.setState({ethnic: e.value})} multiple={true}/>
                         <div>Min, Max (%): {this.state.rangeValues[0]},{this.state.rangeValues[1]}</div>
-                        <Slider value={this.state.rangeValues} disabled={this.state.running}onChange={this.onChangeRangeSlider} range={true} style={{width: '14em'}} />
+                        <Slider value={this.state.rangeValues} disabled={this.state.running}onChange={this.onChangeRangeSlider} range={true} style={{width: '90%'}} />
                         <div>
                         <Checkbox id="cb1" disabled={this.state.running} onChange={e => this.setState({allowStep: e.checked})} checked={this.state.allowStep}></Checkbox>
                         <label htmlFor="cb1"> Update every iteration</label>
