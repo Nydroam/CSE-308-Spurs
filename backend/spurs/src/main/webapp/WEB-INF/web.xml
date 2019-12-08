@@ -29,5 +29,24 @@
 		<servlet-name>StateServlet</servlet-name>
 		<url-pattern>/state/*</url-pattern>
 	</servlet-mapping>
-	
+	<servlet>
+		<servlet-name>DistrictServlet</servlet-name>
+		<display-name>DistrictServlet</display-name>
+		<description></description>
+		<servlet-class>servlet.DistrictServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DistrictServlet</servlet-name>
+		<url-pattern>/district/*</url-pattern>
+	</servlet-mapping>
+	<servlet>
+		<servlet-name>PrecinctServlet</servlet-name>
+		<display-name>PrecinctServlet</display-name>
+		<description></description>
+		<servlet-class>servlet.PrecinctServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PrecinctServlet</servlet-name>
+		<url-pattern>/precinct/*</url-pattern>
+	</servlet-mapping>
 </web-app>

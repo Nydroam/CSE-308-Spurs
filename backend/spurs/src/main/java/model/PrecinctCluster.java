@@ -1,5 +1,7 @@
 package model;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -12,17 +14,27 @@ import model.Election.ElectionType;
 import model.Election.Party;
 import model.Election.Race;
 
-public class PrecinctCluster extends GeoEntity{
+public class PrecinctCluster {
 
 	private Set<Precinct> precincts;
     private Set<PrecinctEdge> interiorEdges;
     private Set<PrecinctClusterEdge> exteriorEdges;
     private float cumulativeMMJoinability;
     private float cumulativeNonMMJoinability;
+    private Coordinate averageCoordinate;
+    private HashMap<String, Integer> countyTally;
     
     public PrecinctCluster() {
+    	precincts = new HashSet<Precinct>();
+    	interiorEdges = new HashSet<PrecinctEdge>();
+    	exteriorEdges = new HashSet<PrecinctClusterEdge>();
     }
 
+    public PrecinctCluster(Precinct precinct) {
+    	this();
+    	precincts.add(precinct);
+    }
+    
     public Set<Precinct> getPrecincts(){
         return precincts;
     }
@@ -101,13 +113,5 @@ public class PrecinctCluster extends GeoEntity{
             total += precinct.getCompactnessScore();
         }
         return total/precincts.size();
-    }
-    
-    public List<Coordinate> getGeometry(){
-        return null;
-    }
-    
-    public void setGeometry(List<Coordinate> geometry) {
-    	this.geometry = geometry;
     }
 }

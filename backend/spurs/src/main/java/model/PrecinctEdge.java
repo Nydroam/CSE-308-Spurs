@@ -1,18 +1,27 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 @Entity
 public class PrecinctEdge {
 	
-	private PrecinctEdgeEndpoints endpts;
+	private String id;
+	private Set<Precinct> endpoints;
     private float mmJoinability;
     private float nonMMJoinability;
 
@@ -20,36 +29,34 @@ public class PrecinctEdge {
     }
     
     public PrecinctEdge(Precinct a, Precinct b, float mmJoinability, float nonMMJoinability) {
-    	endpts = new PrecinctEdgeEndpoints(a, b);
+    	id = Math.min(a.getId(), b.getId()) + " " + Math.max(a.getId(), b.getId()); 
+    	endpoints = new HashSet<Precinct>();
+    	endpoints.add(a);
+    	endpoints.add(b);
     	this.mmJoinability = mmJoinability;
     	this.nonMMJoinability = nonMMJoinability;
     }
     
     @Id
-    public PrecinctEdgeEndpoints getEdgeEndpoints() {
-    	return endpts;
+    public String getId() {
+    	return id;
     }
     
-    public void setEdgeEndpoints(PrecinctEdgeEndpoints endpts) {
-    	this.endpts = endpts;
+    public void setId(String id) {
+    	this.id = id;
+    }
+    @LazyCollection(LazyCollectionOption.FALSE)
+    @ManyToMany(mappedBy="adjacentEdges")
+    public Set<Precinct> getEndpoints() {
+    	return endpoints;
     }
     
-    public PrecinctCluster generateCluster(){
-        return null;
+    public void setEndpoints(Set<Precinct> endpts) {
+    	this.endpoints = endpts;
     }
-    
-    @Transient
-    public List<Precinct> getEndPoints(){
-		List<Precinct> l = new ArrayList<Precinct>();
-		l.add(endpts.getEndpoint1());
-		l.add(endpts.getEndpoint2());
-		return l;
-	}
 
-    public void setEndpoints(Precinct endpoint1, Precinct endpoint2) {
-    	
-    	endpts.setEndpoint1(endpoint1);
-    	endpts.setEndpoint2(endpoint2);
+	public PrecinctCluster generateCluster(){
+        return null;
     }
     
     public float getMMJoinability(){

@@ -2,17 +2,19 @@ package model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import model.Election.Party;
 
 @Entity
 public class Votes {
-	@Id
+	
 	private VotesKey votesKey;
+	private Election election;
 	private int numVotes;
-	
-	
 	
 	public Votes() {	
 	}
@@ -22,15 +24,29 @@ public class Votes {
 		this.numVotes = numVotes;
 	}
 	
-	
+	@Id
 	public VotesKey getVotesKey() {
 		return votesKey;
 	}
 	
+	public void setVotesKey(VotesKey votesKey) {
+		this.votesKey = votesKey;
+	}
+	
+	@ManyToOne
+	@JoinColumns({
+	    @JoinColumn(name="electionType", referencedColumnName="electionType", insertable=false, updatable=false),
+	    @JoinColumn(name="precinctId", referencedColumnName="precinctId", insertable=false, updatable=false)
+	  })
 	public Election getElection() {
-		return votesKey.getElection();
+		return election;
 	}
 
+	public void setElection(Election election) {
+		this.election = election;
+	}
+	
+	@Transient	
 	public Party getParty() {
 		return votesKey.getParty();
 	}

@@ -3,6 +3,7 @@ package servlet;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -12,13 +13,13 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
-import antlr.collections.List;
 import model.Algorithm;
 import model.Coordinate;
 import model.District;
 import model.Election.ElectionType;
 import model.Election.Race;
 import model.Geometry;
+import model.Precinct;
 import model.State;
 import model.State.StateName;
 import util.DBHelper;
@@ -37,9 +38,17 @@ public class StateServlet extends SpursServlet{
 		String path = req.getPathInfo();
 		switch (path) {
 		case "/create":{
+			String stateName = req.getParameter("state");
+			long stateId = Long.parseLong(req.getParameter("stateId"));
+			State state = new State(stateId, StateName.valueOf(stateName));
+			DBHelper.saveOrUpdate(state);
 			break;
 		}
 		case "/get":{
+			
+			break;
+		}
+		case "/test":{
 			break;
 		}
 		default:
