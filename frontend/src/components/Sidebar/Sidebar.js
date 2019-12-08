@@ -260,10 +260,10 @@ class Sidebar extends React.PureComponent{
                     <TabPanel  disabled={this.props.state===null}  contentClassName="content" header={this.state.tab===3?" Phase 1/2":""} leftIcon="pi pi-angle-double-right">
                         <div className="center">
                         <div>Number of Districts Required: {this.state.distNum}</div>
-                        <Slider name="distNum"value={this.state.distNum} disabled={this.state.running} onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '90%'}} />
+                        <InputText name="distNum"value={this.state.distNum} disabled={this.state.running} keyfilter="pint" onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '90%'}} />
                         
                         <div>Number of Majority-Minority Districts Required: {this.state.mDistNum}</div>
-                        <Slider name="mDistNum"value={this.state.mDistNum} disabled={this.state.running} onChange={(e)=>this.onChangeSlider("mDistNum",e)} style={{width: '90%'}} />
+                        <InputText name="mDistNum"value={this.state.mDistNum} disabled={this.state.running} keyfilter="pint" onChange={(e)=>this.onChangeSlider("mDistNum",e)} style={{width: '90%'}} />
                         
                         <div>Choose Minorities</div>
                         <ListBox style={{display:'inline-block',width:'100%'}} disabled={this.state.running}value={this.state.ethnic} options={ethnics} onChange={(e) => this.setState({ethnic: e.value})} multiple={true}/>
