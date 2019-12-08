@@ -1,8 +1,15 @@
 #sidebar{
-    width:300px;
+    width:320px;
     padding-left: 10px;
     padding-right:10px;
     box-sizing:border-box;
+}
+body .p-toggleable-content{
+    position:relative;
+    bottom:10px;
+}
+body #sidebar .p-fieldset-content{
+    font-size:13px;
 }
 .center{
     text-align:center;
@@ -14,6 +21,12 @@
 }
 .p-slider{
     display:inline-block;
+    margin-bottom: 20px;
+    margin-top: 10px;
+}
+
+body .p-listbox{
+    margin-bottom: 20px;
 }
 .p-dropdown.p-component{
     margin-top:10px;
@@ -52,4 +65,15 @@ body .p-tabview.p-tabview-top .p-tabview-nav li a .p-tabview-left-icon.pi.pi-ang
     max-height:100%;
     overflow-y:auto;
     height:100%;
+}
+.top-margin{
+    margin-top:10px;
+}
+body #sidebar .p-progressbar{
+    height:17px;
+}
+
+body #sidebar .p-progressbar .p-progressbar-label{
+    line-height:17px;
+    font-size: 13px;
 }
