@@ -2,13 +2,7 @@ package model;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
 
 import model.Election.ElectionType;
 import model.Election.Party;
@@ -22,6 +16,8 @@ public class PrecinctCluster {
     private float cumulativeMMJoinability;
     private float cumulativeNonMMJoinability;
     private Coordinate averageCoordinate;
+    private double height;
+    private double width;
     private HashMap<String, Integer> countyTally;
     
     public PrecinctCluster() {
@@ -33,6 +29,8 @@ public class PrecinctCluster {
     public PrecinctCluster(Precinct precinct) {
     	this();
     	precincts.add(precinct);
+    	this.cumulativeMMJoinability = 0;
+    	this.cumulativeNonMMJoinability = 0;
     }
     
     public Set<Precinct> getPrecincts(){

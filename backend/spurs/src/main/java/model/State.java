@@ -93,8 +93,6 @@ public class State{
 			PrecinctCluster cluster = new PrecinctCluster(p);
 			precinctMapping.put(p, cluster);
 		}
-		
-		//Map<PrecinctEdge, PrecinctClusterEdge> precinctEdgeMapping = new HashMap<PrecinctEdge, PrecinctClusterEdge>();
 		for (Precinct p: precincts) {
 			Set<PrecinctClusterEdge> exteriorEdges = new HashSet<PrecinctClusterEdge>();
 			for (PrecinctEdge edge: p.getAdjacentEdges()) {
