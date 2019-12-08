@@ -3,6 +3,7 @@ package model;
 import java.util.List;
 import java.util.Set;
 
+import lineitem.BlocLineItem;
 import model.Election.ElectionType;
 import model.Election.Race;
 
@@ -15,7 +16,7 @@ public class Algorithm {
     	precinctClusters = state.initializePrecinctClusters();
     }
     
-    public List<Demographic> runPhase0(ElectionType electionType, float voteThresh, float raceThresh) {
+    public List<BlocLineItem> runPhase0(ElectionType electionType, float voteThresh, float raceThresh) {
     	return state.isVotingAsBloc(electionType, voteThresh, raceThresh);
     }
     

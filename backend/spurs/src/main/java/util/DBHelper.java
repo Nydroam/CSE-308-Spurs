@@ -6,12 +6,13 @@ import java.util.List;
 
 import org.hibernate.Session;
 
+import model.State;
 import servlet.SpursServlet;
 
 public class DBHelper {
 	
 	public static void saveOrUpdate(Object object) {
-
+		
 		Session session = SpursServlet.sessionFactory.getCurrentSession();
 		session.beginTransaction();
 		session.saveOrUpdate(object);
@@ -22,6 +23,7 @@ public class DBHelper {
 		Session session = SpursServlet.sessionFactory.getCurrentSession();
 		session.beginTransaction();
 		Object o = session.get(c, id);
+		session.getTransaction().commit();
 		return o;
 	}
 }

@@ -1,30 +1,36 @@
 package model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
+
+import com.google.gson.annotations.Expose;
+
+import lineitem.BlocLineItem;
 import model.Election.ElectionType;
 import model.Election.Party;
 import model.Election.Race;
 
 
 @Entity
-public class State extends GeoEntity {
+public class State{
 
+	private long id;
+	@Expose
 	private StateName stateName;
 	private Set<District> districts;
 	private Set<Precinct> precincts;
@@ -38,15 +44,20 @@ public class State extends GeoEntity {
 	}
 
 	public State(long id, StateName stateName) {
-		this.id = id;
+		this.setId(id);
 		this.stateName = stateName;
 	}
-	
-	public State(long id, StateName stateName, List<Coordinate> geometry) {
-		this(id, stateName);
-		this.geometry = geometry;
+
+	@Id
+	public long getId() {
+		return id;
 	}
 
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	@Enumerated(EnumType.STRING)
 	public StateName getStateName() {
 		return stateName;
 	}
@@ -54,14 +65,7 @@ public class State extends GeoEntity {
 	public void setStateName(StateName stateName) {
 		this.stateName = stateName;
 	}
-	@OneToMany(targetEntity=Coordinate.class, fetch = FetchType.LAZY, cascade=CascadeType.ALL)
-	public List<Coordinate> getGeometry() {
-		return geometry;
-	}
-
-	public void setGeometry(List<Coordinate> geometry) {
-		this.geometry = geometry;
-	}
+	
 	@OneToMany(targetEntity = District.class, mappedBy = "state", cascade = CascadeType.ALL)
 	public Set<District> getDistricts() {
 		return districts;
@@ -70,6 +74,8 @@ public class State extends GeoEntity {
 	public void setDistricts(Set<District> districts) {
 		this.districts = districts;
 	}
+	
+	@LazyCollection(LazyCollectionOption.FALSE)
 	@OneToMany(targetEntity = Precinct.class, mappedBy = "state", cascade = CascadeType.ALL)
 	public Set<Precinct> getPrecincts() {
 		return precincts;
@@ -81,48 +87,65 @@ public class State extends GeoEntity {
 	
 	@Transient
 	public Set<PrecinctCluster> initializePrecinctClusters() {
-		return null;
+		Map<Precinct, PrecinctCluster> precinctMapping = new HashMap<Precinct, PrecinctCluster>();
+		precinctClusters = new HashSet<PrecinctCluster>();
+		for (Precinct p: precincts) {
+			PrecinctCluster cluster = new PrecinctCluster(p);
+			precinctMapping.put(p, cluster);
+		}
+		for (Precinct p: precincts) {
+			Set<PrecinctClusterEdge> exteriorEdges = new HashSet<PrecinctClusterEdge>();
+			for (PrecinctEdge edge: p.getAdjacentEdges()) {
+				PrecinctCluster endpoint1 = null;
+				PrecinctCluster endpoint2 = null;
+				
+				if (edge.getEndpoints().size() > 1) {
+					for (Precinct endpoint: edge.getEndpoints()) {
+						if (endpoint.equals(p)) {
+							endpoint1 = precinctMapping.get(p);
+						}else {
+							endpoint2 = precinctMapping.get(endpoint);
+						}
+					}
+				}
+				exteriorEdges.add(new PrecinctClusterEdge(endpoint1, endpoint2));
+			}
+			precinctMapping.get(p).setExteriorEdges(exteriorEdges);
+		}
+		return precinctClusters;
 	}
 
-	public List<Demographic> isVotingAsBloc(ElectionType electionType, float voteThresh, float raceThresh) {
-		List<Demographic> validDemographics = new ArrayList<Demographic>();
+	public List<BlocLineItem> isVotingAsBloc(ElectionType electionType, float voteThresh, float raceThresh) {
+		List<BlocLineItem> validBlocs = new ArrayList<BlocLineItem>();
 		for (Precinct precinct : precincts) {
-			Demographic d = precinct.isBloc(electionType, voteThresh, raceThresh);
-			if (d != null) {
-				validDemographics.add(d);
+			BlocLineItem b = precinct.isBloc(electionType, voteThresh, raceThresh);
+			if (b != null) {
+				validBlocs.add(b);
 			}
 		}
-		return validDemographics;
+		return validBlocs;
 	}
 
-	@Override
 	@Transient
 	public long getPopulation() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
+	@Transient
 	public long getPopulation(Race r) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
+	@Transient
 	public long getNumVoters(ElectionType election) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
-	public long getNumVoters(ElectionType election, Party p) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
 	@Transient
-	public float getCompactnessScore() {
+	public long getNumVoters(ElectionType election, Party p) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

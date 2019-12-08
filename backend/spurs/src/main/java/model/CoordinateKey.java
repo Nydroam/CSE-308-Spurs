@@ -7,25 +7,32 @@ import javax.persistence.Embeddable;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 
+import com.google.gson.annotations.Expose;
+
 @Embeddable
 public class CoordinateKey implements Serializable{
 	
+	@Expose
 	private double x;
+	@Expose
 	private double y;
-	private long geoEntityId;
+	@Expose
+	private long precinctId;
 	
 	public CoordinateKey() {	
 	}
 	
-	public CoordinateKey(double x, double y, long geoEntityId) {
-		this.geoEntityId = geoEntityId;
+	public CoordinateKey(double x, double y, long precinctId) {
+		this.x = x;
+		this.y = y;
+		this.precinctId = precinctId;
 	}
 	
-	public long getGeoEntityId() {
-		return geoEntityId;
+	public long getPrecinctId() {
+		return precinctId;
 	}
-	public void setGeoEntityId(long geoEntityId) {
-		this.geoEntityId = geoEntityId;
+	public void setPrecinctId(long precinctId) {
+		this.precinctId = precinctId;
 	}
 
 	public double getX() {

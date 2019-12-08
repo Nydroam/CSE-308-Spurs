@@ -5,10 +5,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
+
+import org.hibernate.annotations.LazyCollection;
+import org.hibernate.annotations.LazyCollectionOption;
 
 @Entity
 public class Election {
@@ -24,16 +32,38 @@ public class Election {
 		PRESIDENTIAL2016, SENATE2014, SENATE2016, SENATE2018, GUBERNATORIAL2014, GUBERNATORIAL2018;
 	}
 	
-	@Id
+	private Precinct precinct;
 	private ElectionKey electionKey;
 	private int year;
 	private Party winningParty;
-	@OneToMany(targetEntity=Votes.class)
 	private List<Votes> votesByParty;
    
 	public Election() {
 	}
 	
+	public Election(Precinct precinct, ElectionType electionType, Party winningParty) {
+		this.precinct = precinct;
+		this.winningParty = winningParty;
+		setElectionKey(new ElectionKey(precinct, electionType));
+		switch(electionType) {
+		case GUBERNATORIAL2018:{
+			this.year = 2018;
+			break;
+		}
+		case SENATE2018:{
+			this.year = 2018;
+			break;
+		}
+		case PRESIDENTIAL2016:{
+			this.year = 2016;
+			break;
+		}
+		default:
+			break;
+		}
+	}
+	
+	@Id
 	public ElectionKey getElectionKey() {
 		return electionKey;
 	}
@@ -42,6 +72,17 @@ public class Election {
 		this.electionKey = electionKey;
 	}
 	
+	@ManyToOne
+	@JoinColumn(name="precinctId", insertable=false, updatable=false)
+	public Precinct getPrecinct() {
+		return precinct;
+	}
+
+	public void setPrecinct(Precinct precinct) {
+		this.precinct = precinct;
+	}
+	
+	@Transient
 	public ElectionType getElectionType() {
 		return electionKey.getElectionType();
 	}
@@ -54,6 +95,7 @@ public class Election {
 		this.year = year;
 	}
 
+	@Enumerated(EnumType.STRING)
 	public Party getWinningParty() {
 		return winningParty;
 	}
@@ -62,6 +104,8 @@ public class Election {
 		this.winningParty = winningParty;
 	}
 
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@OneToMany(targetEntity=Votes.class, mappedBy="election", cascade=CascadeType.ALL)
 	public List<Votes> getVotesByParty() {
 		return votesByParty;
 	}
@@ -70,12 +114,14 @@ public class Election {
 		this.votesByParty = votesByParty;
 	}
 
+	@Transient
 	public Map<Party, Integer> getVotesByPartyAsMap() {
 		return votesByParty.stream().collect(
 				Collectors.toMap(Votes::getParty, 
 						Votes::getNumVotes));
 	}
-
+	
+	@Transient
 	public long getVotes(){
 		long sum = 0;
         for (Votes v: votesByParty) {

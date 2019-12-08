@@ -17,14 +17,18 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Transient;
 
+import com.google.gson.annotations.Expose;
+
 import model.Election.ElectionType;
 import model.Election.Party;
 import model.Election.Race;
 
 @Entity
-public class District extends GeoEntity{
+public class District{
 	
+	private long id;
 	private State state;
+	@Expose
 	private Set<Precinct> precincts;
 	
 	public District() {
@@ -35,13 +39,13 @@ public class District extends GeoEntity{
 		this.state = state;
 	}
 	
-	@OneToMany(targetEntity=Coordinate.class, cascade=CascadeType.ALL)
-	public List<Coordinate> getGeometry() {
-		return geometry;
+	@Id
+	public long getId() {
+		return id;
 	}
 
-	public void setGeometry(List<Coordinate> geometry) {
-		this.geometry = geometry;
+	public void setId(long id) {
+		this.id = id;
 	}
 
 	@OneToMany(targetEntity=Precinct.class, fetch = FetchType.LAZY, mappedBy="district", cascade=CascadeType.ALL)
@@ -63,32 +67,31 @@ public class District extends GeoEntity{
 		this.state = state;
 	}
 
-	@Override
+	
 	@Transient
 	public long getPopulation() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-
-	@Override
+	
+	@Transient
 	public long getPopulation(Race r) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
+	@Transient
 	public long getNumVoters(ElectionType election) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
+	@Transient
 	public long getNumVoters(ElectionType election, Party p) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
-	@Override
 	@Transient
 	public float getCompactnessScore() {
 		// TODO Auto-generated method stub

@@ -7,17 +7,23 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import com.google.gson.annotations.Expose;
+
 @Entity
 public class Coordinate {
-	
+	@Expose
 	private CoordinateKey coordinateKey;
-	private GeoEntity geoEntity;
+	private Precinct precinct;
 	
 	public Coordinate() {
 	}
 
-	public Coordinate(double x, double y, GeoEntity geoEntity){
-		coordinateKey = new CoordinateKey(x,y,geoEntity.getId());
+	public Coordinate(double x, double y, long precinctId) {
+		coordinateKey = new CoordinateKey(x,y,precinctId);
+	}
+	
+	public Coordinate(double x, double y, Precinct precinct){
+		coordinateKey = new CoordinateKey(x,y,precinct.getId());
 	}
 	
 	@Id
@@ -48,12 +54,12 @@ public class Coordinate {
 	}
 	
 	@ManyToOne
-	@JoinColumn(name="geoEntityId", insertable=false, updatable=false)
-	public GeoEntity getGeoEntity() {
-		return geoEntity;
+	@JoinColumn(name="precinctId", insertable=false, updatable=false)
+	public Precinct getPrecinct() {
+		return precinct;
 	}
 	
-	public void setGeoEntity(GeoEntity geoEntity) {
-		this.geoEntity = geoEntity;
+	public void setPrecinct(Precinct precinct) {
+		this.precinct = precinct;
 	}
 }
