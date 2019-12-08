@@ -11,33 +11,31 @@ import javax.persistence.ManyToOne;
 @Embeddable
 public class PrecinctEdgeEndpoints implements Serializable{
 	
-	private Precinct endpoint1;
-	private Precinct endpoint2;
+	private long endpoint1Id;
+	private long endpoint2Id;
 	
 	public PrecinctEdgeEndpoints() {
 	}
 	
 	public PrecinctEdgeEndpoints(Precinct endpoint1, Precinct endpoint2) {
-		this.setEndpoint1(endpoint1);
-		this.setEndpoint2(endpoint2);
+		this.setEndpoint1(endpoint1.getId());
+		this.setEndpoint2(endpoint2.getId());
 	}
 
-	@ManyToOne
-	public Precinct getEndpoint1() {
-		return endpoint1;
+	public long getEndpoint1() {
+		return endpoint1Id;
 	}
 
-	public void setEndpoint1(Precinct endpoint1) {
-		this.endpoint1 = endpoint1;
+	public void setEndpoint1(long l) {
+		this.endpoint1Id = l;
 	}
 	
-	@ManyToOne
-	public Precinct getEndpoint2() {
-		return endpoint2;
+	public long getEndpoint2() {
+		return endpoint2Id;
 	}
 
-	public void setEndpoint2(Precinct endpoint2) {
-		this.endpoint2 = endpoint2;
+	public void setEndpoint2(long l) {
+		this.endpoint2Id = l;
 	}
 	
 }

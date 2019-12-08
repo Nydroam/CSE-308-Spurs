@@ -3,6 +3,8 @@ package model;
 import java.io.Serializable;
 
 import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 
 import model.Election.Party;
@@ -10,22 +12,26 @@ import model.Election.Party;
 @Embeddable
 public class VotesKey implements Serializable{
 	
-	@ManyToOne
-	private Election election;
+	private ElectionKey electionKey;
 	private Party party;
 	
 	public VotesKey() {
 	}
 	
 	public VotesKey(Election election, Party party) {
-		this.election = election;
+		this.electionKey = election.getElectionKey();
 		this.setParty(party);
 	}
-
-	public Election getElection() {
-		return election;
+	
+	public ElectionKey getElectionKey() {
+		return electionKey;
 	}
 	
+	public void setElectionKey(ElectionKey electionKey) {
+		this.electionKey = electionKey;
+	}
+	
+	@Enumerated(EnumType.STRING)
 	public Party getParty() {
 		return party;
 	}

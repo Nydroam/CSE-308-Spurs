@@ -3,19 +3,29 @@ package model;
 import java.io.Serializable;
 
 import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
+
+import com.google.gson.annotations.Expose;
 
 import model.Election.Race;
 
 @Embeddable
 public class DemographicKey implements Serializable{
+	@Expose
 	private Race race;
-	@ManyToOne
-	private Precinct precinct;
+	private long precinctId;
 	
 	public DemographicKey() {	
 	}
 
+	public DemographicKey(Race race, long precinctId) {
+		this.race = race;
+		this.setPrecinctId(precinctId);
+	}
+	
+	@Enumerated(EnumType.STRING)
 	public Race getRace() {
 		return race;
 	}
@@ -24,11 +34,12 @@ public class DemographicKey implements Serializable{
 		this.race = race;
 	}
 
-	public Precinct getPrecinct() {
-		return precinct;
+	public long getPrecinctId() {
+		return precinctId;
 	}
 
-	public void setPrecinct(Precinct precint) {
-		this.precinct = precint;
-	}	
+	public void setPrecinctId(long precinctId) {
+		this.precinctId = precinctId;
+	}
+
 }

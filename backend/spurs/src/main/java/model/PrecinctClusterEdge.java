@@ -15,6 +15,11 @@ public class PrecinctClusterEdge {
     public PrecinctClusterEdge() {
     }
     
+    public PrecinctClusterEdge(PrecinctCluster endpoint1, PrecinctCluster endpoint2) {
+    	this.endpoint1 = endpoint1;
+    	this.endpoint2 = endpoint2;
+    }
+    
     public PrecinctClusterEdge(PrecinctCluster endpoint1, PrecinctCluster endpoint2, float mmJoinability, float nonMMJoinability) {
     	this.endpoint1 = endpoint1;
     	this.endpoint2 = endpoint2;

@@ -11,15 +11,15 @@ import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 import javax.persistence.Transient;
 
+import com.google.gson.annotations.Expose;
+
 import model.Election.ElectionType;
 import model.Election.Party;
 import model.Election.Race;
 
-
-@Entity
-@Inheritance(strategy=InheritanceType.JOINED)
 public abstract class GeoEntity {
 
+	@Expose
 	protected long id;
 	protected List<Coordinate> geometry;
 	//@OneToMany(targetEntity=Edge.class)
