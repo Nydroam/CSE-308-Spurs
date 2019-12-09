@@ -82,8 +82,6 @@ class Sidebar extends React.PureComponent{
                 "NHPI":50,
                 "HISP":60,
                 "WHITE":70,
-                "dVotes":230,
-                "rVotes":430,
             },
             phase0Data : [],
         }
@@ -127,10 +125,35 @@ class Sidebar extends React.PureComponent{
             voteThresh:this.state.voteThresh/100})}
          ).then( (res) => res.json())
          .then( (data) => { console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
-         console.log(data);this.setState({blockInfo:data});})
+         console.log(data);this.parsePhase0(data);})
          .catch( (err) => { console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
          console.log(err); this.setState({blockInfo:"Data Retrieval Failed"});});
        
+    }
+    parsePhase0 = (data) => {
+        let phase0sum = {}
+        phase0sum['eligibleP'] = data.length;
+        phase0sum['WHITE']=0;
+        phase0sum['AMIN']=0;
+        phase0sum['HISP']=0;
+        phase0sum['NHPI']=0;
+        phase0sum['ASIAN']=0;
+        phase0sum['BLACK']=0;
+        let phase0data= [];
+        for(let i = 0; i < data.length; i++){
+            let item = {};
+            item['name'] = data[i]['precinct']['name'];
+            item['totalPop'] = data[i]['precinct']['population'];
+            item['demographic'] = data[i]['demographic']['demographicKey'];
+            item['demographicPop'] = data[i]['demographic']['population'];
+            item['party'] = data[i]['party'];
+            item['partyVotes'] = data[i]['votes'];
+            item['totalVotes'] = data[i]['totalVotes'];
+            phase0sum[data[i]['demographic']['demographicKey']] += 1;
+            phase0data.push(item);
+        }
+        this.setState({phase0Summary:phase0sum});
+        this.setState({phase0Data:phase0data});
     }
     onSubmitPhase1 = () => {
         this.props.changeState("view","ND")
@@ -278,9 +301,21 @@ class Sidebar extends React.PureComponent{
                         <Slider min={50}name="popThresh"value={this.state.popThresh} onChange={(e)=>this.onChangeSlider("popThresh",e)} style={{width: '90%'}} />
                         <Button label="Submit" onClick={this.onSubmitPhase0}></Button>
                         <Fieldset className="fieldset" legend="Phase 0 Data">
-                            {/* <div>Eligible Precincts: {phase0Summary.eligibleP}</div>
+                            <div>Eligible Precincts: {phase0Summary.eligibleP}</div>
                             <div>Total Precincts: {phase0Summary.totalP}</div>
-                            <ProgressBar value={Math.round(phase0Summary.eligibleP/phase0Summary.totalP*100)} /> */}
+                            <ProgressBar value={Math.round(phase0Summary.eligibleP/phase0Summary.totalP*100)} />
+                            <div>WHITE: {phase0Summary.WHITE}</div>
+                            <ProgressBar value={Math.round(phase0Summary.WHITE/phase0Summary.eligibleP*100)} />
+                            <div>AMIN: {phase0Summary.AMIN}</div>
+                            <ProgressBar value={Math.round(phase0Summary.AMIN/phase0Summary.eligibleP*100)} />
+                            <div>NHPI: {phase0Summary.NHPI}</div>
+                            <ProgressBar value={Math.round(phase0Summary.NHPI/phase0Summary.eligibleP*100)} />
+                            <div>BLACK: {phase0Summary.BLACK}</div>
+                            <ProgressBar value={Math.round(phase0Summary.BLACK/phase0Summary.eligibleP*100)} />
+                            <div>ASIAN: {phase0Summary.ASIAN}</div>
+                            <ProgressBar value={Math.round(phase0Summary.ASIAN/phase0Summary.eligibleP*100)} />
+                            <div>HISP: {phase0Summary.HISP}</div>
+                            <ProgressBar value={Math.round(phase0Summary.HISP/phase0Summary.eligibleP*100)} />
                             
                         </Fieldset>
                         </div>
