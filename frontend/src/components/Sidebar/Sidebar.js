@@ -9,6 +9,7 @@ import {ListBox} from 'primereact/listbox';
 import {Checkbox} from 'primereact/checkbox';
 import {ProgressBar} from 'primereact/progressbar';
 import {Dialog} from 'primereact/dialog';
+import {ProgressSpinner} from 'primereact/progressspinner';
 import {DataTable} from 'primereact/datatable';
 
 import './Sidebar.css';
@@ -17,6 +18,11 @@ const states=[
     {label:"Pennsylvania", value:"PA"},
     {label:"Rhode Island", value:"RI"},
 ]
+const precinctNumbers={
+    "CA": 25000,
+    "RI": 419,
+    "PA": 9255,
+}
 const statesMap = {
     "RI":40,
 }
@@ -73,17 +79,10 @@ class Sidebar extends React.PureComponent{
             running : false,
             runningStep : false,
             firstStep : true,
-            phase0Summary : {
-                "eligibleP":10,
-                "totalP":100,
-                "AMIN":20,
-                "ASIAN":30,
-                "BLACK":40,
-                "NHPI":50,
-                "HISP":60,
-                "WHITE":70,
-            },
-            phase0Data : [],
+            phase0Summary : null,
+            phase0loading: false,
+            phase0Data : null,
+            phase0Visible:false,
         }
     }
 
@@ -116,7 +115,7 @@ class Sidebar extends React.PureComponent{
     
     onSubmitPhase0 = () => {
         let seconds = new Date().getTime();
-        
+        this.setState({phase0loading:true});
         fetch("http://localhost:8080/spurs/state/runPhase0",
          {method:"POST", body: JSON.stringify(
              {stateId: statesMap[this.props.state],
@@ -127,7 +126,7 @@ class Sidebar extends React.PureComponent{
          .then( (data) => { console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
          console.log(data);this.parsePhase0(data);})
          .catch( (err) => { console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
-         console.log(err); this.setState({blockInfo:"Data Retrieval Failed"});});
+         console.log(err); this.setState({blockInfo:"Data Retrieval Failed",loading:false});});
        
     }
     parsePhase0 = (data) => {
@@ -139,6 +138,7 @@ class Sidebar extends React.PureComponent{
         phase0sum['NHPI']=0;
         phase0sum['ASIAN']=0;
         phase0sum['BLACK']=0;
+        phase0sum['totalP'] = precinctNumbers[this.props.state];
         let phase0data= [];
         for(let i = 0; i < data.length; i++){
             let item = {};
@@ -149,11 +149,11 @@ class Sidebar extends React.PureComponent{
             item['party'] = data[i]['party'];
             item['partyVotes'] = data[i]['votes'];
             item['totalVotes'] = data[i]['totalVotes'];
-            phase0sum[data[i]['demographic']['demographicKey']] += 1;
+            phase0sum[data[i]['demographic']['demographicKey']['race']] += 1;
             phase0data.push(item);
         }
-        this.setState({phase0Summary:phase0sum});
-        this.setState({phase0Data:phase0data});
+        console.log(phase0sum);
+        this.setState({phase0Summary:phase0sum,phase0Data:phase0data,phase0loading:false});
     }
     onSubmitPhase1 = () => {
         this.props.changeState("view","ND")
@@ -299,9 +299,10 @@ class Sidebar extends React.PureComponent{
                         <Slider min={50}name="voteThresh"value={this.state.voteThresh} onChange={(e)=>this.onChangeSlider("voteThresh",e)} style={{width: '90%'}} />
                         <div>Population Threshold: {this.state.popThresh}%</div>
                         <Slider min={50}name="popThresh"value={this.state.popThresh} onChange={(e)=>this.onChangeSlider("popThresh",e)} style={{width: '90%'}} />
-                        <Button label="Submit" onClick={this.onSubmitPhase0}></Button>
-                        <Fieldset className="fieldset" legend="Phase 0 Data">
-                            <div>Eligible Precincts: {phase0Summary.eligibleP}</div>
+                        <div style={{position:"relative"}}><Button label="Submit" onClick={this.onSubmitPhase0}></Button>
+                        {this.state.phase0loading?<ProgressSpinner style={{height:"30px",right:"20px", position:"absolute"}}/>:null}</div>
+                        <Fieldset style={{textAlign:"left"}} className="fieldset" legend="Phase 0 Data">
+                            {this.state.phase0Summary?<React.Fragment><div>Eligible Precincts: {phase0Summary.eligibleP}</div>
                             <div>Total Precincts: {phase0Summary.totalP}</div>
                             <ProgressBar value={Math.round(phase0Summary.eligibleP/phase0Summary.totalP*100)} />
                             <div>WHITE: {phase0Summary.WHITE}</div>
@@ -315,9 +316,14 @@ class Sidebar extends React.PureComponent{
                             <div>ASIAN: {phase0Summary.ASIAN}</div>
                             <ProgressBar value={Math.round(phase0Summary.ASIAN/phase0Summary.eligibleP*100)} />
                             <div>HISP: {phase0Summary.HISP}</div>
-                            <ProgressBar value={Math.round(phase0Summary.HISP/phase0Summary.eligibleP*100)} />
-                            
+                            <ProgressBar value={Math.round(phase0Summary.HISP/phase0Summary.eligibleP*100)} /></React.Fragment>
+                        :null}
+                           <div style={{textAlign:"center"}}>
+                           <Button label="Details" style={{marginTop:"5px"}} disabled={!this.state.phase0Data} onClick={e => this.setState({phase0Visible:true})}></Button>
+
+                               </div> 
                         </Fieldset>
+
                         </div>
                     </TabPanel>
                     
@@ -347,8 +353,9 @@ class Sidebar extends React.PureComponent{
                     </TabPanel>
                     
                 </TabView>
-                <Dialog header="Results" visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}>
-                            </Dialog>  
+                <Dialog header="Results" visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}></Dialog>  
+                <Dialog header="Results" visible={this.state.phase0Visible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({phase0Visible:false})}></Dialog>  
+                
             </div>
         )
     }
