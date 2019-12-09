@@ -143,12 +143,12 @@ class Sidebar extends React.PureComponent{
         for(let i = 0; i < data.length; i++){
             let item = {};
             item['name'] = data[i]['precinct']['name'];
-            item['totalPop'] = data[i]['precinct']['population'];
+            item['popPercent'] = data[i]['demographic']['population']/data[i]['precinct']['population'];
             item['demographic'] = data[i]['demographic']['demographicKey'];
             item['demographicPop'] = data[i]['demographic']['population'];
             item['party'] = data[i]['party'];
             item['partyVotes'] = data[i]['votes'];
-            item['totalVotes'] = data[i]['totalVotes'];
+            item['votePercent'] = data[i]['votes']/data[i]['totalVotes'];
             phase0sum[data[i]['demographic']['demographicKey']['race']] += 1;
             phase0data.push(item);
         }
@@ -353,7 +353,18 @@ class Sidebar extends React.PureComponent{
                     </TabPanel>
                     
                 </TabView>
-                <Dialog header="Results" visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}></Dialog>  
+                <Dialog header="Results" visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}>
+                    <DataTable value={this.state.phase0Data}>
+                        <Column field="name" header="Precinct" />
+                        <Column field="demographic" header="Race" />
+                        <Column field="demographicPop" header="Race Population"/>
+                        <Column field="popPercent" header="Race %"/>
+                        <Column field="party" header="Winning Party"/>
+                        <Column field="partyVotes" header="Party Votes"/>
+                        <Column field="votePercent" header="Vote %"/>
+                    <Column field="color" header="Color" />
+                </DataTable>
+                </Dialog>  
                 <Dialog header="Results" visible={this.state.phase0Visible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({phase0Visible:false})}></Dialog>  
                 
             </div>
