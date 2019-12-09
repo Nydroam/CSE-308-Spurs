@@ -9,12 +9,17 @@ import {ListBox} from 'primereact/listbox';
 import {Checkbox} from 'primereact/checkbox';
 import {ProgressBar} from 'primereact/progressbar';
 import {Dialog} from 'primereact/dialog';
+import {DataTable} from 'primereact/datatable';
+
 import './Sidebar.css';
 const states=[
     {label:"California", value:"CA"},
     {label:"Pennsylvania", value:"PA"},
     {label:"Rhode Island", value:"RI"},
 ]
+const statesMap = {
+    "RI":40,
+}
 const views=[
     {label:"Original Districts", value:"OD"},
     {label:"Voting Precincts", value:"VP"},
@@ -32,6 +37,11 @@ const elections=[
     {label:"2016 Congressional Election", value: "SEN16"},
     {label:"2018 Congressional Election", value: "SEN18"}
 ]
+const electionMap={
+    "PRES16":"PRESIDENTIAL2016",
+    "SEN16":"SENATE2016",
+    "SEN18":"SENATE2018",
+}
 const demoMap={
     "AMIN":"American Indian or Alaskan Native",
     "ASIAN":"Asian",
@@ -54,7 +64,6 @@ class Sidebar extends React.PureComponent{
             mDistNum: 0,
             voteThresh: 50,
             popThresh: 50,
-            blocInfo: "",
             resultInfo: null,
             ethnic: null,
             rangeValues:[0,100],
@@ -64,6 +73,19 @@ class Sidebar extends React.PureComponent{
             running : false,
             runningStep : false,
             firstStep : true,
+            phase0Summary : {
+                "eligibleP":10,
+                "totalP":100,
+                "AMIN":20,
+                "ASIAN":30,
+                "BLACK":40,
+                "NHPI":50,
+                "HISP":60,
+                "WHITE":70,
+                "dVotes":230,
+                "rVotes":430,
+            },
+            phase0Data : [],
         }
     }
 
@@ -96,16 +118,19 @@ class Sidebar extends React.PureComponent{
     
     onSubmitPhase0 = () => {
         let seconds = new Date().getTime();
-        fetch("localhost:8080/spurs/state/runPhase0",
+        
+        fetch("http://localhost:8080/spurs/state/runPhase0",
          {method:"POST", body: JSON.stringify(
-             {stateId:this.props.state,
-            electionType:this.props.election,
-            popThresh:this.state.popThresh,
-            voteThresh:this.state.voteThresh})}
+             {stateId: statesMap[this.props.state],
+            electionType: electionMap[this.props.election],
+            raceThresh:this.state.popThresh/100,
+            voteThresh:this.state.voteThresh/100})}
          ).then( (res) => res.json())
-         .then( (data) => this.setState({blockInfo:data}))
-         .catch( (err) => {console.log(err); this.setState({blockInfo:"Data Retrieval Failed"});});
-        console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
+         .then( (data) => { console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
+         console.log(data);this.setState({blockInfo:data});})
+         .catch( (err) => { console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
+         console.log(err); this.setState({blockInfo:"Data Retrieval Failed"});});
+       
     }
     onSubmitPhase1 = () => {
         this.props.changeState("view","ND")
@@ -179,6 +204,7 @@ class Sidebar extends React.PureComponent{
 
     render(){
         let {election,demo} = this.props;
+        let {phase0Summary} = this.state;
 
         let precinctVotes = null;
         Object.keys(partyMap).forEach(party => precinctVotes += demo[election+party]?demo[election+party]:0 )
@@ -252,7 +278,10 @@ class Sidebar extends React.PureComponent{
                         <Slider min={50}name="popThresh"value={this.state.popThresh} onChange={(e)=>this.onChangeSlider("popThresh",e)} style={{width: '90%'}} />
                         <Button label="Submit" onClick={this.onSubmitPhase0}></Button>
                         <Fieldset className="fieldset" legend="Phase 0 Data">
-                            {this.state.blocInfo}
+                            {/* <div>Eligible Precincts: {phase0Summary.eligibleP}</div>
+                            <div>Total Precincts: {phase0Summary.totalP}</div>
+                            <ProgressBar value={Math.round(phase0Summary.eligibleP/phase0Summary.totalP*100)} /> */}
+                            
                         </Fieldset>
                         </div>
                     </TabPanel>
