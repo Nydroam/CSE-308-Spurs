@@ -24,17 +24,19 @@ public class PrecinctEdge {
 	private Set<Precinct> endpoints;
     private float mmJoinability;
     private float nonMMJoinability;
-
+    private float sharedPerimeter;
+    
     public PrecinctEdge() {
     }
     
-    public PrecinctEdge(Precinct a, Precinct b, float mmJoinability, float nonMMJoinability) {
+    public PrecinctEdge(Precinct a, Precinct b, float mmJoinability, float nonMMJoinability, float sharedPerimeter) {
     	id = Math.min(a.getId(), b.getId()) + " " + Math.max(a.getId(), b.getId()); 
     	endpoints = new HashSet<Precinct>();
     	endpoints.add(a);
     	endpoints.add(b);
     	this.mmJoinability = mmJoinability;
     	this.nonMMJoinability = nonMMJoinability;
+    	this.sharedPerimeter = sharedPerimeter;
     }
     
     @Id
@@ -74,4 +76,22 @@ public class PrecinctEdge {
     public void setNonMMJoinability(float nonMMJoinability) {
     	this.nonMMJoinability = nonMMJoinability;
     }
+    
+    @Transient
+    public Precinct getOtherEndpoint(Precinct precinct) {
+    	for (Precinct endpoint: endpoints) {
+    		if (!endpoint.equals(precinct)) {
+    			return endpoint;
+    		}
+    	}
+    	return null;
+    }
+
+	public float getSharedPerimeter() {
+		return sharedPerimeter;
+	}
+
+	public void setSharedPerimeter(float sharedPerimeter) {
+		this.sharedPerimeter = sharedPerimeter;
+	}
 }

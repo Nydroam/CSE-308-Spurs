@@ -43,13 +43,14 @@ public class Precinct {
 	private String county;
 	private District district;
 	private State state;
-	private List<Coordinate> geometry;
 	private List<Election> elections;
 	@Expose
 	private List<Demographic> demographics;
 	private List<PrecinctEdge> adjacentEdges;
 	@Expose
-	private float compactnessScore;
+	private float area;
+	@Expose
+	private float perimeter;
 	@Expose
 	private long population;
 	
@@ -139,14 +140,14 @@ public class Precinct {
 		
 	}
 
-	public void setGeometry(List<Coordinate> geometry) {
-		this.geometry = geometry;
+	public void setArea(float area) {
+		this.area = area;
 	}
-
-	public void setCompactnessScore(float compactnessScore) {
-		this.compactnessScore = compactnessScore;
+	
+	public void setPerimeter(float perimeter) {
+		this.perimeter = perimeter;
 	}
-
+	
 	public void setPopulation(long population) {
 		this.population = population;
 	}
@@ -156,6 +157,11 @@ public class Precinct {
 	}
 
 	public long getPopulation(Race r) {
+		for (Demographic d: demographics) {
+			if (d.getRace() == r) {
+				return d.getPopulation();
+			}
+		}
 		return 0;
 	}
 
@@ -167,13 +173,12 @@ public class Precinct {
 		return 0;
 	}
 
-	public float getCompactnessScore() {
-		return compactnessScore;
+	public float getArea() {
+		return area;
 	}
 
-	@OneToMany(targetEntity=Coordinate.class, mappedBy="precinct", cascade=CascadeType.ALL)
-	public List<Coordinate> getGeometry() {
-		return geometry;
+	public float getPerimeter() {
+		return perimeter;
 	}
 	
 	public BlocLineItem isBloc(ElectionType electiontype, float voteThresh, float raceThresh) {
@@ -190,7 +195,13 @@ public class Precinct {
 		return null;
 	}
 
+	@Transient
 	public Election getVotingData(ElectionType type) {
+		for (Election e: elections) {
+			if (e.getElectionType() == type) {
+				return e;
+			}
+		}
 		return null;
 	}
 	@LazyCollection(LazyCollectionOption.FALSE)
@@ -217,6 +228,23 @@ public class Precinct {
 		return elections.stream().collect(
 				Collectors.toMap(Election::getElectionType,
 				Function.identity()));
+	}
+
+	public float getMMScore(List<Race> races, float rangeMin, float rangeMax) {
+		long minorityPop = 0;
+		for (Race r: races) {
+			minorityPop += getPopulation(r);
+		}
+		float ratio = (float)minorityPop / population;
+		return 1 - Math.abs(ratio - ((rangeMin + rangeMax) / 2));
+	}
+	
+	public boolean equals(Precinct precinct) {
+		return id == precinct.getId();
+	}
+	
+	public int hashCode() {
+		return (int)id;
 	}
 
 	

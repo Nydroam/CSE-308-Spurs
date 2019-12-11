@@ -59,7 +59,7 @@ public class PrecinctServlet extends SpursServlet {
 	
 			for (JsonElement feature: features) {
 				
-				JsonObject geojson = feature.getAsJsonObject().get("geometry").getAsJsonObject();
+				//JsonObject geojson = feature.getAsJsonObject().get("geometry").getAsJsonObject();
 				JsonObject properties = feature.getAsJsonObject().get("properties").getAsJsonObject();
 			
 				long districtId = properties.get("district_geoid").getAsLong();
@@ -67,7 +67,7 @@ public class PrecinctServlet extends SpursServlet {
 				
 				DBHelper.saveOrUpdate(precinct);
 				setPrecinctProperties(precinct, properties);
-				setPrecinctCoordinates(precinct, geojson);
+				//setPrecinctCoordinates(precinct, geojson);
 				System.out.println("Precinct " + precinct.getId() + " created.");
 			}
 			System.out.println("Precincts upload done");
@@ -80,11 +80,14 @@ public class PrecinctServlet extends SpursServlet {
 				Precinct precinct1 = (Precinct)DBHelper.getObject(Precinct.class, precinctId);
 				List<PrecinctEdge> adjacentEdges = new ArrayList<PrecinctEdge>();
 				for (JsonElement neighborJson: jsonBody.get(precinctIdString).getAsJsonArray()) {
-					long neighborId = neighborJson.getAsLong();
+					long neighborId = neighborJson.getAsJsonArray().get(0).getAsLong();
+					if (neighborId == precinctId) {
+						continue;
+					}
 					Precinct precinct2 = (Precinct)DBHelper.getObject(Precinct.class, neighborId);
-					PrecinctEdge edge = new PrecinctEdge(precinct1, precinct2, 0, 0);
+					PrecinctEdge edge = new PrecinctEdge(precinct1, precinct2, 0, 0, neighborJson.getAsJsonArray().get(1).getAsFloat());
 					adjacentEdges.add(edge);
-					DBHelper.saveOrUpdate(edge);
+					//DBHelper.saveOrUpdate(edge);
 				}
 				precinct1.setAdjacentEdges(adjacentEdges);
 				DBHelper.saveOrUpdate(precinct1);
@@ -119,6 +122,8 @@ public class PrecinctServlet extends SpursServlet {
 	private void setPrecinctProperties(Precinct precinct, JsonObject properties) {
 		precinct.setName(properties.get("NAME").getAsString());
 		precinct.setCounty(properties.get("COUNTY").getAsString());
+		precinct.setArea(properties.get("area").getAsFloat());
+		precinct.setPerimeter(properties.get("perimeter").getAsFloat());
 		
 		int GOV18R = properties.get("GOV18R").getAsInt();
 		int GOV18D = properties.get("GOV18D").getAsInt();
@@ -131,9 +136,9 @@ public class PrecinctServlet extends SpursServlet {
 		Party SEN18win = SEN18R > SEN18D? Party.REPUBLICAN: Party.DEMOCRAT;
 		Party PRES16win = PRES16R > PRES16D? Party.REPUBLICAN: Party.DEMOCRAT;
 		
-		Election electionGOV18 = new Election(precinct, ElectionType.GUBERNATORIAL2018, GOV18win);
-		Election electionSEN18 = new Election(precinct, ElectionType.SENATE2018, SEN18win);
-		Election electionPRES16 = new Election(precinct, ElectionType.PRESIDENTIAL2016, PRES16win);
+		Election electionGOV18 = new Election(precinct, ElectionType.GOV18, GOV18win);
+		Election electionSEN18 = new Election(precinct, ElectionType.SEN18, SEN18win);
+		Election electionPRES16 = new Election(precinct, ElectionType.PRES16, PRES16win);
 		
 		DBHelper.saveOrUpdate(electionGOV18);
 		DBHelper.saveOrUpdate(electionSEN18);
