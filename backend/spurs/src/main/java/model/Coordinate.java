@@ -9,7 +9,6 @@ import javax.persistence.Transient;
 
 import com.google.gson.annotations.Expose;
 
-@Entity
 public class Coordinate {
 	@Expose
 	private CoordinateKey coordinateKey;

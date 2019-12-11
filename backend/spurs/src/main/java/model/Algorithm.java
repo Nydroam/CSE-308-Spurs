@@ -1,5 +1,6 @@
 package model;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -20,17 +21,30 @@ public class Algorithm {
     	return state.isVotingAsBloc(electionType, voteThresh, raceThresh);
     }
     
-    public Set<PrecinctCluster> runPhase1(float rangeMin, float rangeMax, List<Race> races){
+    public Set<PrecinctCluster> runPhase1(List<Race> races, float rangeMin, float rangeMax){
+    	Set<PrecinctCluster> newClusters = new HashSet<PrecinctCluster>();
+    	Set<PrecinctCluster> pickedClusters = new HashSet<PrecinctCluster>();
     	while (precinctClusters.size() > state.getDistricts().size()) {
     		for (PrecinctCluster pc1: precinctClusters) {
-    			PrecinctCluster bestPc2;
+    			PrecinctClusterEdge pickedEdge = null;
     			float currMaxJoinability = 0;
     			for (PrecinctClusterEdge pcEdge: pc1.getExteriorEdges()) {
-    				List<PrecinctCluster> endpoints = pcEdge.getEndPoints();
-    				PrecinctCluster pc2 = pcEdge.getOtherEndpoint(pc1);
+    				float joinability = (pcEdge.calculateMMJoinability(races, rangeMin, rangeMax) + pcEdge.calculateNonMMJoinability()) / 2;
+    				if (joinability > currMaxJoinability && !pickedClusters.contains(pcEdge.getOtherEndpoint(pc1))) {
+    					pickedEdge = pcEdge;
+    					currMaxJoinability = joinability; 
+    				}
+    			}
+    			if (pickedEdge != null) {
+    				pickedClusters.add(pc1);
+    				pickedClusters.add(pickedEdge.getOtherEndpoint(pc1));
+    				newClusters.add(pickedEdge.generatePrecinctCluster());
+    			}
+    			if (newClusters.size() == state.getDistricts().size()) {
+    				return newClusters;
     			}
     		}
     	}
-    	return null;
+    	return newClusters;
     }
 }

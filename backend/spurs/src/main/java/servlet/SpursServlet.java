@@ -36,7 +36,6 @@ public abstract class SpursServlet extends HttpServlet {
 	
 	public static SessionFactory sessionFactory = new Configuration().configure("hibernate.cfg.xml")
 			.addAnnotatedClass(State.class)
-			.addAnnotatedClass(Coordinate.class)
 			.addAnnotatedClass(Precinct.class)
 			.addAnnotatedClass(District.class)
 			.addAnnotatedClass(PrecinctEdge.class)

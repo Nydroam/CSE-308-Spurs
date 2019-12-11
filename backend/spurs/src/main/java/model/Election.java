@@ -29,7 +29,7 @@ public class Election {
 	}
 
 	public enum ElectionType {
-		PRESIDENTIAL2016, SENATE2014, SENATE2016, SENATE2018, GUBERNATORIAL2014, GUBERNATORIAL2018;
+		PRES16, SEN14, SEN16, SEN18, GOV14, GOV18;
 	}
 	
 	private Precinct precinct;
@@ -46,15 +46,15 @@ public class Election {
 		this.winningParty = winningParty;
 		setElectionKey(new ElectionKey(precinct, electionType));
 		switch(electionType) {
-		case GUBERNATORIAL2018:{
+		case GOV18:{
 			this.year = 2018;
 			break;
 		}
-		case SENATE2018:{
+		case SEN18:{
 			this.year = 2018;
 			break;
 		}
-		case PRESIDENTIAL2016:{
+		case PRES16:{
 			this.year = 2016;
 			break;
 		}
