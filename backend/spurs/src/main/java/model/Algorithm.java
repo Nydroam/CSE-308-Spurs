@@ -3,6 +3,7 @@ package model;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import lineitem.BlocLineItem;
 import model.Election.ElectionType;
@@ -24,8 +25,16 @@ public class Algorithm {
     public Set<PrecinctCluster> runPhase1(List<Race> races, float rangeMin, float rangeMax){
     	Set<PrecinctCluster> newClusters = new HashSet<PrecinctCluster>();
     	Set<PrecinctCluster> pickedClusters = new HashSet<PrecinctCluster>();
-    	while (precinctClusters.size() > state.getDistricts().size()) {
+    	int size = precinctClusters.size();
+    	
+    	while (size > state.getDistricts().size()) {
+    		int numP = precinctClusters.stream().mapToInt(p -> p.getPrecincts().size()).sum();
+    		System.out.println(numP);
+    		int count = 0;
     		for (PrecinctCluster pc1: precinctClusters) {
+    			if (pickedClusters.contains(pc1)) {
+    				continue;
+    			}
     			PrecinctClusterEdge pickedEdge = null;
     			float currMaxJoinability = 0;
     			for (PrecinctClusterEdge pcEdge: pc1.getExteriorEdges()) {
@@ -35,16 +44,31 @@ public class Algorithm {
     					currMaxJoinability = joinability; 
     				}
     			}
+    			if (pickedEdge == null) {
+    				count++;
+    			}
     			if (pickedEdge != null) {
     				pickedClusters.add(pc1);
     				pickedClusters.add(pickedEdge.getOtherEndpoint(pc1));
     				newClusters.add(pickedEdge.generatePrecinctCluster());
     			}
-    			if (newClusters.size() == state.getDistricts().size()) {
+    			if (newClusters.size() == state.getDistricts().size() && newClusters.size() > precinctClusters.size() / 2) {
     				return newClusters;
     			}
     		}
+    		Set<PrecinctCluster> leftovers = new HashSet<PrecinctCluster>();
+    		for (PrecinctCluster pc: precinctClusters) {
+    			if (!pickedClusters.contains(pc)) {
+    				leftovers.add(pc);
+    			}
+    		}
+    		precinctClusters = new HashSet<PrecinctCluster>();
+    		precinctClusters.addAll(newClusters);
+    		precinctClusters.addAll(leftovers);
+    		size = precinctClusters.size();
+    		newClusters = new HashSet<PrecinctCluster>();
+    		pickedClusters = new HashSet<PrecinctCluster>();
     	}
-    	return newClusters;
+    	return precinctClusters;
     }
 }
