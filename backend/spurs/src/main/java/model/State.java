@@ -66,6 +66,7 @@ public class State{
 		this.stateName = stateName;
 	}
 	
+	@LazyCollection(LazyCollectionOption.FALSE)
 	@OneToMany(targetEntity = District.class, mappedBy = "state", cascade = CascadeType.ALL)
 	public Set<District> getDistricts() {
 		return districts;
@@ -92,6 +93,7 @@ public class State{
 		for (Precinct p: precincts) {
 			PrecinctCluster cluster = new PrecinctCluster(p);
 			precinctMapping.put(p, cluster);
+			precinctClusters.add(cluster);
 		}
 		for (Precinct p: precincts) {
 			Set<PrecinctClusterEdge> exteriorEdges = new HashSet<PrecinctClusterEdge>();
@@ -107,6 +109,9 @@ public class State{
 							endpoint2 = precinctMapping.get(endpoint);
 						}
 					}
+				}
+				if (endpoint1 == null || endpoint2 == null) {
+					continue;
 				}
 				exteriorEdges.add(new PrecinctClusterEdge(endpoint1, endpoint2));
 			}

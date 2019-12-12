@@ -67,10 +67,12 @@ public class StateServlet extends SpursServlet{
 			float raceThresh = jsonBody.get("raceThresh").getAsFloat();
 			ElectionType electionType = ElectionType.valueOf(jsonBody.get("electionType").getAsString());
 			long stateId = jsonBody.get("stateId").getAsLong();
-			
+			long ini = System.currentTimeMillis();
 			State state = (State)DBHelper.getObject(State.class, stateId);
+			System.out.println((System.currentTimeMillis() - ini)/1000.0);
+			ini = System.currentTimeMillis();
 			Algorithm a = new Algorithm(state);
-			
+			System.out.println((System.currentTimeMillis() - ini)/1000.0);
 			sendResponse(res, GSON.toJson(a.runPhase0(electionType, voteThresh, raceThresh)));
 			break;
 		}
@@ -87,7 +89,7 @@ public class StateServlet extends SpursServlet{
 			State state = (State)DBHelper.getObject(State.class, stateId);
 			Algorithm a = new Algorithm(state);
 			
-			sendResponse(res, GSON.toJson(a.runPhase1(rangeMin, rangeMax, races)));
+			sendResponse(res, GSON.toJson(a.runPhase1(races, rangeMin, rangeMax)));
 			break;
 		}
 		default:

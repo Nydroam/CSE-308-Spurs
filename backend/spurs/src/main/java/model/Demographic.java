@@ -5,6 +5,7 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Transient;
 
 import com.google.gson.annotations.Expose;
 
@@ -51,6 +52,11 @@ public class Demographic {
 	}
 	public void setPopulation(long population) {
 		this.population = population;
+	}
+	
+	@Transient
+	public Race getRace() {
+		return demographicKey.getRace();
 	}
 		
 }
