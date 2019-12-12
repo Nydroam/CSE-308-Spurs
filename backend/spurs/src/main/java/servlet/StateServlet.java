@@ -2,8 +2,10 @@ package servlet;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.servlet.ServletException;
@@ -30,6 +32,7 @@ import util.DBHelper;
 public class StateServlet extends SpursServlet{
 	private static final long serialVersionUID = 1L;
 
+	private Map<Long, State> states = new HashMap<Long, State>();
 	public StateServlet() {
 	}
 	
@@ -67,12 +70,14 @@ public class StateServlet extends SpursServlet{
 			float raceThresh = jsonBody.get("raceThresh").getAsFloat();
 			ElectionType electionType = ElectionType.valueOf(jsonBody.get("electionType").getAsString());
 			long stateId = jsonBody.get("stateId").getAsLong();
-			long ini = System.currentTimeMillis();
-			State state = (State)DBHelper.getObject(State.class, stateId);
-			System.out.println((System.currentTimeMillis() - ini)/1000.0);
-			ini = System.currentTimeMillis();
+			State state = null;
+			if (states.containsKey(stateId)) {
+				state = states.get(stateId);
+			}else {
+				state = (State)DBHelper.getObject(State.class, stateId);
+				states.put(stateId, state);
+			}
 			Algorithm a = new Algorithm(state);
-			System.out.println((System.currentTimeMillis() - ini)/1000.0);
 			sendResponse(res, GSON.toJson(a.runPhase0(electionType, voteThresh, raceThresh)));
 			break;
 		}
@@ -85,8 +90,13 @@ public class StateServlet extends SpursServlet{
 				races.add(Race.valueOf(element.getAsString()));
 			}
 			long stateId = jsonBody.get("stateId").getAsLong();
-			
-			State state = (State)DBHelper.getObject(State.class, stateId);
+			State state = null;
+			if (states.containsKey(stateId)) {
+				state = states.get(stateId);
+			}else {
+				state = (State)DBHelper.getObject(State.class, stateId);
+				states.put(stateId, state);
+			}
 			Algorithm a = new Algorithm(state);
 			
 			sendResponse(res, GSON.toJson(a.runPhase1(races, rangeMin, rangeMax)));
