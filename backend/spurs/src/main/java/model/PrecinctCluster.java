@@ -14,6 +14,7 @@ import model.Election.Race;
 
 public class PrecinctCluster {
 
+	private long id;
 	@Expose
 	private Set<Precinct> precincts;
     private Set<PrecinctEdge> interiorEdges;
@@ -38,6 +39,7 @@ public class PrecinctCluster {
 
     public PrecinctCluster(Precinct precinct) {
     	this();
+    	this.id = precinct.getId();
     	precincts.add(precinct);
     	setPopulation(precinct.getPopulation());
     	for (Demographic d: precinct.getDemographics()) {
@@ -48,11 +50,19 @@ public class PrecinctCluster {
     	countyTally.put(precinct.getCounty(), 1);
     }
     
+    public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+    
     public Set<Precinct> getPrecincts(){
         return precincts;
     }
     
-    public void setPrecincts(Set<Precinct> precincts) {
+	public void setPrecincts(Set<Precinct> precincts) {
     	this.precincts = precincts;
     }
     
@@ -182,14 +192,10 @@ public class PrecinctCluster {
 	}
 	
 	public boolean equals(PrecinctCluster precinctCluster) {
-    	return precinctCluster.getPrecincts().equals(precincts);
+    	return precinctCluster.getId() == id;
     }
     
     public int hashCode() {
-    	double value = 0;
-    	for (Precinct precinct: precincts) {
-    		value += Math.sqrt((double)precinct.getId());
-    	}
-    	return (int)Math.floor(value);
+       	return (int)id;
     }
 }

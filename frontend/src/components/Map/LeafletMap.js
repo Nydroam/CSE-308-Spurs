@@ -72,6 +72,16 @@ class LeafletMap extends React.PureComponent{
       }
     }
 
+    newStyle = (feature) =>{
+      return{
+        fillColor: this.props.newdistrict?this.props.newdistrict[feature.properties.NAME]:"hsl(0, 0%, 10%)",
+        fillOpacity:1,
+        weight:1,
+        color:this.props.newdistrict?this.props.newdistrict[feature.properties.NAME]:"hsl(0, 0%, 10%)",
+        opacity:1,
+      }
+    }
+
     setStyleHover = (feature) =>{
       return{
         fillColor: 'cyan',
@@ -112,12 +122,16 @@ class LeafletMap extends React.PureComponent{
         feature.eachLayer( layer => {
           layer.off()
           layer.on("click",e=>this.handleClick(e))
+          if(this.props.view !== "ND"){
           layer.on("mouseover",e=>this.onHover(e))
           layer.on("mouseout",e=>this.onHoverOff(e))
+          }
         })
       }
       if(this.props.state!==this.state.currState)   
         this.setState({currState:this.props.state})
+      if(this.props.view!=this.state.currView)
+        this.setState({currView:this.props.view})
     }
     render(){
         let features = 
@@ -127,12 +141,16 @@ class LeafletMap extends React.PureComponent{
 
         if(this.props.state){
           let mapkey = null;
-          if(this.props.view !=="VP") {
+          let style = this.setStyle;
+          if(this.props.view === "OD") {
             mapkey = this.props.state.toLowerCase()+"district";
           }else{
             mapkey = this.props.state.toLowerCase()+"precinct";
+            if(this.props.view === "ND"){
+              style = this.newStyle;
+            }
           }
-          features = <GeoJSON data={this.state[[mapkey]]} key={mapkey} style={this.setStyle}></GeoJSON>
+          features = <GeoJSON data={this.state[[mapkey]]} key={mapkey} style={style}></GeoJSON>
       }
 
         return(
