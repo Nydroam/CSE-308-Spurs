@@ -92,9 +92,11 @@ public class PrecinctClusterEdge {
     public PrecinctCluster generatePrecinctCluster() {
     	PrecinctCluster cluster = new PrecinctCluster();
     	
-    	Set<Precinct> newPrecincts = endpoint1.getPrecincts();
+    	Set<Precinct> newPrecincts = new HashSet<Precinct>();
+    	newPrecincts.addAll(endpoint1.getPrecincts());
     	newPrecincts.addAll(endpoint2.getPrecincts());
     	cluster.setPrecincts(newPrecincts);
+    	
     	cluster.setPopulation(endpoint1.getPopulation() + endpoint2.getPopulation());
     	cluster.setCumulativeMMJoinability(mmJoinability);
     	Map<Race, Long> newPopulationByRace = new HashMap<Race, Long>();
@@ -106,7 +108,8 @@ public class PrecinctClusterEdge {
     	cluster.setDemVotes(endpoint1.getDemVotes() + endpoint2.getDemVotes());
     	Map<String, Integer> newCountyTally = combineCountyTally();
     	cluster.setCountyTally(newCountyTally);
-    	Set<PrecinctEdge> newInteriorEdges = endpoint1.getInteriorEdges();
+    	Set<PrecinctEdge> newInteriorEdges = new HashSet<PrecinctEdge>();
+    	newInteriorEdges.addAll(endpoint1.getInteriorEdges());
     	newInteriorEdges.addAll(endpoint2.getInteriorEdges());
     	cluster.setInteriorEdges(newInteriorEdges);
     	
@@ -119,7 +122,7 @@ public class PrecinctClusterEdge {
     			neighbors.add(other);
     		}
     	}
-    	
+    	cluster.setExteriorEdges(newExteriorEdges);
     	return cluster;
     }
     
@@ -127,16 +130,16 @@ public class PrecinctClusterEdge {
     	float area = 0;
         float perimeter = 0;
         float sharedPerimeter = 0;
-        if (endpoint1 == null) {
-        	System.out.println(endpoint1);
-        }
-        Set<Precinct> precincts = endpoint1.getPrecincts();
+        
+        Set<Precinct> precincts = new HashSet<Precinct>();
+        precincts.addAll(endpoint1.getPrecincts());
         precincts.addAll(endpoint2.getPrecincts());
         for (Precinct precinct: precincts){
             area += precinct.getArea();
             perimeter += precinct.getPerimeter();
         }
-        Set<PrecinctEdge> interiorEdges = endpoint1.getInteriorEdges();
+        Set<PrecinctEdge> interiorEdges = new HashSet<PrecinctEdge>();
+        interiorEdges.addAll(endpoint1.getInteriorEdges());
         interiorEdges.addAll(endpoint2.getInteriorEdges());
         for (PrecinctEdge edge: interiorEdges) {
         	sharedPerimeter += edge.getSharedPerimeter();
@@ -175,7 +178,15 @@ public class PrecinctClusterEdge {
     }
     
     private Map<String, Integer> combineCountyTally(){
-    	Map<String, Integer> newCountyTally = endpoint1.getCountyTally();
+    	Map<String, Integer> newCountyTally = new HashMap<String, Integer>();
+    	
+    	for (String county: endpoint1.getCountyTally().keySet()) {
+    		if (newCountyTally.containsKey(county)) {
+    			newCountyTally.put(county, newCountyTally.get(county) + endpoint1.getCountyTally().get(county));
+    		}else {
+    			newCountyTally.put(county, endpoint1.getCountyTally().get(county));
+    		}
+    	}
     	for (String county: endpoint2.getCountyTally().keySet()) {
     		if (newCountyTally.containsKey(county)) {
     			newCountyTally.put(county, newCountyTally.get(county) + endpoint2.getCountyTally().get(county));
