@@ -263,8 +263,8 @@ class Sidebar extends React.PureComponent{
                                 </React.Fragment>
                             )}
                             <br></br>
-                            {this.props.state?<div><b>Democratic Representatives: {reps["default"][state]["Dems"]}</b></div>:null}
-                            {this.props.state?<div><b>Republican Representatives: {reps["default"][state]["Repubs"]}</b></div>:null}
+                            {this.props.state&&reps["default"][state]?<div><b>Democratic Representatives: {reps["default"][state]["Dems"]}</b></div>:null}
+                            {this.props.state&&reps["default"][state]?<div><b>Republican Representatives: {reps["default"][state]["Repubs"]}</b></div>:null}
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Votes">
                             {demo["NAME"]?<div><b>{demo["NAME"]}</b></div>:null}
@@ -277,7 +277,7 @@ class Sidebar extends React.PureComponent{
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Representative">
                             {this.props.view==="OD"?demo["NAME"]?<div><b>{demo["NAME"]}</b></div>:null:null}
-                            {this.props.view==="OD"?demo["NAME"]?<div><b>{reps["default"][state][demo["NAME"]]}</b></div>:null:null}
+                            {this.props.view==="OD"&&reps["default"][state]?demo["NAME"]?<div><b>{reps["default"][state][demo["NAME"]]}</b></div>:null:null}
                         </Fieldset>
                     </TabPanel>
                     
@@ -365,8 +365,8 @@ class Sidebar extends React.PureComponent{
                 </TabView>
                 <Dialog header="Results" visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}>
                 </Dialog>  
-                <Dialog header="Results" visible={this.state.phase0Visible} style={{width:"100vw",height:"100vh",overflowY:"auto"}} modal={true} onHide={()=>this.setState({phase0Visible:false})}>
-                <DataTable value={this.state.phase0Data}>
+                <Dialog header="Results" visible={this.state.phase0Visible} style={{width:"100vw"}}  modal={true} onHide={()=>this.setState({phase0Visible:false})}>
+                <DataTable value={this.state.phase0Data} scrollable={true} scrollHeight={"calc(100vh - 150px)"}>
                         <Column field="name" header="Precinct" />
                         <Column field="demographic" header="Race" />
                         <Column field="demographicPop" header="Race Population"/>

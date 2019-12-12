@@ -74,7 +74,11 @@ class LeafletMap extends React.PureComponent{
 
     newStyle = (feature) =>{
       return{
-        fillColor:"gray",
+        fillColor: this.props.newdistrict?this.props.newdistrict[feature.properties.NAME]:"gray",
+        fillOpacity:1,
+        weight:1,
+        color:"gray",
+        opacity:1,
       }
     }
 
@@ -118,12 +122,16 @@ class LeafletMap extends React.PureComponent{
         feature.eachLayer( layer => {
           layer.off()
           layer.on("click",e=>this.handleClick(e))
+          if(this.props.view !== "ND"){
           layer.on("mouseover",e=>this.onHover(e))
           layer.on("mouseout",e=>this.onHoverOff(e))
+          }
         })
       }
       if(this.props.state!==this.state.currState)   
         this.setState({currState:this.props.state})
+      if(this.props.view!=this.state.currView)
+        this.setState({currView:this.props.view})
     }
     render(){
         let features = 
