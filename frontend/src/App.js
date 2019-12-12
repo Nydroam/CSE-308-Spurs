@@ -10,6 +10,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       state: null,
+      newdistrict:null,
       view: "OD",
       election: "PRES16",
       demo: {},
@@ -24,7 +25,7 @@ class App extends React.Component {
     return (
       <div className="App flex" >
         <Sidebar election={this.state.election} demo={this.state.demo} state={this.state.state} view={this.state.view} changeState={this.changeState}></Sidebar>
-        <Map election={this.state.election} state={this.state.state} view={this.state.view} changeState={this.changeState}></Map>
+        <Map election={this.state.election} state={this.state.state} newdistrict={this.state.newdistrict} view={this.state.view} changeState={this.changeState}></Map>
       </div>
     );
   }

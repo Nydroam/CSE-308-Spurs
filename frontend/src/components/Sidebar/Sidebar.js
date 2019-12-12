@@ -210,7 +210,8 @@ class Sidebar extends React.PureComponent{
                      map[p[j]['name']] = "hsl(" + (i * (360 / len) % 360) + ",100%,50%)";
                  }
              }
-             this.props.changeState({"newdistrict":map})
+             this.props.changeState("newdistrict",map)
+             console.log(map)
          }
          this.setState({resultInfo:data,running:false})} )
          .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",running:false});});}
