@@ -10,7 +10,7 @@ class App extends React.Component {
     super(props);
     this.state = {
       state: null,
-      view: null,
+      view: "OD",
       election: "PRES16",
       demo: {},
     }

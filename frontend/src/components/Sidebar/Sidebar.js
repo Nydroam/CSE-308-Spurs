@@ -11,6 +11,7 @@ import {ProgressBar} from 'primereact/progressbar';
 import {Dialog} from 'primereact/dialog';
 import {ProgressSpinner} from 'primereact/progressspinner';
 import {DataTable} from 'primereact/datatable';
+import {Column} from 'primereact/column';
 
 import './Sidebar.css';
 const states=[
@@ -32,11 +33,11 @@ const views=[
     {label:"New Districts", value:"ND"},
 ]
 const ethnics= [
-    {label:"American Indian/Alaskan Native", value:"AI"},
-    {label:"Asian", value:"A"},
-    {label:"Black or African American", value:"AA"},
-    {label:"Hispanic", value:"HIS"},
-    {label:"Hawaiian/Pacific Islander", value:"HPI"},
+    {label:"American Indian/Alaskan Native", value:"AMIN"},
+    {label:"Asian", value:"ASIAN"},
+    {label:"Black or African American", value:"BLACK"},
+    {label:"Hispanic", value:"HISP"},
+    {label:"Hawaiian/Pacific Islander", value:"NHPI"},
 ]
 const elections=[
     {label:"2016 Presidential Election", value: "PRES16"},
@@ -119,7 +120,7 @@ class Sidebar extends React.PureComponent{
         fetch("http://localhost:8080/spurs/state/runPhase0",
          {method:"POST", body: JSON.stringify(
              {stateId: statesMap[this.props.state],
-            electionType: electionMap[this.props.election],
+            electionType: this.props.election,
             raceThresh:this.state.popThresh/100,
             voteThresh:this.state.voteThresh/100})}
          ).then( (res) => res.json())
@@ -144,7 +145,7 @@ class Sidebar extends React.PureComponent{
             let item = {};
             item['name'] = data[i]['precinct']['name'];
             item['popPercent'] = data[i]['demographic']['population']/data[i]['precinct']['population'];
-            item['demographic'] = data[i]['demographic']['demographicKey'];
+            item['demographic'] = data[i]['demographic']['demographicKey']['race'];
             item['demographicPop'] = data[i]['demographic']['population'];
             item['party'] = data[i]['party'];
             item['partyVotes'] = data[i]['votes'];
@@ -187,18 +188,21 @@ class Sidebar extends React.PureComponent{
         }
         else{
         this.setState({running:true});
-        fetch("localhost:8080/spurs/state/runPhase1",
+        fetch("http://localhost:8080/spurs/state/runPhase1",
              {method:"POST", body: JSON.stringify(
-                {stateId:this.props.state,
+                {stateId:statesMap[this.props.state],
                 mDistNum:this.state.mDistNum,
                 distNum:this.state.distNum,
-                ethnic:this.state.ethnic,
+                races:this.state.ethnic,
                 rangeMin:this.state.rangeValues[0],
                 rangeMax:this.state.rangeValues[1]})}
          ).then( (res) => res.json())
-         .then( (data) => this.setState({resultInfo:data,running:false}))
+         
+         .then( (data) => {
+            console.log(data);
+        console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
+         this.setState({resultInfo:data,running:false})} )
          .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",running:false});});}
-         console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
     }
     onChangeRangeSlider = (e) => {
         this.setState({ rangeValues: e.value});
@@ -354,7 +358,9 @@ class Sidebar extends React.PureComponent{
                     
                 </TabView>
                 <Dialog header="Results" visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}>
-                    <DataTable value={this.state.phase0Data}>
+                </Dialog>  
+                <Dialog header="Results" visible={this.state.phase0Visible} style={{width:"100vw",height:"100vh",overflowY:"auto"}} modal={true} onHide={()=>this.setState({phase0Visible:false})}>
+                <DataTable value={this.state.phase0Data}>
                         <Column field="name" header="Precinct" />
                         <Column field="demographic" header="Race" />
                         <Column field="demographicPop" header="Race Population"/>
@@ -362,10 +368,8 @@ class Sidebar extends React.PureComponent{
                         <Column field="party" header="Winning Party"/>
                         <Column field="partyVotes" header="Party Votes"/>
                         <Column field="votePercent" header="Vote %"/>
-                    <Column field="color" header="Color" />
                 </DataTable>
-                </Dialog>  
-                <Dialog header="Results" visible={this.state.phase0Visible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({phase0Visible:false})}></Dialog>  
+                    </Dialog>  
                 
             </div>
         )

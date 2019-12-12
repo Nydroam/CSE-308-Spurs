@@ -72,6 +72,12 @@ class LeafletMap extends React.PureComponent{
       }
     }
 
+    newStyle = (feature) =>{
+      return{
+        fillColor:"gray",
+      }
+    }
+
     setStyleHover = (feature) =>{
       return{
         fillColor: 'cyan',
@@ -127,12 +133,16 @@ class LeafletMap extends React.PureComponent{
 
         if(this.props.state){
           let mapkey = null;
-          if(this.props.view !=="VP") {
+          let style = this.setStyle;
+          if(this.props.view === "OD") {
             mapkey = this.props.state.toLowerCase()+"district";
           }else{
             mapkey = this.props.state.toLowerCase()+"precinct";
+            if(this.props.view === "ND"){
+              style = this.newStyle;
+            }
           }
-          features = <GeoJSON data={this.state[[mapkey]]} key={mapkey} style={this.setStyle}></GeoJSON>
+          features = <GeoJSON data={this.state[[mapkey]]} key={mapkey} style={style}></GeoJSON>
       }
 
         return(
