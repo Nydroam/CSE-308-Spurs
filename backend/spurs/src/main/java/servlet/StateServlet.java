@@ -83,8 +83,8 @@ public class StateServlet extends SpursServlet{
 		}
 		case "/runPhase1":{
 			JsonObject jsonBody = GSON.fromJson(body, JsonObject.class);
-			float rangeMin = jsonBody.get("rangeMin").getAsFloat();
-			float rangeMax = jsonBody.get("rangeMax").getAsFloat();
+			float rangeMin = jsonBody.get("rangeMin").getAsFloat()/100;
+			float rangeMax = jsonBody.get("rangeMax").getAsFloat()/100;
 			ArrayList<Race> races = new ArrayList<Race>();
 			for (JsonElement element: jsonBody.get("races").getAsJsonArray()) {
 				races.add(Race.valueOf(element.getAsString()));
