@@ -199,8 +199,19 @@ class Sidebar extends React.PureComponent{
          ).then( (res) => res.json())
          
          .then( (data) => {
-            console.log(data);
-        console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
+         console.log(data);
+         console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
+         if(data){
+             let len = data.length;
+             let map = {}
+             for (let i = 0; i < len; i++){
+                 let p = data[i]['precincts']
+                 for (let j = 0; j < p.length; j++){
+                     map[p[j]['name']] = "hsl(" + (i * (360 / len) % 360) + ",100%,50%)";
+                 }
+             }
+             this.props.changeState({"newdistrict":map})
+         }
          this.setState({resultInfo:data,running:false})} )
          .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",running:false});});}
     }

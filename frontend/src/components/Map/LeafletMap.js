@@ -74,10 +74,10 @@ class LeafletMap extends React.PureComponent{
 
     newStyle = (feature) =>{
       return{
-        fillColor: this.props.newdistrict?this.props.newdistrict[feature.properties.NAME]:"gray",
+        fillColor: this.props.newdistrict?this.props.newdistrict[feature.properties.NAME]:"hsl(0, 0%, 10%)",
         fillOpacity:1,
         weight:1,
-        color:"gray",
+        color:this.props.newdistrict?this.props.newdistrict[feature.properties.NAME]:"hsl(0, 0%, 10%)",
         opacity:1,
       }
     }
