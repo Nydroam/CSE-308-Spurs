@@ -12,7 +12,7 @@ import {Dialog} from 'primereact/dialog';
 import {ProgressSpinner} from 'primereact/progressspinner';
 import {DataTable} from 'primereact/datatable';
 import {Column} from 'primereact/column';
-
+import * as reps from './Representatives.json';
 import './Sidebar.css';
 const states=[
     {label:"California", value:"CA"},
@@ -230,9 +230,8 @@ class Sidebar extends React.PureComponent{
     }
 
     render(){
-        let {election,demo} = this.props;
+        let {election,demo,state} = this.props;
         let {phase0Summary} = this.state;
-
         let precinctVotes = null;
         Object.keys(partyMap).forEach(party => precinctVotes += demo[election+party]?demo[election+party]:0 )
 
@@ -263,6 +262,9 @@ class Sidebar extends React.PureComponent{
                                     {this.state[stateKey] && this.state[stateKey][election+party]? <ProgressBar value={Math.round(this.state[stateKey][election+party]/stateVotes*100)}/>:null}
                                 </React.Fragment>
                             )}
+                            <br></br>
+                            {this.props.state?<div><b>Democratic Representatives: {reps["default"][state]["Dems"]}</b></div>:null}
+                            {this.props.state?<div><b>Republican Representatives: {reps["default"][state]["Repubs"]}</b></div>:null}
                         </Fieldset>
                         <Fieldset className="fieldset" legend="Selected Votes">
                             {demo["NAME"]?<div><b>{demo["NAME"]}</b></div>:null}
@@ -272,6 +274,10 @@ class Sidebar extends React.PureComponent{
                                 {demo[election+party]?<ProgressBar value={Math.round(demo[election+party]/precinctVotes*100)} />:null}
                                 </React.Fragment>
                             )}
+                        </Fieldset>
+                        <Fieldset className="fieldset" legend="Selected Representative">
+                            {this.props.view==="OD"?demo["NAME"]?<div><b>{demo["NAME"]}</b></div>:null:null}
+                            {this.props.view==="OD"?demo["NAME"]?<div><b>{reps["default"][state][demo["NAME"]]}</b></div>:null:null}
                         </Fieldset>
                     </TabPanel>
                     
