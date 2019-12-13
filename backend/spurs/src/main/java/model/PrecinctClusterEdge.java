@@ -87,8 +87,17 @@ public class PrecinctClusterEdge {
 	}
 
 	public float calculateNonMMJoinability() {
+		
+		
+		
 		this.nonMMJoinability = (calculateCompactnessScore() + calculateCountyScore() + calculateFairnessScore()
 				+ calculatePopulationScore()) / 8;
+		if(nonMMJoinability<0) {
+//		System.out.println("Compact: " + calculateCompactnessScore());
+//		System.out.println("County: " + calculateCountyScore());
+//		System.out.println("Fairness: " + calculateFairnessScore());
+//		System.out.println("Population: " + calculatePopulationScore());
+		}
 		return nonMMJoinability;
 	}
 
@@ -215,9 +224,9 @@ public class PrecinctClusterEdge {
 		return newCountyTally;
 	}
 
-	public boolean equals(PrecinctClusterEdge other) {
-		return (other.getEndpoint1().equals(this.endpoint1) && other.getEndpoint2().equals(this.endpoint2))
-				|| (other.getEndpoint2().equals(this.endpoint1) && other.getEndpoint1().equals(this.endpoint2));
+	public boolean equals(Object other) {
+		return (other instanceof PrecinctClusterEdge) && (((PrecinctClusterEdge) other).getEndpoint1().equals(this.endpoint1) && ((PrecinctClusterEdge) other).getEndpoint2().equals(this.endpoint2))
+				|| (((PrecinctClusterEdge) other).getEndpoint2().equals(this.endpoint1) && ((PrecinctClusterEdge) other).getEndpoint1().equals(this.endpoint2));
 	}
 
 	public int hashCode() {

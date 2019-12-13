@@ -27,104 +27,65 @@ public class Algorithm {
     }
     
     public Set<PrecinctCluster> runPhase1(List<Race> races, float rangeMin, float rangeMax){
-    	Set<PrecinctCluster> newClusters = new HashSet<PrecinctCluster>();
-    	Set<PrecinctCluster> pickedClusters = new HashSet<PrecinctCluster>();
-    	
-    	Map<PrecinctCluster, PrecinctCluster> clusterMap = new HashMap<PrecinctCluster, PrecinctCluster>();
-    	for (PrecinctCluster p: precinctClusters) {
-    		clusterMap.put(p, p);
-    	}
-    	Queue<PrecinctCluster> clusterQueue = new LinkedList<PrecinctCluster>();
-    	for (PrecinctCluster p: clusterMap.keySet()) {
-    		clusterQueue.add(clusterMap.get(p));
-    	}
-    	while (precinctClusters.size() > state.getDistricts().size()) {
-    		//System.out.println(precinctClusters.size());
-    		if (clusterQueue.isEmpty()) {
-    			precinctClusters = new HashSet<PrecinctCluster>();
-    			precinctClusters.addAll(clusterMap.values());
-    			clusterMap = new HashMap<PrecinctCluster, PrecinctCluster>();
-    			for (PrecinctCluster p: precinctClusters) {
-    	    		clusterMap.put(p, p);
-    	    	}
-    			clusterQueue = new LinkedList<PrecinctCluster>();
-    			for (PrecinctCluster p: clusterMap.keySet()) {
-    	    		clusterQueue.add(clusterMap.get(p));
-    	    	}
-    			//newClusters = new HashSet<PrecinctCluster>();
-        		pickedClusters = new HashSet<PrecinctCluster>();
+    	Set<PrecinctCluster> mergedClusters = new HashSet<PrecinctCluster>();
+    	mergedClusters.addAll(precinctClusters);
+    	while(mergedClusters.size() > state.getDistricts().size()) {
+    		System.out.println("SIZE: " + mergedClusters.size());
+    		float maxJoinability = 0;
+    		PrecinctClusterEdge pickedEdge = null;
+    		PrecinctCluster A = null;
+    		for (PrecinctCluster pc : mergedClusters) {//loop through all precinct clusters for highest joinability
+    			for (PrecinctClusterEdge edge : pc.getExteriorEdges()) {
+    				float mmj = edge.calculateMMJoinability(races, rangeMin, rangeMax);
+    				float mmnj = edge.calculateNonMMJoinability();
+    				float joinability = (mmj + mmnj)/2;
+    				if(joinability<0) {
+    					System.out.println("JOIN: "+ joinability + " " + mmj + " + " + mmnj);
+    				}
+    				if (joinability >= maxJoinability) {
+    					pickedEdge = edge;
+    					A = pc;
+    					maxJoinability = joinability;
+    				}
+    			}
     		}
-    		PrecinctCluster pc1 = clusterQueue.poll();
-    		if (pc1 == null) {
-    			System.out.println();
+    		if(pickedEdge == null) {
+    			return mergedClusters;
+    		}else {
+    			PrecinctCluster B = pickedEdge.getOtherEndpoint(A);
+    			A = pickedEdge.generatePrecinctCluster(A);
+    			
+    			Set<PrecinctClusterEdge> AExterior = A.getExteriorEdges();
+    			Set<PrecinctClusterEdge> BExterior = B.getExteriorEdges();
+    			
+    			//Remove intersection of A and B
+    			AExterior.remove(pickedEdge);
+    			BExterior.remove(pickedEdge);
+    			
+    			//Making all points from B to C now A to C
+    			Set<PrecinctCluster> other = new HashSet<PrecinctCluster>();
+    			for (PrecinctClusterEdge e:BExterior) {
+    				other.add(e.getOtherEndpoint(B));
+    				e.setEndpoints(A, e.getOtherEndpoint(B));
+    			}
+    			//Making all points from C to B now C to A
+    			for (PrecinctCluster c : other) {
+    				Set<PrecinctClusterEdge> newEdges = new HashSet<PrecinctClusterEdge>();
+    				for(PrecinctClusterEdge edge : c.getExteriorEdges()) {
+    					PrecinctClusterEdge next = new PrecinctClusterEdge(edge.getEndpoint1(),edge.getEndpoint2());
+    					if(edge.getOtherEndpoint(c).equals(B)) {
+    						next.setEndpoints(c, A);
+    					}
+    					newEdges.add(next);
+    				}
+    				c.setExteriorEdges(newEdges);
+    			}
+    			
+    			//Union A and B into A and remove B from clusters
+    			AExterior.addAll(BExterior);
+    			mergedClusters.remove(B);
     		}
-			if (pickedClusters.contains(pc1)) {
-				continue;
-			}
-			PrecinctClusterEdge pickedEdge = null;
-			float currMaxJoinability = 0;
-			for (PrecinctClusterEdge pcEdge: pc1.getExteriorEdges()) {
-				float joinability = (pcEdge.calculateMMJoinability(races, rangeMin, rangeMax) + pcEdge.calculateNonMMJoinability()) / 2;
-				if (joinability >= currMaxJoinability && !pickedClusters.contains(pcEdge.getOtherEndpoint(pc1))) {
-					pickedEdge = pcEdge;
-					currMaxJoinability = joinability; 
-				}
-			}
-			if (pickedEdge != null) {
-				PrecinctCluster other = pickedEdge.getOtherEndpoint(pc1);
-				pickedClusters.add(pc1);
-				pickedClusters.add(other);
-				PrecinctCluster newCluster = pickedEdge.generatePrecinctCluster(pc1);
-				//newClusters.add(newCluster);
-				
-				Set<PrecinctClusterEdge> pc1ExteriorEdges = newCluster.getExteriorEdges();
-				pc1ExteriorEdges.remove(pickedEdge);
-				Set<PrecinctClusterEdge> otherExteriorEdges = other.getExteriorEdges();
-				PrecinctClusterEdge oe = null;
-				for (PrecinctClusterEdge e: otherExteriorEdges) {
-					if (e.equals(pickedEdge)) {
-						oe = e;
-					}
-				}
-				otherExteriorEdges.remove(oe);
-				for (PrecinctClusterEdge pce: otherExteriorEdges) {
-					if (pce.getOtherEndpoint(other).equals(newCluster)) {
-						continue;
-					}
-					if (clusterMap.get(pce.getOtherEndpoint(other)) == null) {
-						continue;
-					}
-					Set<PrecinctClusterEdge> edges = clusterMap.get(pce.getOtherEndpoint(other)).getExteriorEdges();
-					PrecinctClusterEdge tbr = null;
-					for (PrecinctClusterEdge e: edges) {
-						if (e.equals(pce)) {
-							tbr = e;
-						}
-					}
-					edges.remove(tbr);
-					edges.add(new PrecinctClusterEdge(clusterMap.get(pce.getOtherEndpoint(other)), newCluster));
-					clusterMap.get(clusterMap.get(pce.getOtherEndpoint(other))).setExteriorEdges(edges);
-					PrecinctClusterEdge newEdge = new PrecinctClusterEdge(clusterMap.get(pce.getOtherEndpoint(other)), newCluster);
-					for (PrecinctClusterEdge e: pc1ExteriorEdges) {
-						if (e.equals(newEdge)) {
-							break;
-						}
-					}
-					pc1ExteriorEdges.add(new PrecinctClusterEdge(newCluster, clusterMap.get(pce.getOtherEndpoint(other))));
-									
-				}
-				newCluster.setExteriorEdges(pc1ExteriorEdges);
-				//clusterMap.remove(pc1);
-				clusterMap.remove(other);
-				System.out.println();
-				//clusterMap.put(newCluster, newCluster);
-			}
-			if (newClusters.size() == state.getDistricts().size() && newClusters.size() > precinctClusters.size() / 2) {
-				return newClusters;
-			}
-		
-    				
     	}
-    	return precinctClusters;
+    	return mergedClusters;
     }
 }
