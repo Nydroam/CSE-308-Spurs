@@ -28,6 +28,8 @@ public class PrecinctCluster {
     private long population;
     private int repVotes;
     private int demVotes;
+    private float area;
+    private float perimeter;
     
     public PrecinctCluster() {
     	precincts = new HashSet<Precinct>();
@@ -181,6 +183,22 @@ public class PrecinctCluster {
 
 	public void setDemVotes(int demVotes) {
 		this.demVotes = demVotes;
+	}
+
+	public float getArea() {
+		return area;
+	}
+
+	public void setArea(float area) {
+		this.area = area;
+	}
+
+	public float getPerimeter() {
+		return perimeter;
+	}
+
+	public void setPerimeter(float perimeter) {
+		this.perimeter = perimeter;
 	}
 
 	public Map<String, Integer> getCountyTally(){
