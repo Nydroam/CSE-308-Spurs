@@ -118,7 +118,7 @@ public class StateServlet extends SpursServlet{
 			if(!step) {
 				sendResponse(res, GSON.toJson(a.runPhase1(races, rangeMin, rangeMax, distNum)));
 				a.resetClusters();
-				algo.put(stateId, null);
+				algo.remove(stateId);
 			}
 			else {
 				HashMap<String,Object> map = new HashMap<String,Object>();
