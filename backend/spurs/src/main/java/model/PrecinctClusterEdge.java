@@ -201,7 +201,7 @@ public class PrecinctClusterEdge {
 		float avgPop1 = endpoint1.getPopulation() / endpoint1.getPrecincts().size();
 		float avgPop2 = endpoint2.getPopulation() / endpoint2.getPrecincts().size();
 
-		return 1 - Math.abs(avgPop1 - avgPop2) / avgPop1;
+		return (float) (Math.abs(endpoint1.getPopulation() + endpoint2.getPopulation()) / Math.pow(endpoint1.getPopulation() + endpoint2.getPopulation(),2 ));
 	}
 
 	private Map<String, Integer> combineCountyTally() {

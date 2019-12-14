@@ -78,12 +78,11 @@ class Sidebar extends React.PureComponent{
             election: "2016P",
             allowStep : false,
             running : false,
-            runningStep : false,
-            firstStep : true,
             phase0Summary : null,
             phase0loading: false,
             phase0Data : null,
             phase0Visible:false,
+            numSteps:1,
         }
     }
 
@@ -159,35 +158,8 @@ class Sidebar extends React.PureComponent{
     onSubmitPhase1 = () => {
         this.props.changeState("view","ND")
         let seconds = new Date().getTime();
-        if(this.state.allowStep){
-            if(!this.state.firstStep){
-                this.setState({runningStep:true});
-                fetch("localhost:8080/spurs/state/runPhase1step",
-                    {method:"POST",}).then( (res) => res.json())
-                    .then( (data) => {
-                        if(data["finished"]){
-                            this.setState({firstStep:true});
-                        }
-                        this.setState({resultInfo:data,runningStep:false});
-                    })
-                    .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",runningStep:false,firstStep:true});});}
-            else{
-                this.setState({runningStep:true,firstStep:false});
-                fetch("localhost:8080/spurs/state/runPhase1step",
-                {method:"POST", body: JSON.stringify(
-                    {stateId:this.props.state,
-                    mDistNum:this.state.mDistNum,
-                    distNum:this.state.distNum,
-                    ethnic:this.state.ethnic,
-                    rangeMin:this.state.rangeValues[0],
-                    rangeMax:this.state.rangeValues[1]})}
-                ).then( (res) => res.json())
-                .then( (data) => this.setState({resultInfo:data,runningStep:false}))
-                .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",runningStep:false,firstStep:true});});
-            }
-        }
-        else{
-        this.setState({running:true});
+        
+        this.setState({running:true,phase1Done:false});
         fetch("http://localhost:8080/spurs/state/runPhase1",
              {method:"POST", body: JSON.stringify(
                 {stateId:statesMap[this.props.state],
@@ -195,13 +167,23 @@ class Sidebar extends React.PureComponent{
                 distNum:this.state.distNum,
                 races:this.state.ethnic,
                 rangeMin:this.state.rangeValues[0],
-                rangeMax:this.state.rangeValues[1]})}
+                rangeMax:this.state.rangeValues[1],
+                step:this.state.allowStep,
+                numSteps:this.state.numSteps})}
          ).then( (res) => res.json())
          
          .then( (data) => {
          console.log(data);
          console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
          if(data){
+             if(this.state.allowStep){
+                if(data["finished"]){
+                    this.setState({phase1Done:true})
+                }
+                data = data["results"];
+             }else{
+                 this.setState({phase1Done:true})
+             }
              let len = data.length;
              let map = {}
              for (let i = 0; i < len; i++){
@@ -214,7 +196,7 @@ class Sidebar extends React.PureComponent{
              console.log(map)
          }
          this.setState({resultInfo:data,running:false})} )
-         .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",running:false});});}
+         .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",running:false});});
     }
     onChangeRangeSlider = (e) => {
         this.setState({ rangeValues: e.value});
@@ -260,7 +242,7 @@ class Sidebar extends React.PureComponent{
         return(
             <div id="sidebar">
                 
-                <Dropdown placeholder="Select State" value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value);this.props.changeState("demo",{});this.setState({resultInfo:null})}} disabled={this.state.running || this.state.runningStep}></Dropdown>
+                <Dropdown placeholder="Select State" value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value);this.props.changeState("demo",{});this.setState({resultInfo:null})}} disabled={this.state.running}></Dropdown>
                 <Dropdown placeholder="Select View" disabled={this.props.state===null} value={this.props.view} options={views} onChange={(e) => {this.props.changeState("view",e.value)}}></Dropdown>
                
                 <TabView activeIndex={this.state.tab} onTabChange={(e) => this.setState({tab: e.index})}>
@@ -351,10 +333,10 @@ class Sidebar extends React.PureComponent{
                     
                     <TabPanel  disabled={this.props.state===null}  contentClassName="content" header={this.state.tab===3?" Phase 1/2":""} leftIcon="pi pi-angle-double-right">
                         <div className="center">
-                        <div>Number of Districts Required: {this.state.distNum}</div>
+                        <div>Number of Districts Required</div>
                         <InputText name="distNum"value={this.state.distNum} disabled={this.state.running} keyfilter="pint" onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '90%'}} />
                         
-                        <div>Number of Majority-Minority Districts Required: {this.state.mDistNum}</div>
+                        <div>Number of Majority-Minority Districts Required</div>
                         <InputText name="mDistNum"value={this.state.mDistNum} disabled={this.state.running} keyfilter="pint" onChange={(e)=>this.onChangeSlider("mDistNum",e)} style={{width: '90%'}} />
                         
                         <div>Choose Minorities</div>
@@ -364,13 +346,20 @@ class Sidebar extends React.PureComponent{
                         <div>
                         <Checkbox id="cb1" disabled={this.state.running} onChange={e => this.setState({allowStep: e.checked})} checked={this.state.allowStep}></Checkbox>
                         <label htmlFor="cb1"> Update every iteration</label>
+        
+                        {this.state.allowStep?
+                        <React.Fragment>
+                            <div style={{marginTop:"10px"}}>Number of Steps</div>
+                
+                            <InputText name="numSteps"value={this.state.numSteps} disabled={this.state.running} keyfilter="pint" onChange={(e)=>this.onChangeSlider("numSteps",e)} style={{width: '90%'}} />
+                        </React.Fragment>:null}
+                        
                         <br></br>
-                        <Button label="Run Algorithm"style={{marginRight:"10px",marginTop:"10px"}} disabled={this.state.running || this.state.runningStep}onClick={this.onSubmitPhase1}></Button>
+                        <Button label="Run Algorithm"style={{marginRight:"10px",marginTop:"10px"}} disabled={this.state.running }onClick={this.onSubmitPhase1}></Button>
                         
                         <Button label="View Results" disabled={!this.state.resultInfo} onClick={e=>this.setState({resultsVisible:true})}></Button>
-                        {(this.state.firstStep&&this.state.resultInfo&&this.state.resultInfo!=="Data Retrieval Failed")?<div>Algorithm has finished</div>:null}
                         </div>
-                                              
+                        {this.state.phase1Done? <div>Phase 1 Finished</div>:null}               
                     </div>
                     </TabPanel>
                     
