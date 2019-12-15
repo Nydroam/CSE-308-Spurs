@@ -26,6 +26,8 @@ const precinctNumbers={
 }
 const statesMap = {
     "RI":40,
+    "PA":39,
+    "CA":5,
 }
 const views=[
     {label:"Original Districts", value:"OD"},

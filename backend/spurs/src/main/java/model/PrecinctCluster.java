@@ -26,6 +26,7 @@ public class PrecinctCluster {
     private Map<String, Integer> countyTally;
     @Expose
     private long population;
+    private long mmPopulation;
     private int repVotes;
     private int demVotes;
     private float area;
@@ -169,6 +170,14 @@ public class PrecinctCluster {
     	this.populationByRace = populationByRace;
     }
 
+	public long getMmPopulation() {
+		return mmPopulation;
+	}
+
+	public void setMmPopulation(long mmPopulation) {
+		this.mmPopulation = mmPopulation;
+	}
+
 	public int getRepVotes() {
 		return repVotes;
 	}
@@ -209,8 +218,8 @@ public class PrecinctCluster {
 		this.countyTally = countyTally;
 	}
 	
-	public boolean equals(PrecinctCluster precinctCluster) {
-    	return precinctCluster.getId() == id;
+	public boolean equals(Object precinctCluster) {
+    	return ((PrecinctCluster) precinctCluster).getId() == id;
     }
     
     public int hashCode() {

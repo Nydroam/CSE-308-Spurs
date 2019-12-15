@@ -82,10 +82,10 @@ public class PrecinctClusterEdge {
 	}
 
 	public float calculateMMJoinability(List<Race> races, float rangeMin, float rangeMax) {
-		float pc1Joinability = endpoint1.getCumulativeMMJoinability(races, rangeMin, rangeMax);
-		float pc2Joinability = endpoint2.getCumulativeMMJoinability(races, rangeMin, rangeMax);
+		float pc1Joinability = endpoint1.getMmPopulation() / (1+endpoint1.getPopulation());
+		float pc2Joinability = endpoint2.getMmPopulation() / (1+endpoint2.getPopulation());
 
-		this.mmJoinability = (pc1Joinability * endpoint1.getPrecincts().size()
+		this.mmJoinability = (pc1Joinability * endpoint1.getPrecincts().size() 
 				+ pc2Joinability * endpoint2.getPrecincts().size())
 				/ (endpoint1.getPrecincts().size() + endpoint2.getPrecincts().size());
 		return mmJoinability;
@@ -113,9 +113,11 @@ public class PrecinctClusterEdge {
     	if (eater.equals(endpoint1)) {
     		eater = endpoint1;
     		other = endpoint2;
-    	}else {
+    	}else if (eater.equals(endpoint2)) {
     		eater = endpoint2;
     		other = endpoint1;
+    	}else {
+    		System.out.print("RIP TONY=========================================================");
     	}
     	Set<Precinct> newPrecincts = new HashSet<Precinct>();
     	newPrecincts.addAll(eater.getPrecincts());
@@ -131,8 +133,7 @@ public class PrecinctClusterEdge {
     	eater.setPopulationByRace(newPopulationByRace);
     	eater.setRepVotes(eater.getRepVotes() + other.getRepVotes());
     	eater.setDemVotes(eater.getDemVotes() + other.getDemVotes());
-    	eater.setArea(eater.getArea() + other.getArea());
-    	eater.setPerimeter(eater.getPerimeter() + other.getPerimeter());
+    	eater.setMmPopulation(endpoint1.getMmPopulation() + endpoint2.getMmPopulation());
     	Map<String, Integer> newCountyTally = combineCountyTally();
     	eater.setCountyTally(newCountyTally);
     	Set<PrecinctEdge> newInteriorEdges = new HashSet<PrecinctEdge>();
@@ -205,16 +206,13 @@ public class PrecinctClusterEdge {
 
 	public float calculateFairnessScore() {
 
-		float repVote1 = (float) endpoint1.getRepVotes() / (endpoint1.getDemVotes() + endpoint1.getRepVotes());
-		float repVote2 = (float) endpoint2.getRepVotes() / (endpoint2.getDemVotes() + endpoint2.getRepVotes());
+		float repVote1 = (float) endpoint1.getRepVotes() / (1+endpoint1.getDemVotes() + endpoint1.getRepVotes());
+		float repVote2 = (float) endpoint2.getRepVotes() / (1+endpoint2.getDemVotes() + endpoint2.getRepVotes());
 		return 1 - Math.abs(repVote1 - repVote2);
 	}
 
 	public float calculatePopulationScore() {
-		float avgPop1 = endpoint1.getPopulation() / endpoint1.getPrecincts().size();
-		float avgPop2 = endpoint2.getPopulation() / endpoint2.getPrecincts().size();
-
-		return (float) (Math.abs(endpoint1.getPopulation() + endpoint2.getPopulation()) / Math.pow(endpoint1.getPopulation() + endpoint2.getPopulation(),2 ));
+		return (float) 100/(endpoint1.getPopulation()+endpoint2.getPopulation());
 	}
 
 	private Map<String, Integer> combineCountyTally() {
