@@ -26,7 +26,13 @@ const precinctNumbers={
 }
 const statesMap = {
     "RI":40,
+    "PA":39,
+    "CA":5,
 }
+const tables = [
+    {label:"Majority-Minority Districts",value:"Majority-Minority Districts"},
+    {label:"Partisan Fairness",value:"Partisan Fairness"},
+]
 const views=[
     {label:"Original Districts", value:"OD"},
     {label:"Voting Precincts", value:"VP"},
@@ -83,6 +89,7 @@ class Sidebar extends React.PureComponent{
             phase0Data : null,
             phase0Visible:false,
             numSteps:1,
+            tableView:"Partisan Fairness",
         }
     }
 
@@ -130,7 +137,7 @@ class Sidebar extends React.PureComponent{
        
     }
     parsePhase0 = (data) => {
-        let phase0sum = {}
+        let phase0sum = {};
         phase0sum['eligibleP'] = data.length;
         phase0sum['WHITE']=0;
         phase0sum['AMIN']=0;
@@ -222,13 +229,11 @@ class Sidebar extends React.PureComponent{
         }
       )
     }
-
     render(){
         let {election,demo,state} = this.props;
         let {phase0Summary} = this.state;
         let precinctVotes = null;
         Object.keys(partyMap).forEach(party => precinctVotes += demo[election+party]?demo[election+party]:0 )
-
         let precinctPop = null;
         Object.keys(demoMap).forEach(key=>{precinctPop += demo[key]?demo[key]:0})
 
@@ -238,7 +243,22 @@ class Sidebar extends React.PureComponent{
         
         let statePop = 0;
         Object.keys(demoMap).forEach(key=>{statePop += this.state[stateKey] && this.state[stateKey][key]?this.state[stateKey][key]:0})
-
+        
+        let v = null;
+        let m = null;
+        if (stateKey == "pastate"){
+            v = this.props.gerrymander.pa;
+            m = this.props.mmDistricts.MMPdistricts;
+        }
+        else if (stateKey == "castate"){
+            v = this.props.gerrymander.ca;
+            m = this.props.mmDistricts.MMCdistricts;
+        }
+        else if (stateKey == "ristate"){
+            v = this.props.gerrymander.ri;
+            m = this.props.mmDistricts.MMRdistricts;
+        }
+        console.log(this.props.mmDistricts);
         return(
             <div id="sidebar">
                 
@@ -336,9 +356,6 @@ class Sidebar extends React.PureComponent{
                         <div>Number of Districts Required</div>
                         <InputText name="distNum"value={this.state.distNum} disabled={this.state.running} keyfilter="pint" onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '90%'}} />
                         
-                        <div>Number of Majority-Minority Districts Required</div>
-                        <InputText name="mDistNum"value={this.state.mDistNum} disabled={this.state.running} keyfilter="pint" onChange={(e)=>this.onChangeSlider("mDistNum",e)} style={{width: '90%'}} />
-                        
                         <div>Choose Minorities</div>
                         <ListBox style={{display:'inline-block',width:'100%'}} disabled={this.state.running}value={this.state.ethnic} options={ethnics} onChange={(e) => this.setState({ethnic: e.value})} multiple={true}/>
                         <div>Min, Max (%): {this.state.rangeValues[0]},{this.state.rangeValues[1]}</div>
@@ -364,7 +381,24 @@ class Sidebar extends React.PureComponent{
                     </TabPanel>
                     
                 </TabView>
-                <Dialog header="Results" visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}>
+                <Dialog header={this.state.tableView} visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}>
+                <Dropdown value={this.state.tableView} options={tables} onChange={(e)=>{this.setState({tableView:e.value})}}/>
+                {this.state.tableView==="Partisan Fairness"?<DataTable value={v} scrollable={true} scrollHeight={"calc(100vh - 150px)"}>
+                    <Column field="name" header="District"/>
+                    <Column field="SEN16" header="Congressional 2016"/>
+                    <Column field="PRES16" header="Presidential 2016"/>
+                    <Column field="SEN18" header="Congressional 2018"/>
+                </DataTable>:null}
+                {this.state.tableView==="Majority-Minority Districts"?<DataTable value={m} scrollable={true} scrollHeight={"calc(100vh - 150px)"}>
+                    <Column field="NAME" header="District"/>
+                    <Column field="maxMinority" header="Dominant Race"/>
+                    <Column field="WHITE" header="White"/>
+                    <Column field="ASIAN" header="Asian"/>
+                    <Column field="BLACK" header="Black"/>
+                    <Column field="NHPI" header="Native Hawaiian/Pacific Islander"/>
+                    <Column field="HISP" header="Hispanic"/>
+                    <Column field="AMIN" header="American Indian"/>
+                </DataTable>:null}
                 </Dialog>  
                 <Dialog header="Results" visible={this.state.phase0Visible} style={{width:"100vw"}}  modal={true} onHide={()=>this.setState({phase0Visible:false})}>
                 <DataTable value={this.state.phase0Data} scrollable={true} scrollHeight={"calc(100vh - 150px)"}>
