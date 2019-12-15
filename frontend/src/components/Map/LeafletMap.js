@@ -101,8 +101,11 @@ class LeafletMap extends React.PureComponent{
           data.forEach(
             name=>{
               let split = name.split("_");
+              if (split[1] == "district" || split[1] == "precinct"){
               let key = split[0] + split[1];
-              fetch(data_server+"/geojson/"+name).then(res=>res.json()).then(result => this.setState({[key]:result}));
+              fetch(data_server+"/geojson/"+name).then(res=>res.json()).
+              then(result => {this.setState({[key]:result});
+              this.props.updateState(key,result)});}
             }
           )
         }
