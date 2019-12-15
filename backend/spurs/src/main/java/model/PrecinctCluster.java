@@ -14,10 +14,12 @@ import model.Election.Race;
 
 public class PrecinctCluster {
 
+	@Expose
 	private long id;
 	@Expose
 	private Set<Precinct> precincts;
     private Set<PrecinctEdge> interiorEdges;
+    @Expose
     private Set<PrecinctClusterEdge> exteriorEdges;
     @Expose
     private Map<Race, Long> populationByRace;
@@ -26,6 +28,7 @@ public class PrecinctCluster {
     private Map<String, Integer> countyTally;
     @Expose
     private long population;
+    @Expose
     private long mmPopulation;
     private int repVotes;
     private int demVotes;

@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.gson.annotations.Expose;
+
 import model.Election.Race;
 
 public class PrecinctClusterEdge {
@@ -20,6 +22,10 @@ public class PrecinctClusterEdge {
 	private PrecinctCluster endpoint2;
 	private float mmJoinability;
 	private float nonMMJoinability;
+	@Expose
+	private long id1;
+	@Expose
+	private long id2;
 	
 	public PrecinctClusterEdge() {
 	}
@@ -27,6 +33,8 @@ public class PrecinctClusterEdge {
 	public PrecinctClusterEdge(PrecinctCluster endpoint1, PrecinctCluster endpoint2) {
 		this.endpoint1 = endpoint1;
 		this.endpoint2 = endpoint2;
+		this.id1 = endpoint1.getId();
+		this.id2 = endpoint2.getId();
 		this.nonMMJoinability = calculateNonMMJoinability();
 	}
 
