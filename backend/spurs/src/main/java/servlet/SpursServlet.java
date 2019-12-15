@@ -62,6 +62,7 @@ public abstract class SpursServlet extends HttpServlet {
 	
 	protected void sendResponse(HttpServletResponse res, String response) throws IOException{
 		res.getWriter().print(response);
+		System.out.println("Response sent");
 	}
 	
 }

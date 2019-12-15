@@ -11,11 +11,16 @@ import model.Election.Race;
 
 public class PrecinctClusterEdge {
 
+	private static final float NON_MM_WEIGHT = 4;
+	private static final float COMPACTNESS_WEIGHT = 2;
+	private static final float COUNTY_WEIGHT = 1.5f;
+	private static final float FAIRNESS_WEIGHT = 0.25f;
+	private static final float POPULATION_WEIGHT = 0.25f;
 	private PrecinctCluster endpoint1;
 	private PrecinctCluster endpoint2;
 	private float mmJoinability;
 	private float nonMMJoinability;
-
+	
 	public PrecinctClusterEdge() {
 	}
 
@@ -88,10 +93,7 @@ public class PrecinctClusterEdge {
 
 	public float calculateNonMMJoinability() {
 		
-		
-		
-		this.nonMMJoinability = (calculateCompactnessScore() + calculateCountyScore() + calculateFairnessScore()
-				+ calculatePopulationScore()) / 8;
+		this.nonMMJoinability = calculateNonMMJoinability(calculateCompactnessScore(), calculateCountyScore(), calculateFairnessScore(), calculatePopulationScore());
 		if(nonMMJoinability<0) {
 //		System.out.println("Compact: " + calculateCompactnessScore());
 //		System.out.println("County: " + calculateCountyScore());
@@ -101,6 +103,10 @@ public class PrecinctClusterEdge {
 		return nonMMJoinability;
 	}
 
+	private float calculateNonMMJoinability(float compactnessScore, float countyScore, float fairnessScore, float populationScore) {
+		return (float) (COMPACTNESS_WEIGHT*compactnessScore + COUNTY_WEIGHT*countyScore + FAIRNESS_WEIGHT*fairnessScore + POPULATION_WEIGHT*populationScore) / NON_MM_WEIGHT;
+	}
+	
 	public PrecinctCluster generatePrecinctCluster(PrecinctCluster eater) {
     	//PrecinctCluster cluster = new PrecinctCluster();
 		PrecinctCluster other = null;
@@ -125,11 +131,32 @@ public class PrecinctClusterEdge {
     	eater.setPopulationByRace(newPopulationByRace);
     	eater.setRepVotes(eater.getRepVotes() + other.getRepVotes());
     	eater.setDemVotes(eater.getDemVotes() + other.getDemVotes());
+    	eater.setArea(eater.getArea() + other.getArea());
+    	eater.setPerimeter(eater.getPerimeter() + other.getPerimeter());
     	Map<String, Integer> newCountyTally = combineCountyTally();
     	eater.setCountyTally(newCountyTally);
     	Set<PrecinctEdge> newInteriorEdges = new HashSet<PrecinctEdge>();
     	newInteriorEdges.addAll(eater.getInteriorEdges());
     	newInteriorEdges.addAll(other.getInteriorEdges());
+    	for (Precinct p1: eater.getPrecincts()) {
+    		for (Precinct p2: other.getPrecincts()) {
+    			Set<Precinct> chosenPrecincts = new HashSet<Precinct>();
+    			chosenPrecincts.add(p1);
+    			chosenPrecincts.add(p2);
+    			for (PrecinctEdge pe: p1.getAdjacentEdges()) {
+    				if (pe.getEndpoints().equals(chosenPrecincts)) {
+    					newInteriorEdges.add(pe);
+    					break;
+    				}
+    			}
+    			for (PrecinctEdge pe: p2.getAdjacentEdges()) {
+    				if (pe.getEndpoints().equals(chosenPrecincts)) {
+    					newInteriorEdges.add(pe);
+    					break;
+    				}
+    			}
+    		}
+    	}
     	eater.setInteriorEdges(newInteriorEdges);
     	/*
     	Set<PrecinctClusterEdge> newExteriorEdges = new HashSet<PrecinctClusterEdge>();
@@ -154,24 +181,10 @@ public class PrecinctClusterEdge {
     }
 
 	public float calculateCompactnessScore() {
-		float area = 0;
-		float perimeter = 0;
-		float sharedPerimeter = 0;
-
-		Set<Precinct> precincts = new HashSet<Precinct>();
-		precincts.addAll(endpoint1.getPrecincts());
-		precincts.addAll(endpoint2.getPrecincts());
-		for (Precinct precinct : precincts) {
-			area += precinct.getArea();
-			perimeter += precinct.getPerimeter();
-		}
-		Set<PrecinctEdge> interiorEdges = new HashSet<PrecinctEdge>();
-		interiorEdges.addAll(endpoint1.getInteriorEdges());
-		interiorEdges.addAll(endpoint2.getInteriorEdges());
-		for (PrecinctEdge edge : interiorEdges) {
-			sharedPerimeter += edge.getSharedPerimeter();
-		}
-		perimeter -= sharedPerimeter;
+		float area = endpoint1.getArea() + endpoint2.getArea();
+		float perimeter = endpoint1.getPerimeter() + endpoint2.getPerimeter();
+		float sharedPerimeter = (endpoint1.getPrecincts().size() + endpoint2.getPrecincts().size()) * 0.6f;
+		perimeter /= sharedPerimeter;
 		float circlePerimeter = (float) (Math.sqrt((area / Math.PI)) * 2 * Math.PI);
 		return circlePerimeter / perimeter;
 	}

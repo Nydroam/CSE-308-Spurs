@@ -125,34 +125,25 @@ public class PrecinctServlet extends SpursServlet {
 		precinct.setArea(properties.get("area").getAsFloat());
 		precinct.setPerimeter(properties.get("perimeter").getAsFloat());
 		
-		int GOV18R = properties.get("GOV18R").getAsInt();
-		int GOV18D = properties.get("GOV18D").getAsInt();
 		int SEN18R = properties.get("SEN18R").getAsInt();
 		int SEN18D = properties.get("SEN18D").getAsInt();
 		int PRES16R = properties.get("PRES16R").getAsInt();
 		int PRES16D = properties.get("PRES16D").getAsInt();
-		
-		Party GOV18win = GOV18R > GOV18D? Party.REPUBLICAN: Party.DEMOCRAT; 
+		 
 		Party SEN18win = SEN18R > SEN18D? Party.REPUBLICAN: Party.DEMOCRAT;
 		Party PRES16win = PRES16R > PRES16D? Party.REPUBLICAN: Party.DEMOCRAT;
 		
-		Election electionGOV18 = new Election(precinct, ElectionType.GOV18, GOV18win);
 		Election electionSEN18 = new Election(precinct, ElectionType.SEN18, SEN18win);
 		Election electionPRES16 = new Election(precinct, ElectionType.PRES16, PRES16win);
 		
-		DBHelper.saveOrUpdate(electionGOV18);
 		DBHelper.saveOrUpdate(electionSEN18);
 		DBHelper.saveOrUpdate(electionPRES16);
 		
-		Votes GOV18Rvote = new Votes(electionGOV18, Party.REPUBLICAN, GOV18R);
-		Votes GOV18Dvote = new Votes(electionGOV18, Party.DEMOCRAT, GOV18D);
 		Votes SEN18Rvote = new Votes(electionSEN18, Party.REPUBLICAN, SEN18R);
 		Votes SEN18Dvote = new Votes(electionSEN18, Party.DEMOCRAT, SEN18D);
 		Votes PRES16Rvote = new Votes(electionPRES16, Party.REPUBLICAN, PRES16R);
 		Votes PRES16Dvote = new Votes(electionPRES16, Party.DEMOCRAT, PRES16D);
 		
-		DBHelper.saveOrUpdate(GOV18Rvote);
-		DBHelper.saveOrUpdate(GOV18Dvote);
 		DBHelper.saveOrUpdate(SEN18Rvote);
 		DBHelper.saveOrUpdate(SEN18Dvote);
 		DBHelper.saveOrUpdate(PRES16Rvote);
