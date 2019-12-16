@@ -17,9 +17,10 @@ import {Accordion,AccordionTab} from 'primereact/accordion';
 import * as reps from './Representatives.json';
 import './Sidebar.css';
 const states=[
-    {label:"California", value:"CA"},
-    {label:"Pennsylvania", value:"PA"},
     {label:"Rhode Island", value:"RI"},
+    {label:"Pennsylvania", value:"PA"},
+    
+    {label:"California", value:"CA"},
 ]
 const precinctNumbers={
     "CA": 25000,
@@ -37,8 +38,9 @@ const tables = [
 ]
 const views=[
     {label:"Original Districts", value:"OD"},
-    {label:"Voting Precincts", value:"VP"},
     {label:"New Districts", value:"ND"},
+    {label:"Voting Precincts", value:"VPV"},
+    {label:"Bloc Precincts", value:"VPB"},
 ]
 const ethnics= [
     {label:"American Indian/Alaskan Native", value:"AMIN"},
@@ -162,12 +164,16 @@ class Sidebar extends React.PureComponent{
             item['demographic'] = data[i]['demographic']['demographicKey']['race'];
             item['demographicPop'] = data[i]['demographic']['population'];
             item['party'] = data[i]['party'];
+            if(item['party']==='DEMOCRAT')
+                item['party']='DEMOCRATIC';
             item['partyVotes'] = data[i]['votes'];
             item['votePercent'] = data[i]['votes']/data[i]['totalVotes'];
             phase0sum[data[i]['demographic']['demographicKey']['race']] += 1;
             phase0data.push(item);
         }
         this.setState({phase0Summary:phase0sum,phase0Data:phase0data,phase0loading:false});
+        this.props.changeState("phase0Data",phase0data);
+        this.props.changeState("view","VPB");
     }
     onSubmitPhase1 = () => {
         this.props.changeState("view","ND")
@@ -246,7 +252,10 @@ class Sidebar extends React.PureComponent{
       )
     }
     componentDidUpdate(){
-
+        if(this.state.state!=this.props.state){
+            
+            this.setState({state:this.props.state,phase0Data:null,phase0Summary:null})
+        }
     console.log("SIDEBAR UPDATE")
     }
     render(){
@@ -284,7 +293,7 @@ class Sidebar extends React.PureComponent{
                 <Dropdown placeholder="Select State" value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value);this.props.changeState("demo",{});this.setState({resultInfo:null})}} disabled={this.state.running}></Dropdown>
                 <Dropdown placeholder="Select View" disabled={this.props.state===null} value={this.props.view} options={views} onChange={(e) => {this.props.changeState("view",e.value)}}></Dropdown>
                
-                <TabView activeIndex={this.state.tab} onTabChange={(e) => this.setState({tab: e.index})}>
+                <TabView activeIndex={this.state.tab} onTabChange={(e) => {this.setState({tab: e.index});this.props.changeState("tab",e.index) }}>
                     
                     <TabPanel disabled={this.props.state===null} contentClassName="content" header={this.state.tab===0?" Vote Data":""} leftIcon="pi pi-check-circle" >
                         <Dropdown placeholder="Select Election" disabled={this.props.state===null} value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
@@ -375,7 +384,7 @@ class Sidebar extends React.PureComponent{
                         <div>Number of Districts Required</div>
                         <InputText name="distNum"value={this.state.distNum} disabled={this.state.running} keyfilter="pint" onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '90%'}} />
                         <Accordion style={{textAlign:"left"}}>
-                            <AccordionTab header="Weights">\
+                            <AccordionTab header="Weights">
                             <div style={{marginTop:'5px'}}>Compactness: {this.state.compactnessWeight}</div>
 
                                 

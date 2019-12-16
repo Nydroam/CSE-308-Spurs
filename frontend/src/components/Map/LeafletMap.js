@@ -2,10 +2,20 @@ import React from 'react';
 import {Map, TileLayer, GeoJSON, FeatureGroup} from 'react-leaflet';
 import './Map.css';
 
+
 const stateMap = {
   "PENNSYLVANIA":"PA",
   "CALIFORNIA":"CA",
   "RHODE ISLAND":"RI",
+}
+
+const demoMap={
+  "AMIN":"American Indian or Alaskan Native",
+  "ASIAN":"Asian",
+  "BLACK":"Black or African American",
+  "NHPI":"Hawaiian or Pacific Islander",
+  "HISP":"Hispanic", 
+  "WHITE":"White",
 }
 
 //position of center of US for initial load
@@ -34,7 +44,7 @@ class LeafletMap extends React.PureComponent{
     onHover = (e)=>{
       let properties = e.layer.feature.properties;
       this.props.changeState("demo",properties)
-      console.log(properties)
+     
       e.layer.setStyle({
         fillColor: 'cyan',
         fillOpacity:1,
@@ -45,7 +55,10 @@ class LeafletMap extends React.PureComponent{
     }
 
     onHoverOff = (e)=>{
-      e.layer.setStyle(this.setStyle(e.layer.feature))
+      if(this.props.view ==="VPB")
+        e.layer.setStyle(this.blocStyle(e.layer.feature))
+      else
+        e.layer.setStyle(this.setStyle(e.layer.feature))
     }
     setStyle = (feature) =>{
       let {election} = this.props;
@@ -82,6 +95,7 @@ class LeafletMap extends React.PureComponent{
       }
     }
 
+    
     setStyleHover = (feature) =>{
       return{
         fillColor: 'cyan',
@@ -90,7 +104,37 @@ class LeafletMap extends React.PureComponent{
         weight:0.5,
         opacity:1,
       }
-    } 
+    }
+    
+    blocStyle = (feature) =>{
+
+      let data = this.props.phase0Data?this.props.phase0Data.find(item=>{return item['name']===feature.properties['NAME'];
+      
+    }):null;
+    if(data){
+      let votePercent = data['votePercent'];
+      let party = data['party'];
+      let popPercent = data['popPercent'];
+      let demographic = data['demographic'];
+      return{
+        fillColor: this.props.colorMap[demographic],
+        fillOpacity:popPercent,
+        color: party==="DEMOCRATIC"?'blue':'red',
+        weight:2.5,
+        opacity:votePercent,
+      }
+    }
+    else{
+      return{
+        fillColor: "gray",
+        fillOpacity: 1,
+        color:"gray",
+        weight:0.5,
+        opacity:1,
+      }
+    }
+  }
+
     componentDidMount(){
       let data_server = "http://localhost:5000"
       fetch(data_server+"/files")
@@ -131,8 +175,10 @@ class LeafletMap extends React.PureComponent{
           }
         })
       }
-      if(this.props.state!==this.state.currState)   
+      if(this.props.state!==this.state.currState){   
         this.setState({currState:this.props.state})
+        this.props.resetData();
+      }
       if(this.props.view!=this.state.currView)
         this.setState({currView:this.props.view})
     }
@@ -151,6 +197,8 @@ class LeafletMap extends React.PureComponent{
             mapkey = this.props.state.toLowerCase()+"precinct";
             if(this.props.view === "ND"){
               style = this.newStyle;
+            }else if(this.props.view === "VPB"){
+              style = this.blocStyle;
             }
           }
           features = <GeoJSON data={this.state[[mapkey]]} key={mapkey} style={style}></GeoJSON>
@@ -163,6 +211,7 @@ class LeafletMap extends React.PureComponent{
       attribution="&copy; <a href=&quot;http://osm.org/copyright&quot;>OpenStreetMap</a> contributors"
     /> 
            <FeatureGroup ref={this.groupRef}>{features}</FeatureGroup>
+           
           </Map>
         );
     }
