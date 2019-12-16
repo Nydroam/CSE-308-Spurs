@@ -17,6 +17,7 @@ import model.Algorithm;
 import model.Election.ElectionType;
 import model.Election.Race;
 import model.PrecinctCluster;
+import model.PrecinctClusterEdge;
 import model.State;
 import model.State.StateName;
 import util.DBHelper;
@@ -92,6 +93,13 @@ public class StateServlet extends SpursServlet{
 			float rangeMax = jsonBody.get("rangeMax").getAsFloat()/100;
 			boolean step = jsonBody.get("step").getAsBoolean();
 			int distNum = jsonBody.get("distNum").getAsInt();
+			JsonObject w = jsonBody.get("weights").getAsJsonObject();
+			PrecinctClusterEdge.COMPACTNESS_WEIGHT = w.get("compactnessWeight").getAsFloat();
+			PrecinctClusterEdge.COUNTY_WEIGHT = w.get("countyWeight").getAsFloat();
+			PrecinctClusterEdge.FAIRNESS_WEIGHT = w.get("fairnessWeight").getAsFloat();
+			PrecinctClusterEdge.POPULATION_WEIGHT = w.get("populationWeight").getAsFloat();
+			PrecinctClusterEdge.MM_WEIGHT = w.get("mmWeight").getAsFloat();
+			
 			ArrayList<Race> races = new ArrayList<Race>();
 			for (JsonElement element: jsonBody.get("races").getAsJsonArray()) {
 				races.add(Race.valueOf(element.getAsString()));
@@ -107,7 +115,7 @@ public class StateServlet extends SpursServlet{
 				states.put(stateId, state);
 			}
 			Algorithm a = null;
-			if(algo.containsKey(stateId)) {
+			if(algo.containsKey(stateId) && step) {
 				System.out.println("HERE");
 				a = algo.get(stateId);
 			}else {
@@ -116,6 +124,7 @@ public class StateServlet extends SpursServlet{
 			}
 			
 			if(!step) {
+				a.resetClusters();
 				sendResponse(res, GSON.toJson(a.runPhase1(races, rangeMin, rangeMax, distNum)));
 				a.resetClusters();
 				algo.remove(stateId);

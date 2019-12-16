@@ -1,5 +1,7 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +31,7 @@ public class Algorithm {
     	return state.isVotingAsBloc(electionType, voteThresh, raceThresh);
     }
     
+    
     public Set<PrecinctCluster> runPhase1Step(List<Race> races, float rangeMin, float rangeMax, int distNum){
     	if(mergedClusters == null) {
     		mergedClusters = new HashSet<PrecinctCluster>();
@@ -39,7 +42,15 @@ public class Algorithm {
     	HashMap<PrecinctCluster,PrecinctClusterEdge> pickedClusters = new HashMap<PrecinctCluster,PrecinctClusterEdge>();
     	HashSet<PrecinctCluster> feederClusters = new HashSet<PrecinctCluster>();
     	Set<PrecinctCluster> unpickedClusters = new HashSet<PrecinctCluster>();
-    	for (PrecinctCluster pc : mergedClusters) {
+
+    	List<PrecinctCluster>tempClusters = new ArrayList<PrecinctCluster>();
+    	tempClusters.addAll(mergedClusters);
+    	//Collections.shuffle(tempClusters);
+    	mergedClusters = new HashSet<PrecinctCluster>(tempClusters);
+    	
+    	for (PrecinctCluster pc : tempClusters) {
+    		if( mergedClusters.size() - pickedClusters.size() <= distNum || pickedClusters.size() > 10)
+    			break;
     		if (feederClusters.contains(pc)) {
     			continue;
     		}
@@ -57,9 +68,11 @@ public class Algorithm {
     				maxEdge = edge;
     			}
     		}
+    		
     		if(maxEdge!=null) {
     		pickedClusters.put(pc,maxEdge);
 			feederClusters.add(maxEdge.getOtherEndpoint(pc));
+			System.out.println(maxJoinability);
     		}
     	}
 
@@ -70,6 +83,7 @@ public class Algorithm {
     	
     	mergedClusters = new HashSet<PrecinctCluster>();
     	mergedClusters.addAll(unpickedClusters);
+    	
     	for (PrecinctCluster pc : pickedClusters.keySet()) {
     		
     		PrecinctClusterEdge pickedEdge = pickedClusters.get(pc);

@@ -12,6 +12,8 @@ import {Dialog} from 'primereact/dialog';
 import {ProgressSpinner} from 'primereact/progressspinner';
 import {DataTable} from 'primereact/datatable';
 import {Column} from 'primereact/column';
+import {Accordion,AccordionTab} from 'primereact/accordion';
+
 import * as reps from './Representatives.json';
 import './Sidebar.css';
 const states=[
@@ -90,6 +92,11 @@ class Sidebar extends React.PureComponent{
             phase0Visible:false,
             numSteps:1,
             tableView:"Partisan Fairness",
+            compactnessWeight:1,
+            fairnessWeight:1,
+            countyWeight:1,
+            mmWeight:1,
+            populationWeight:1,
         }
     }
 
@@ -176,7 +183,14 @@ class Sidebar extends React.PureComponent{
                 rangeMin:this.state.rangeValues[0],
                 rangeMax:this.state.rangeValues[1],
                 step:this.state.allowStep,
-                numSteps:this.state.numSteps})}
+                numSteps:this.state.numSteps,
+            weights:{
+                countyWeight:this.state.countyWeight,
+                populationWeight: this.state.populationWeight,
+                fairnessWeight: this.state.fairnessWeight,
+                compactnessWeight: this.state.compactnessWeight,
+                mmWeight: this.state.mmWeight,
+            }})}
          ).then( (res) => res.json())
          
          .then( (data) => {
@@ -355,11 +369,29 @@ class Sidebar extends React.PureComponent{
                         <div className="center">
                         <div>Number of Districts Required</div>
                         <InputText name="distNum"value={this.state.distNum} disabled={this.state.running} keyfilter="pint" onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '90%'}} />
-                        
-                        <div>Choose Minorities</div>
+                        <Accordion style={{textAlign:"left"}}>
+                            <AccordionTab header="Weights">\
+                            <div style={{marginTop:'5px'}}>Compactness: {this.state.compactnessWeight}</div>
+
+                                
+                                <Slider value={this.state.compactnessWeight} disabled={this.state.running}style={{width:'90%',marginBottom:'5px'}} onChange={(e)=>this.onChangeSlider("compactnessWeight",e)}/>
+                                <div>County: {this.state.countyWeight}</div>
+                                <Slider value={this.state.countyWeight} disabled={this.state.running}style={{width:'90%',marginBottom:'5px'}} onChange={(e)=>this.onChangeSlider("countyWeight",e)}/>
+                                <div>Fairness: {this.state.fairnessWeight}</div>
+                                <Slider value={this.state.fairnessWeight} disabled={this.state.running}style={{width:'90%',marginBottom:'5px'}} onChange={(e)=>this.onChangeSlider("fairnessWeight",e)}/>
+                                <div>Population: {this.state.populationWeight}</div>
+                                <Slider value={this.state.populationWeight} disabled={this.state.running}style={{width:'90%',marginBottom:'5px'}} onChange={(e)=>this.onChangeSlider("populationWeight",e)}/>
+                                <div>Majority Minority: {this.state.mmWeight}</div>
+                                <Slider value={this.state.mmWeight} disabled={this.state.running} style={{width:'90%',marginBottom:'5px'}} onChange={(e)=>this.onChangeSlider("mmWeight",e)}/>
+                               
+                            </AccordionTab>
+                            <AccordionTab header="Choose Minorities">
                         <ListBox style={{display:'inline-block',width:'100%'}} disabled={this.state.running}value={this.state.ethnic} options={ethnics} onChange={(e) => this.setState({ethnic: e.value})} multiple={true}/>
                         <div>Min, Max (%): {this.state.rangeValues[0]},{this.state.rangeValues[1]}</div>
                         <Slider value={this.state.rangeValues} disabled={this.state.running}onChange={this.onChangeRangeSlider} range={true} style={{width: '90%'}} />
+                        
+                            </AccordionTab>
+                        </Accordion>
                         <div>
                         <Checkbox id="cb1" disabled={this.state.running} onChange={e => this.setState({allowStep: e.checked})} checked={this.state.allowStep}></Checkbox>
                         <label htmlFor="cb1"> Update every iteration</label>

@@ -4,6 +4,15 @@
     padding-right:10px;
     box-sizing:border-box;
 }
+body .p-accordion{
+    margin:2.5px;
+    margin-top:10px;
+    margin-bottom:10px;
+    width:calc(100% - 5px);
+}
+body .p-accordion .p-toggleable-content {
+    bottom:0px;
+}
 body .p-toggleable-content{
     position:relative;
     bottom:10px;

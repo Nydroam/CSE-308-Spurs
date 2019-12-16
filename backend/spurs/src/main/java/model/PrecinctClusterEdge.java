@@ -12,12 +12,12 @@ import com.google.gson.annotations.Expose;
 import model.Election.Race;
 
 public class PrecinctClusterEdge {
-
-	private static final float NON_MM_WEIGHT = 4;
-	private static final float COMPACTNESS_WEIGHT = 2;
-	private static final float COUNTY_WEIGHT = 1.5f;
-	private static final float FAIRNESS_WEIGHT = 0.25f;
-	private static final float POPULATION_WEIGHT = 0.25f;
+	public static float MM_WEIGHT = 1f;
+	public static float NON_MM_WEIGHT = 1f;
+	public static float COMPACTNESS_WEIGHT = 1f ;
+	public static float COUNTY_WEIGHT = 1f;
+	public static float FAIRNESS_WEIGHT = 1f;
+	public static float POPULATION_WEIGHT = 1f;
 	private PrecinctCluster endpoint1;
 	private PrecinctCluster endpoint2;
 	private float mmJoinability;
@@ -93,10 +93,12 @@ public class PrecinctClusterEdge {
 		float pc1Joinability = endpoint1.getMmPopulation() / (1+endpoint1.getPopulation());
 		float pc2Joinability = endpoint2.getMmPopulation() / (1+endpoint2.getPopulation());
 
-		this.mmJoinability = (pc1Joinability * endpoint1.getPrecincts().size() 
-				+ pc2Joinability * endpoint2.getPrecincts().size())
-				/ (endpoint1.getPrecincts().size() + endpoint2.getPrecincts().size());
+		this.mmJoinability = (float) ((pc1Joinability * endpoint1.getPrecincts().size() 
+				+ pc2Joinability * endpoint2.getPrecincts().size() * MM_WEIGHT)
+				/ Math.pow(endpoint1.getPrecincts().size() + endpoint2.getPrecincts().size(),2));
 		return mmJoinability;
+//		this.mmJoinability = 0;
+//		return this.mmJoinability;
 	}
 
 	public float calculateNonMMJoinability() {
@@ -192,8 +194,14 @@ public class PrecinctClusterEdge {
 	public float calculateCompactnessScore() {
 		float area = endpoint1.getArea() + endpoint2.getArea();
 		float perimeter = endpoint1.getPerimeter() + endpoint2.getPerimeter();
-		float sharedPerimeter = (endpoint1.getPrecincts().size() + endpoint2.getPrecincts().size()) * 0.6f;
-		perimeter /= sharedPerimeter;
+		float sharedPerimeter = 0;
+		for (PrecinctEdge pe: endpoint1.getInteriorEdges()) {
+			sharedPerimeter += pe.getSharedPerimeter();
+		}
+		for (PrecinctEdge pe: endpoint2.getInteriorEdges()) {
+			sharedPerimeter += pe.getSharedPerimeter();
+		}
+		perimeter -= sharedPerimeter;
 		float circlePerimeter = (float) (Math.sqrt((area / Math.PI)) * 2 * Math.PI);
 		return circlePerimeter / perimeter;
 	}
@@ -220,7 +228,7 @@ public class PrecinctClusterEdge {
 	}
 
 	public float calculatePopulationScore() {
-		return (float) 100/(endpoint1.getPopulation()+endpoint2.getPopulation());
+		return (float) 1000/(endpoint1.getPopulation()+endpoint2.getPopulation());
 	}
 
 	private Map<String, Integer> combineCountyTally() {

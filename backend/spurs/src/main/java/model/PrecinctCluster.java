@@ -12,7 +12,7 @@ import model.Election.ElectionType;
 import model.Election.Party;
 import model.Election.Race;
 
-public class PrecinctCluster {
+public class PrecinctCluster{
 
 	@Expose
 	private long id;
@@ -228,4 +228,6 @@ public class PrecinctCluster {
     public int hashCode() {
        	return (int)id;
     }
+    
+    
 }
