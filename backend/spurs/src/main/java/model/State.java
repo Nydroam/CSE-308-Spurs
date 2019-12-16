@@ -96,6 +96,8 @@ public class State{
 			precinctClusters.add(cluster);
 			cluster.setArea(p.getArea());
 			cluster.setPerimeter(p.getPerimeter());
+			
+			cluster.sharedPerimeter = 0;
 		}
 		for (Precinct p: precincts) {
 			Set<PrecinctClusterEdge> exteriorEdges = new HashSet<PrecinctClusterEdge>();

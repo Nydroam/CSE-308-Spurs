@@ -1,5 +1,6 @@
 package model;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -12,7 +13,7 @@ import model.Election.ElectionType;
 import model.Election.Party;
 import model.Election.Race;
 
-public class PrecinctCluster{
+public class PrecinctCluster implements Comparable<PrecinctCluster>{
 
 	@Expose
 	private long id;
@@ -34,6 +35,8 @@ public class PrecinctCluster{
     private int demVotes;
     private float area;
     private float perimeter;
+    
+    public float sharedPerimeter;
     
     public PrecinctCluster() {
     	precincts = new HashSet<Precinct>();
@@ -229,5 +232,15 @@ public class PrecinctCluster{
        	return (int)id;
     }
     
-    
+    public int compareTo(PrecinctCluster other) {
+    	if (this.getExteriorEdges().size() > 0 && other.getExteriorEdges().size() > 0)
+    		return Collections.max(this.getExteriorEdges()).compareTo(Collections.max(other.getExteriorEdges()));
+    	else if (this.getExteriorEdges().size() == 0) {
+    		return -1;
+    	}else if (other.getExteriorEdges().size() == 0){
+    		return 1;
+    	}else {
+    		return 0;
+    	}
+    }
 }

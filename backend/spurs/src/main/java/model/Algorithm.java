@@ -45,12 +45,13 @@ public class Algorithm {
 
     	List<PrecinctCluster>tempClusters = new ArrayList<PrecinctCluster>();
     	tempClusters.addAll(mergedClusters);
-    	//Collections.shuffle(tempClusters);
+    	Collections.sort(tempClusters);
+    	Collections.reverse(tempClusters);
     	mergedClusters = new HashSet<PrecinctCluster>(tempClusters);
     	
     	for (PrecinctCluster pc : tempClusters) {
-    		if( mergedClusters.size() - pickedClusters.size() <= distNum || pickedClusters.size() > 10)
-    			break;
+    		if( mergedClusters.size() - pickedClusters.size() <= distNum )
+				break;
     		if (feederClusters.contains(pc)) {
     			continue;
     		}
@@ -104,6 +105,8 @@ public class Algorithm {
 			for (PrecinctClusterEdge e:BExterior) {
 				other.add(e.getOtherEndpoint(B));
 				e.setEndpoints(A, e.getOtherEndpoint(B));
+				e.calculateMMJoinability(races, rangeMin, rangeMax);
+				e.calculateNonMMJoinability();
 			}
 			//A - B
 			//X - Y
@@ -114,6 +117,8 @@ public class Algorithm {
 					PrecinctClusterEdge next = new PrecinctClusterEdge(edge.getEndpoint1(),edge.getEndpoint2());
 					if(edge.getOtherEndpoint(c).equals(B)) {
 						next.setEndpoints(c, A);
+						next.calculateMMJoinability(races, rangeMin, rangeMax);
+						next.calculateNonMMJoinability();
 						if (pickedClusters.containsKey(c) && pickedClusters.get(c).getEndPoints().contains(B)) {
 							pickedClusters.put(c, next);
 
