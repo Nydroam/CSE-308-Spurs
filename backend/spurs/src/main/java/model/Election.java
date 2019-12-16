@@ -18,6 +18,8 @@ import javax.persistence.Transient;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 
+import com.google.gson.annotations.Expose;
+
 @Entity
 public class Election {
 	public enum Party {
@@ -33,9 +35,13 @@ public class Election {
 	}
 	
 	private Precinct precinct;
+	@Expose
 	private ElectionKey electionKey;
+	@Expose
 	private int year;
+	@Expose
 	private Party winningParty;
+	@Expose
 	private List<Votes> votesByParty;
    
 	public Election() {
