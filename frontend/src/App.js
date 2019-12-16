@@ -41,17 +41,8 @@ class App extends React.Component {
   }
   getNewdistricts=() =>{
     let distlist = [];
-    let preclist = {};
-    if(this.state.state === "RI"){
-      preclist = this.state.riprecincts;
-    }
-    else if (this.state.state === "PA"){
-      preclist = this.state.paprecincts;
-    }
-    else{
-      preclist = this.state.caprecincts;
-    }
     let count = 1;
+    let seconds = new Date().getTime();
     this.state.p1data.forEach(l =>{
       let newdist = {};
       newdist.WHITE = l.populationByRace.WHITE;
@@ -69,12 +60,21 @@ class App extends React.Component {
       let p16d = 0;
       let p16r = 0;
       l.precincts.forEach(e=>{
-          s16d += preclist[e.name].SEN16D;
-          s16r += preclist[e.name].SEN16R;
-          s18d += preclist[e.name].SEN18D;
-          s18r += preclist[e.name].SEN18R;
-          p16d += preclist[e.name].PRES16D;
-          p16r += preclist[e.name].PRES16R;
+        e.elections.forEach(f=>{
+          if (f.electionKey.electionType === "SEN16"){
+            s16d += f.votesByParty[0].numVotes;
+            s16r += f.votesByParty[1].numVotes;
+          }
+          else if (f.electionKey.electionType === "SEN18"){
+            s18d += f.votesByParty[0].numVotes;
+            s18r += f.votesByParty[1].numVotes;
+          }
+          else if (f.electionKey.electionType === "PRES16"){
+
+            p16d += f.votesByParty[0].numVotes;
+            p16r += f.votesByParty[1].numVotes;
+          }
+        });
       });
       newdist.SEN16D = s16d;
       newdist.SEN16R = s16r;
@@ -85,15 +85,19 @@ class App extends React.Component {
       distlist.push(newdist);
     });
     let newMM =  this.getMMdistricts(distlist);
+    console.log("MMdists " + (new Date().getTime()-seconds) + "ms");
     let newGerry = this.calcGerrymander(distlist);
+    console.log("GerryMandering " + (new Date().getTime()-seconds) + "ms");
     count = 1;
     newGerry.forEach(e=>{
       e.NAME = "New District " + count;
       count+=1;
     })
-    this.setState({newMMdistricts:newMM});
-    this.setState({newGerrymander:newGerry});
+    console.log("Added Names " + (new Date().getTime()-seconds) + "ms");
+    this.setState({newMMdistricts:newMM,newGerrymander:newGerry});
+    console.log("Finished Tables " + (new Date().getTime()-seconds) + "ms");
   }
+  
   getMMdistricts=(list) => {
     let MMPdistricts = list.filter(d =>{
       let popMap = Object.keys(demoMap).map(demo => ([demo,d[demo]]))
@@ -149,77 +153,96 @@ class App extends React.Component {
     gerryData.ri = this.calcGerrymander(ridistricts);
     let count = 1;
     gerryData.pa.forEach(e =>{
-      e["NAME"] = "Congressional District " + count;
+      e["NAME"] = "Congress District " + count;
       count+=1;
     });
     count = 1;
     gerryData.ca.forEach(e =>{
-      e["NAME"] = "Congressional District " + count;
+      e["NAME"] = "Congress District " + count;
       count+=1;
     });
     count = 1;
     gerryData.ri.forEach(e =>{
-      e["NAME"] = "Congressional District " + count;
+      e["NAME"] = "Congress District " + count;
       count+=1;
     });
     this.setState({gerrymander:gerryData});
   }
   calcGerrymander = (list) => {
+    let seconds = new Date().getTime();
     let totDist = list.length;
     let elections = ["SEN16","SEN18","PRES16"];
     let distGerry = [];
+    let idealDistrictChange = [];
+    elections.forEach(e => {
+      let totVot = 0;
+      let totGOPvot = 0;
+      let totGOPdist = 0;
+      let dTag = e + "D";
+      let rTag = e + "R";
+      list.forEach(element => {
+      if (element[dTag] === "No Data"){
+        return;
+      }
+        totVot += element[dTag];
+        totVot += element[rTag];
+        totGOPvot += element[rTag];
+        if (element[rTag] > element[dTag]){
+          totGOPdist += 1;
+        }
+      });
+      if (totVot == 0){
+        return;
+      }
+      else{
+        idealDistrictChange.push((Math.round(totDist * ((1.0 * totGOPvot) / totVot))) - totGOPdist);
+      }
+    });
     //For each district, for each election, calculate the idealDistrictChange
     //Calculate the value for result, after storing 3 values in result,
     //Store in distGerry
     list.forEach(l => {
       let results = {};
+      let ind = 0;
       elections.forEach(e => {
-        let totVot = 0;
-        let totGOPvot = 0;
-        let totGOPdist = 0;
-        let idealDistrictChange=0;
-        let dTag = e + "D";
-        let rTag = e + "R";
-        list.forEach(element => {
-          totVot += element[dTag];
-          totVot += element[rTag];
-          totGOPvot += element[rTag];
-          if (element[rTag] > element[dTag]){
-            totGOPdist += 1;
-          }
-        });
-        if (totVot == 0){
-          results[e] = 0;
+        if (idealDistrictChange[ind] == 0){
+          results[e] = 1.0;
         }
         else{
-          idealDistrictChange=(Math.round(totDist * ((1.0 * totGOPvot) / totVot))) - totGOPdist;
-          if (idealDistrictChange == 0){
+          let dTag = e + "D";
+          let rTag = e + "R";
+          //Calc efficiency gap
+          let gv = l[rTag];
+          let dv = l[dTag];
+          let tv = gv+dv;
+          let margin = gv-dv;
+          if (tv == 0){
             results[e] = 1.0;
           }
           else{
-          //Calc efficiency gap
-            let gv = l[rTag];
-            let dv = l[dTag];
-            let tv = gv+dv;
-            let margin = gv-dv;
-            if (tv == 0){
-            results[e] = 1.0;
+            let win_v = Math.max(gv,dv);
+            let loss_v = Math.min(gv,dv);
+            let inefficient_v = 0;
+            if (idealDistrictChange[ind] * margin > 0){
+              inefficient_v =win_v - loss_v;
             }
             else{
-              let win_v = Math.max(gv,dv);
-              let loss_v = Math.min(gv,dv);
-              let inefficient_v = 0;
-              if (idealDistrictChange * margin > 0){
-                inefficient_v =win_v - loss_v;
-              }
-              else{
-                inefficient_v = loss_v;
-              }
-              results[e] = 1.0 - ((inefficient_v*1.0)/tv);
-            } 
+              inefficient_v = loss_v;
+            }
+            let fin = 1.0 - ((inefficient_v*1.0)/tv);
+            if (fin == null){
+              results[e] = "No Data";
+            }
+            else{
+              fin = fin * 100;
+              fin = fin.toFixed(2);
+              fin = fin + "%";
+              results[e] =fin;
+            }
+          }
         }
-      }
-      });
+        ind+=1;
+        });
       distGerry.push(results);
     });
     return distGerry;

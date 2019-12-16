@@ -215,6 +215,7 @@ class Sidebar extends React.PureComponent{
                      map[p[j]['name']] = "hsl(" + (i * (360 / len) % 360) + ",100%,50%)";
                  }
              }
+             console.log("set color data " + (new Date().getTime()-seconds) + "ms");
              this.props.changeState("newdistrict",map)
          }
          this.setState({resultInfo:data,running:false})} )
@@ -443,13 +444,13 @@ class Sidebar extends React.PureComponent{
                 <Dialog header={this.state.tableView} visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}>
                 <Dropdown value={this.state.tableView} options={tables} onChange={(e)=>{this.setState({tableView:e.value})}}/>
                 {this.state.tableView==="Partisan Fairness"?<div style={{justifyContent:"space-around",display:"flex",width:"100%"}}>
-                <DataTable header="Old Districts" value={v} scrollable={true} style={{width:"50%"}} scrollHeight={"calc(100vh - 150px)"}>
+                <DataTable header="Old Districts" value={v} scrollable={true} style={{width:"50%"}} scrollHeight={"calc(100vh - 300px)"}>
                     <Column field="NAME" header="District"/>
                     <Column field="SEN16" header="Congressional 2016"/>
                     <Column field="PRES16" header="Presidential 2016"/>
                     <Column field="SEN18" header="Congressional 2018"/>
                 </DataTable>
-                <DataTable header="New Districts" value={this.props.newGerrymander} scrollable={true} style={{width:"50%"}} scrollHeight={"calc(100vh - 150px)"}>
+                <DataTable header="New Districts" value={this.props.newGerrymander} scrollable={true} style={{width:"50%"}} scrollHeight={"calc(100vh - 300px)"}>
                     <Column field="NAME" header="District"/>
                     <Column field="SEN16" header="Congressional 2016"/>
                     <Column field="PRES16" header="Presidential 2016"/>
@@ -457,30 +458,30 @@ class Sidebar extends React.PureComponent{
                 </DataTable>
                 </div>:null}
                 {this.state.tableView==="Majority-Minority Districts"?<div style={{justifyContent:"space-around",display:"flex",width:"100%"}}>
-                    <DataTable header="Old Districts" value={m} scrollable={true} style={{width:"50%"}} scrollHeight={"calc(100vh - 150px)"}>
+                    <DataTable header="Old Districts" value={m} scrollable={true} style={{width:"50%"}} scrollHeight={"calc(100vh - 300px)"}>
                         <Column field="NAME" header="District"/>
                         <Column field="maxMinority" header="Dominant Race"/>
                         <Column field="WHITE" header="White"/>
                         <Column field="ASIAN" header="Asian"/>
                         <Column field="BLACK" header="Black"/>
-                        <Column field="NHPI" header="Native Hawaiian/Pacific Islander"/>
+                        <Column field="NHPI" header="NHPI"/>
                         <Column field="HISP" header="Hispanic"/>
                         <Column field="AMIN" header="American Indian"/>
                     </DataTable>
-                    <DataTable header="New Districts" value={this.props.newMMdistricts} style={{width:"50%"}} scrollable={true} scrollHeight={"calc(100vh - 150px)"}>
+                    <DataTable header="New Districts" value={this.props.newMMdistricts} style={{width:"50%"}} scrollable={true} scrollHeight={"calc(100vh - 300px)"}>
                         <Column field="NAME" header="District"/>
                         <Column field="maxMinority" header="Dominant Race"/>
                         <Column field="WHITE" header="White"/>
                         <Column field="ASIAN" header="Asian"/>
                         <Column field="BLACK" header="Black"/>
-                        <Column field="NHPI" header="Native Hawaiian/Pacific Islander"/>
+                        <Column field="NHPI" header="NHPI"/>
                         <Column field="HISP" header="Hispanic"/>
                         <Column field="AMIN" header="American Indian"/>
                     </DataTable>
                     </div>:null}
                 </Dialog>  
                 <Dialog header="Results" visible={this.state.phase0Visible} style={{width:"100vw"}}  modal={true} onHide={()=>this.setState({phase0Visible:false})}>
-                <DataTable value={this.state.phase0Data} scrollable={true} scrollHeight={"calc(100vh - 150px)"}>
+                <DataTable value={this.state.phase0Data} scrollable={true} scrollHeight={"calc(100vh - 300px)"}>
                         <Column field="name" header="Precinct" />
                         <Column field="demographic" header="Race" />
                         <Column field="demographicPop" header="Race Population"/>
