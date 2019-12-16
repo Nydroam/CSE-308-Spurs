@@ -27,11 +27,68 @@ class App extends React.Component {
       properties: {},
       gerrymander: {},
       mmDistricts: {},
+      p1data:[],
+      newMMdistricts:{},
+      newGerrymander:{},
+      paprecincts:{},
+      caprecincts:{},
+      riprecincts:{},
     }
   }
 
   changeState = (k,val) => {
     this.setState({[k]:val})
+  }
+  getNewdistricts=() =>{
+    let distlist = [];
+    let preclist = {};
+    if(this.state.state === "RI"){
+      preclist = this.state.riprecincts;
+    }
+    else if (this.state.state === "PA"){
+      preclist = this.state.paprecincts;
+    }
+    else{
+      preclist = this.state.caprecincts;
+    }
+    let count = 1;
+    this.state.p1data.forEach(l =>{
+      console.log(l);
+      let newdist = {};
+      newdist.WHITE = l.populationByRace.WHITE;
+      newdist.ASIAN = l.populationByRace.ASIAN;
+      newdist.BLACK = l.populationByRace.BLACK;
+      newdist.HISP = l.populationByRace.HISP;
+      newdist.AMIN = l.populationByRace.AMIN;
+      newdist.NHPI = l.populationByRace.NHPI;
+      newdist.NAME = "New District " + count;
+      count+=1;
+      let s16d = 0;
+      let s16r = 0;
+      let s18d = 0;
+      let s18r = 0;
+      let p16d = 0;
+      let p16r = 0;
+      l.precincts.forEach(e=>{
+          s16d += preclist[e.name].SEN16D;
+          s16r += preclist[e.name].SEN16R;
+          s18d += preclist[e.name].SEN18D;
+          s18r += preclist[e.name].SEN18R;
+          p16d += preclist[e.name].PRES16D;
+          p16r += preclist[e.name].PRES16R;
+      });
+      newdist.SEN16D = s16d;
+      newdist.SEN16R = s16r;
+      newdist.SEN18D = s18d;
+      newdist.SEN18R = s18r;
+      newdist.PRES16D = p16d;
+      newdist.PRES16R = p16r;
+      distlist.push(newdist);
+    });
+    let newMM =  this.getMMdistricts(distlist);
+    let newGerry = this.calcGerrymander(distlist);
+    this.setState({newMMdistricts:newMM});
+    this.setState({newGerrymander:newGerry});
   }
   getMMdistricts=(list) => {
     let MMPdistricts = list.filter(d =>{
@@ -50,6 +107,18 @@ class App extends React.Component {
     return MMPdistricts;
   }
   getOlddistricts=() => {
+    this.state.properties.riprecinct.features.forEach(e=>{
+      let n = e.properties.NAME;
+      this.state.riprecincts[n]=e.properties;
+    });
+    this.state.properties.paprecinct.features.forEach(e=>{
+      let n = e.properties.NAME;
+      this.state.paprecincts[n]=e.properties;
+    });
+    this.state.properties.caprecinct.features.forEach(e=>{
+      let n = e.properties.NAME;
+      this.state.caprecincts[n]=e.properties;
+    });
     let padistricts = [];
     for (let i = 0; i < this.state.properties.padistrict.features.length;i++){
       padistricts.push(this.state.properties.padistrict.features[i].properties);
@@ -76,20 +145,19 @@ class App extends React.Component {
     gerryData.ri = this.calcGerrymander(ridistricts);
     let count = 1;
     gerryData.pa.forEach(e =>{
-      e["name"] = "Congressional District " + count;
+      e["NAME"] = "Congressional District " + count;
       count+=1;
     });
     count = 1;
     gerryData.ca.forEach(e =>{
-      e["name"] = "Congressional District " + count;
+      e["NAME"] = "Congressional District " + count;
       count+=1;
     });
     count = 1;
     gerryData.ri.forEach(e =>{
-      e["name"] = "Congressional District " + count;
+      e["NAME"] = "Congressional District " + count;
       count+=1;
     });
-    console.log(gerryData);
     this.setState({gerrymander:gerryData});
   }
   calcGerrymander = (list) => {
@@ -165,7 +233,7 @@ class App extends React.Component {
   render(){
     return (
       <div className="App flex" >
-        <Sidebar election={this.state.election} demo={this.state.demo} state={this.state.state} view={this.state.view} changeState={this.changeState} properties={this.state.properties} gerrymander={this.state.gerrymander} mmDistricts={this.state.mmDistricts}></Sidebar>
+        <Sidebar election={this.state.election} demo={this.state.demo} state={this.state.state} view={this.state.view} changeState={this.changeState} properties={this.state.properties} gerrymander={this.state.gerrymander} mmDistricts={this.state.mmDistricts} p1data={this.state.p1data} newMMdistricts={this.state.newMMdistricts} newGerrymander={this.state.newGerrymander} getNewdistricts={this.getNewdistricts}></Sidebar>
         <Map election={this.state.election} state={this.state.state} newdistrict={this.state.newdistrict} view={this.state.view} changeState={this.changeState} updateState={this.updateState}></Map>
       </div>
     );

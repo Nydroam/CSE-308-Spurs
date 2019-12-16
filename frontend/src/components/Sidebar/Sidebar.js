@@ -85,6 +85,7 @@ class Sidebar extends React.PureComponent{
             allowStep : false,
             running : false,
             phase0Summary : null,
+            rules: false,
             phase0loading: false,
             phase0Data : null,
             phase0Visible:false,
@@ -183,6 +184,8 @@ class Sidebar extends React.PureComponent{
          console.log(data);
          console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
          if(data){
+             this.props.changeState("p1data",data);
+             this.props.getNewdistricts();
              if(this.state.allowStep){
                 if(data["finished"]){
                     this.setState({phase1Done:true})
@@ -376,7 +379,34 @@ class Sidebar extends React.PureComponent{
                         
                         <Button label="View Results" disabled={!this.state.resultInfo} onClick={e=>this.setState({resultsVisible:true})}></Button>
                         </div>
-                        {this.state.phase1Done? <div>Phase 1 Finished</div>:null}               
+                        {this.state.phase1Done? <div>Phase 1 Finished</div>:null}
+                        <br></br>
+                        <Button label="View Redistricting Rules" onClick={e=>this.setState({rules:true})}></Button>
+                        {stateKey==="ristate"?<Dialog header="Rules"visible={this.state.rules} modal={true} onHide={()=>this.setState({rules:false})}>
+                        Like all states, Rhode Island must comply with constitutional equal population requirements, and further requires that its state legislative districts be as nearly equal in population "as possible." [R.I. Const. art. VII, § 1; art. VIII, § 1; 2011 R.I. Laws ch. 106, § 2(c); 2011 R.I. Laws ch. 100, § 2(c)]
+
+                        Rhode Island must also, like all states, abide by section 2 of the Voting Rights Act.
+
+                        The Rhode Island Constitution further requires that state legislative districts be as compact in territory "as possible." State law does the same for congressional districts. [R.I. Const. art. VII, § 1; art. VIII, § 1; 2011 R.I. Laws ch. 106, § 2(d); 2011 R.I. Laws ch. 100, § 2(d)]
+
+                        Rhode Island statutes establish additional criteria for both state legislative and congressional districts; the legislature may modify these statutes at any time. Currently, the law asks that districts be contiguous to the extent practicable, and also that they, to the extent practicable, reflect natural, historical, geographical and municipal and other political lines, "as well as the right of all Rhode Islanders to fair representation and equal access to the political process." Statutes also ask that, to the extent practicable, the lines of state House, state Senate, and congressional districts coincide -- or at least, if they do not overlap completely, they should avoid creating voting precincts with distinct ballot options where the precinct has fewer than 100 people. [2011 R.I. Laws ch. 106, § 2; 2011 R.I. Laws ch. 100, § 2; Parella v. Montalbano, 899 A.2d 1226, 1243-45 (R.I. 2006)]
+                        </Dialog>:null}
+                        {stateKey==="pastate"?<Dialog header="Rules"visible={this.state.rules} modal={true} onHide={()=>this.setState({rules:false})}>
+                        Like all states, Pennsylvania must comply with constitutional equal population requirements; for its state legislative lines, Pennsylvania further asks that districts be drawn that are as "nearly equal in population as practicable." [Pa. Const. art. II, § 16]
+
+                        Pennsylvania must also, like all states, abide by section 2 of the Voting Rights Act.
+
+                        For its state legislative lines, the Pennsylvania constitution further requires that districts be contiguous and compact, and that they respect county, city, incorporated town, borough, township, and ward boundaries "unless absolutely necessary." [Pa. Const. art. II, § 16]
+                        </Dialog>:null}
+                        {stateKey==="castate"?<Dialog header="Rules"visible={this.state.rules} modal={true} onHide={()=>this.setState({rules:false})}>
+                        Like all states, California must comply with constitutional equal population requirements. [Cal. Const. art. XXI, § 2(d)(1)]
+
+                        California must also, like all states, abide by section 2 of the Voting Rights Act. Because four California counties (Kings, Merced, Monterey, and Yuba) are considered "covered jurisdictions" under section 5 of the Voting Rights Act, California has an obligation to submit redistricting plans to the Department of Justice or to the U.S. District Court for the District of Columbia, to ensure that the plans do not discriminate against minority communities in those counties.
+
+                        The California constitution further requires that districts be contiguous. To the extent possible, they must also preserve the geographic integrity of cities, counties, neighborhoods, and communities of interest. To the extent practicable, and where so doing does not violate higher-priority constraints, districts must also encourage compactness, defined by lines that do not bypass nearby population in favor of more distant population. Finally, where practicable, and where not in conflict with the criteria above, state Senate and Assembly districts must be nested within each other. [Cal. Const. art. XXI, § 2(d)]
+
+                        In drawing maps, the commission may not consider candidate residences, and districts may not be drawn to favor or discriminate against a candidate or party. [Cal. Const. art. XXI, § 2(e)]
+                        </Dialog>:null}                 
                     </div>
                     </TabPanel>
                     
@@ -384,7 +414,7 @@ class Sidebar extends React.PureComponent{
                 <Dialog header={this.state.tableView} visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}>
                 <Dropdown value={this.state.tableView} options={tables} onChange={(e)=>{this.setState({tableView:e.value})}}/>
                 {this.state.tableView==="Partisan Fairness"?<DataTable value={v} scrollable={true} scrollHeight={"calc(100vh - 150px)"}>
-                    <Column field="name" header="District"/>
+                    <Column field="NAME" header="District"/>
                     <Column field="SEN16" header="Congressional 2016"/>
                     <Column field="PRES16" header="Presidential 2016"/>
                     <Column field="SEN18" header="Congressional 2018"/>
