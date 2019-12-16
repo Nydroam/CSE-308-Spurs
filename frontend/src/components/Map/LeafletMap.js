@@ -41,7 +41,39 @@ class LeafletMap extends React.PureComponent{
       this.setState({currState:val})
     }
 
+    distStyle = (feature) =>{
+      if (this.state.hoverDist.precincts.find(p => p['name'] ===feature.properties["NAME"])){
+        return this.setStyleHover(feature);
+      }
+      let style = {
+        fillColor: this.props.newdistrict?this.props.newdistrict[feature.properties.NAME]:"hsl(0, 0%, 10%)",
+        fillOpacity:1,
+        weight:1,
+        color:this.props.newdistrict?this.props.newdistrict[feature.properties.NAME]:"hsl(0, 0%, 10%)",
+        opacity:1,
+      };
+              if(this.props.distView === "PF"){
+                style = this.pfStyle;
+              }else if(this.props.distView && Object.keys(demoMap).find(key=>this.props.distView==key)){
+                style = this.demoStyle;
+              }
+      return style;
+    }
+
     onHover = (e)=>{
+      
+      if(this.props.view === "ND" && this.props.distList){
+        console.log("HI");
+        let feature = e.layer.feature;
+        let dist = this.props.distList.find(d => d.precincts.find(p => feature.properties["NAME"]===p["name"]) !== undefined);
+        if(dist){
+          if(this.state.hoverDist == null || this.state.hoverDist.id!==dist.id)
+             this.setState({"hoverDist":dist});
+          this.props.changeState("demo",dist);
+          return;
+        }
+      }
+
       let properties = e.layer.feature.properties;
       console.log(properties);
       this.props.changeState("demo",properties)
@@ -56,6 +88,8 @@ class LeafletMap extends React.PureComponent{
     }
 
     onHoverOff = (e)=>{
+      if(this.props.view==="ND")
+        return;
       if(this.props.view ==="VPB")
         e.layer.setStyle(this.blocStyle(e.layer.feature))
       else
@@ -87,6 +121,9 @@ class LeafletMap extends React.PureComponent{
     }
 
     newStyle = (feature) =>{
+      if(this.props.distList && this.state.hoverDist && this.props.view === "ND"){
+        return this.distStyle(feature);
+      }
       return{
         fillColor: this.props.newdistrict?this.props.newdistrict[feature.properties.NAME]:"hsl(0, 0%, 10%)",
         fillOpacity:1,
@@ -101,12 +138,15 @@ class LeafletMap extends React.PureComponent{
       return{
         fillColor: 'cyan',
         fillOpacity:1,
-        color:'yellow',
-        weight:0.5,
+        color:'white',
+        weight:1.5,
         opacity:1,
       }
     }
     pfStyle = (feature) =>{
+      if(this.props.distList && this.state.hoverDist && this.props.view === "ND"){
+        return this.distStyle(feature);
+      }
       let featureName = feature.properties['NAME'];
       if(this.props.view == "ND"){
         featureName = feature.properties['DISTRICT'];
@@ -199,8 +239,9 @@ class LeafletMap extends React.PureComponent{
   }
 
     demoStyle = (feature) =>{
+      console.log("DEMOSTYLE");
       let properties = feature.properties;
-      if(this.props.view==="OG"){
+      if(this.props.view==="OD"){
       
       let popTotal = Object.keys(demoMap).map(key => properties[key]).reduce( (a,b) => a+b);
       let percent = properties[this.props.distView]/popTotal;
@@ -213,11 +254,10 @@ class LeafletMap extends React.PureComponent{
         opacity:1,
       }
     }else{
-      let featureName = feature.properties['DISTRICT'];
       let dist = this.props.distList.find(d => d.precincts.find(p=>p.name===feature.properties["NAME"]) !== undefined );
       if(dist){
         let demo = this.props.distView;
-        let popTotal = Object.keys(demoMap).map(key => properties[key]).reduce((a,b) => a+b);
+        let popTotal = Object.keys(demoMap).map(key => dist[key]).reduce((a,b) => a+b);
         let percent = dist[demo]/popTotal;
         return{
           fillColor: this.props.colorMap[this.props.distView],
@@ -269,13 +309,14 @@ class LeafletMap extends React.PureComponent{
       }
       if(this.groupRef.current && (this.state.currView !== this.props.view || this.state.currState !== this.props.state)){
         let feature = this.groupRef.current.leafletElement;
+        console.log("FEATURE",feature)
         feature.eachLayer( layer => {
+          console.log("HERE")
           layer.off()
           layer.on("click",e=>this.handleClick(e))
-          if(this.props.view !== "ND" && this.props.distView ==="OG"){
           layer.on("mouseover",e=>this.onHover(e))
           layer.on("mouseout",e=>this.onHoverOff(e))
-          }
+          
         })
       }
       if(this.props.state!==this.state.currState){   

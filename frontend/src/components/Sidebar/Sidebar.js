@@ -35,6 +35,7 @@ const statesMap = {
 const tables = [
     {label:"Majority-Minority Districts",value:"Majority-Minority Districts"},
     {label:"Partisan Fairness",value:"Partisan Fairness"},
+    {label:"Population",value:"Population"}
 ]
 const views=[
     {label:"Original Districts", value:"OD"},
@@ -219,6 +220,8 @@ class Sidebar extends React.PureComponent{
              }else{
                  this.setState({phase1Done:true})
              }
+             let rangeV = [this.state.rangeValues[0]/100,this.state.rangeValues[1]/100];
+             this.props.changeState("minMax",rangeV);
              this.props.changeState("p1data",data);
              this.props.getNewdistricts();
              console.log(this.props.p1data);
@@ -502,6 +505,18 @@ class Sidebar extends React.PureComponent{
                     <DataTable header="New Districts" value={this.props.newMMdistricts} style={{width:"50%"}} scrollable={true} scrollHeight={"calc(100vh - 300px)"}>
                         <Column field="NAME" header="District"/>
                         <Column field="maxMinority" header="Dominant Race"/>
+                        <Column field="WHITE" header="White"/>
+                        <Column field="ASIAN" header="Asian"/>
+                        <Column field="BLACK" header="Black"/>
+                        <Column field="NHPI" header="NHPI"/>
+                        <Column field="HISP" header="Hispanic"/>
+                        <Column field="AMIN" header="American Indian"/>
+                    </DataTable>
+                    </div>:null}
+                    {this.state.tableView==="Population"?<div style={{justifyContent:"space-around",display:"flex",width:"100%"}}>
+                    <DataTable header="New Districts" value={this.props.distList} style={{width:"100%"}} scrollable={true} scrollHeight={"calc(100vh - 300px)"}>
+                        <Column field="NAME" header="District"/>
+                        <Column field="totalPop" header="Total Population"/>
                         <Column field="WHITE" header="White"/>
                         <Column field="ASIAN" header="Asian"/>
                         <Column field="BLACK" header="Black"/>

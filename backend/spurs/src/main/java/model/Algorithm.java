@@ -73,7 +73,7 @@ public class Algorithm {
     		if(maxEdge!=null) {
     		pickedClusters.put(pc,maxEdge);
 			feederClusters.add(maxEdge.getOtherEndpoint(pc));
-			System.out.println(maxJoinability);
+			//System.out.println(maxJoinability);
     		}
     	}
 
@@ -153,12 +153,16 @@ public class Algorithm {
     public Set<PrecinctCluster> runPhase1(List<Race> races, float rangeMin, float rangeMax, int distNum){
     	mergedClusters = new HashSet<PrecinctCluster>();
     	mergedClusters.addAll(precinctClusters);
+    	long start = System.currentTimeMillis();
     	while(mergedClusters.size() > distNum) {
+    		long iterstart = System.currentTimeMillis();
     		int size = mergedClusters.size();
     		runPhase1Step(races, rangeMin, rangeMax, distNum);
     		if (size == mergedClusters.size())
     			break;
+    		System.out.println("One Iteration: " + (System.currentTimeMillis()-iterstart));
     	}
+    	System.out.println("Algorithm Total Time: " + (System.currentTimeMillis() - start));
     	return mergedClusters;
     }
     

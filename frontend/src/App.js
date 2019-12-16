@@ -46,6 +46,7 @@ class App extends React.Component {
       },
       phase0Data:null,
       distView:null,
+      minMax:[.5,1],
     }
   }
   resetData = () =>{
@@ -73,6 +74,7 @@ class App extends React.Component {
       newdist.HISP = l.populationByRace.HISP;
       newdist.AMIN = l.populationByRace.AMIN;
       newdist.NHPI = l.populationByRace.NHPI;
+      newdist.totalPop = newdist.WHITE + newdist.ASIAN + newdist.NHPI + newdist.HISP + newdist.BLACK + newdist.AMIN;
       newdist.NAME = "New District " + count;
       count+=1;
       let s16d = 0;
@@ -127,7 +129,7 @@ class App extends React.Component {
       let totPop = popMap.map(entry=>entry[1]).reduce( (a,b) => a + b) + d["WHITE"];
       let maxEntry = popMap.reduce( (a,b) => a[1] > b[1] ? a:b);
       let maxPop = maxEntry[1];
-      return maxPop >= 0.5 * totPop;
+      return maxPop >= this.state.minMax[0] * totPop && maxPop <= this.state.minMax[1]*totPop;
     }).map(d =>{ 
       let maxEntry = Object.keys(demoMap).map(demo => ([demo,d[demo]])).reduce( (a,b) => a[1] > b[1] ? a:b);
       let maxMinority = maxEntry[0];
