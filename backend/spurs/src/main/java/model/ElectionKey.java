@@ -16,6 +16,7 @@ public class ElectionKey implements Serializable{
 
 	@Expose
 	private long precinctId;
+	@Expose
 	private ElectionType electionType;
 	
 	public ElectionKey() {
