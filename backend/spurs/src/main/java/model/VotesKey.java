@@ -5,7 +5,8 @@ import java.io.Serializable;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.ManyToOne;
+
+import com.google.gson.annotations.Expose;
 
 import model.Election.Party;
 
@@ -13,6 +14,7 @@ import model.Election.Party;
 public class VotesKey implements Serializable{
 	
 	private ElectionKey electionKey;
+	@Expose
 	private Party party;
 	
 	public VotesKey() {

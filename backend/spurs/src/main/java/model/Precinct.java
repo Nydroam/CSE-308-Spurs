@@ -43,6 +43,7 @@ public class Precinct {
 	private String county;
 	private District district;
 	private State state;
+	@Expose
 	private List<Election> elections;
 	@Expose
 	private List<Demographic> demographics;

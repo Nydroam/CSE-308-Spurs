@@ -192,18 +192,19 @@ public class PrecinctClusterEdge {
     }
 
 	public float calculateCompactnessScore() {
-		float area = endpoint1.getArea() + endpoint2.getArea();
-		float perimeter = endpoint1.getPerimeter() + endpoint2.getPerimeter();
-		float sharedPerimeter = 0;
-		for (PrecinctEdge pe: endpoint1.getInteriorEdges()) {
-			sharedPerimeter += pe.getSharedPerimeter();
-		}
-		for (PrecinctEdge pe: endpoint2.getInteriorEdges()) {
-			sharedPerimeter += pe.getSharedPerimeter();
-		}
-		perimeter -= sharedPerimeter;
-		float circlePerimeter = (float) (Math.sqrt((area / Math.PI)) * 2 * Math.PI);
-		return circlePerimeter / perimeter;
+//		float area = endpoint1.getArea() + endpoint2.getArea();
+//		float perimeter = endpoint1.getPerimeter() + endpoint2.getPerimeter();
+//		float sharedPerimeter = 0;
+//		for (PrecinctEdge pe: endpoint1.getInteriorEdges()) {
+//			sharedPerimeter += pe.getSharedPerimeter();
+//		}
+//		for (PrecinctEdge pe: endpoint2.getInteriorEdges()) {
+//			sharedPerimeter += pe.getSharedPerimeter();
+//		}
+//		perimeter -= sharedPerimeter;
+//		float circlePerimeter = (float) (Math.sqrt((area / Math.PI)) * 2 * Math.PI);
+//		return circlePerimeter / perimeter;
+		return 0;
 	}
 
 	public float calculateCountyScore() {

@@ -6,15 +6,15 @@ import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+
+import com.google.gson.annotations.Expose;
 
 import model.Election.ElectionType;
 
 @Embeddable
 public class ElectionKey implements Serializable{
 
+	@Expose
 	private long precinctId;
 	private ElectionType electionType;
 	

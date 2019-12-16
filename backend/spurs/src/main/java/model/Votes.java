@@ -7,13 +7,16 @@ import javax.persistence.JoinColumns;
 import javax.persistence.ManyToOne;
 import javax.persistence.Transient;
 
+import com.google.gson.annotations.Expose;
+
 import model.Election.Party;
 
 @Entity
 public class Votes {
-	
+	@Expose
 	private VotesKey votesKey;
 	private Election election;
+	@Expose
 	private int numVotes;
 	
 	public Votes() {	
