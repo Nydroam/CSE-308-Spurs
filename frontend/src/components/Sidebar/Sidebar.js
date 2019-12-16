@@ -167,7 +167,6 @@ class Sidebar extends React.PureComponent{
             phase0sum[data[i]['demographic']['demographicKey']['race']] += 1;
             phase0data.push(item);
         }
-        console.log(phase0sum);
         this.setState({phase0Summary:phase0sum,phase0Data:phase0data,phase0loading:false});
     }
     onSubmitPhase1 = () => {
@@ -195,7 +194,6 @@ class Sidebar extends React.PureComponent{
          ).then( (res) => res.json())
          
          .then( (data) => {
-         console.log(data);
          console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
          if(data){
              
@@ -218,7 +216,6 @@ class Sidebar extends React.PureComponent{
                  }
              }
              this.props.changeState("newdistrict",map)
-             console.log(map)
          }
          this.setState({resultInfo:data,running:false})} )
          .catch( (err) => {console.log(err); this.setState({resultInfo:"Data Retrieval Failed",running:false});});
@@ -276,7 +273,6 @@ class Sidebar extends React.PureComponent{
             v = this.props.gerrymander.ri;
             m = this.props.mmDistricts.MMRdistricts;
         }
-        console.log(this.props.mmDistricts);
         return(
             <div id="sidebar">
                 
@@ -471,7 +467,6 @@ class Sidebar extends React.PureComponent{
                         <Column field="HISP" header="Hispanic"/>
                         <Column field="AMIN" header="American Indian"/>
                     </DataTable>
-                    {console.log(this.props.newMMdistricts)}
                     <DataTable header="New Districts" value={this.props.newMMdistricts} style={{width:"50%"}} scrollable={true} scrollHeight={"calc(100vh - 150px)"}>
                         <Column field="NAME" header="District"/>
                         <Column field="maxMinority" header="Dominant Race"/>

@@ -53,7 +53,6 @@ class App extends React.Component {
     }
     let count = 1;
     this.state.p1data.forEach(l =>{
-      console.log(l);
       let newdist = {};
       newdist.WHITE = l.populationByRace.WHITE;
       newdist.ASIAN = l.populationByRace.ASIAN;
