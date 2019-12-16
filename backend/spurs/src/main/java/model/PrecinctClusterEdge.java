@@ -11,13 +11,14 @@ import com.google.gson.annotations.Expose;
 
 import model.Election.Race;
 
-public class PrecinctClusterEdge {
+public class PrecinctClusterEdge implements Comparable<PrecinctClusterEdge>{
 	public static float MM_WEIGHT = 1f;
 	public static float NON_MM_WEIGHT = 1f;
 	public static float COMPACTNESS_WEIGHT = 1f ;
 	public static float COUNTY_WEIGHT = 1f;
 	public static float FAIRNESS_WEIGHT = 1f;
 	public static float POPULATION_WEIGHT = 1f;
+	
 	private PrecinctCluster endpoint1;
 	private PrecinctCluster endpoint2;
 	private float mmJoinability;
@@ -102,8 +103,8 @@ public class PrecinctClusterEdge {
 	}
 
 	public float calculateNonMMJoinability() {
-		
 		this.nonMMJoinability = calculateNonMMJoinability(calculateCompactnessScore(), calculateCountyScore(), calculateFairnessScore(), calculatePopulationScore());
+		//this.nonMMJoinability = calculateNonMMJoinability(calculateCompactnessScore(), calculateCountyScore(), calculateFairnessScore(), calculatePopulationScore());
 		if(nonMMJoinability<0) {
 //		System.out.println("Compact: " + calculateCompactnessScore());
 //		System.out.println("County: " + calculateCountyScore());
@@ -149,6 +150,8 @@ public class PrecinctClusterEdge {
     	Set<PrecinctEdge> newInteriorEdges = new HashSet<PrecinctEdge>();
     	newInteriorEdges.addAll(eater.getInteriorEdges());
     	newInteriorEdges.addAll(other.getInteriorEdges());
+
+
     	for (Precinct p1: eater.getPrecincts()) {
     		for (Precinct p2: other.getPrecincts()) {
     			Set<Precinct> chosenPrecincts = new HashSet<Precinct>();
@@ -157,17 +160,19 @@ public class PrecinctClusterEdge {
     			for (PrecinctEdge pe: p1.getAdjacentEdges()) {
     				if (pe.getEndpoints().equals(chosenPrecincts)) {
     					newInteriorEdges.add(pe);
+    					eater.sharedPerimeter += pe.getSharedPerimeter() * 2;
     					break;
     				}
     			}
-    			for (PrecinctEdge pe: p2.getAdjacentEdges()) {
-    				if (pe.getEndpoints().equals(chosenPrecincts)) {
-    					newInteriorEdges.add(pe);
-    					break;
-    				}
-    			}
+//    			for (PrecinctEdge pe: p2.getAdjacentEdges()) {
+//    				if (pe.getEndpoints().equals(chosenPrecincts)) {
+//    					newInteriorEdges.add(pe);
+//    					break;
+//    				}
+//    			}
     		}
     	}
+    	eater.sharedPerimeter += other.sharedPerimeter*2;
     	eater.setInteriorEdges(newInteriorEdges);
     	/*
     	Set<PrecinctClusterEdge> newExteriorEdges = new HashSet<PrecinctClusterEdge>();
@@ -192,6 +197,7 @@ public class PrecinctClusterEdge {
     }
 
 	public float calculateCompactnessScore() {
+		return (float) (Math.sqrt((endpoint1.getArea() + endpoint2.getArea() / Math.PI)) * 2 * Math.PI) / (endpoint1.getPerimeter() + endpoint2.getPerimeter() - endpoint1.sharedPerimeter - endpoint2.sharedPerimeter);
 //		float area = endpoint1.getArea() + endpoint2.getArea();
 //		float perimeter = endpoint1.getPerimeter() + endpoint2.getPerimeter();
 //		float sharedPerimeter = 0;
@@ -204,7 +210,6 @@ public class PrecinctClusterEdge {
 //		perimeter -= sharedPerimeter;
 //		float circlePerimeter = (float) (Math.sqrt((area / Math.PI)) * 2 * Math.PI);
 //		return circlePerimeter / perimeter;
-		return 0;
 	}
 
 	public float calculateCountyScore() {
@@ -229,7 +234,7 @@ public class PrecinctClusterEdge {
 	}
 
 	public float calculatePopulationScore() {
-		return (float) 1000/(endpoint1.getPopulation()+endpoint2.getPopulation());
+		return (float) Math.pow(Math.max(endpoint1.getPopulation(), endpoint2.getPopulation())/(endpoint1.getPopulation()+endpoint2.getPopulation()),2);
 	}
 
 	private Map<String, Integer> combineCountyTally() {
@@ -259,5 +264,10 @@ public class PrecinctClusterEdge {
 
 	public int hashCode() {
 		return (int)Math.floor((Math.pow(this.endpoint1.getId(), 2)) + Math.pow(this.endpoint2.getId(),2));
+	}
+	public int compareTo(PrecinctClusterEdge other) {
+		Float B = other.getMMJoinability() + other.getNonMMJoinability();
+		Float A = this.getMMJoinability() + this.getNonMMJoinability();
+		return A.compareTo(B);
 	}
 }
