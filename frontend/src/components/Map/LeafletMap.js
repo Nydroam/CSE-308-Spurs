@@ -43,6 +43,7 @@ class LeafletMap extends React.PureComponent{
 
     onHover = (e)=>{
       let properties = e.layer.feature.properties;
+      console.log(properties);
       this.props.changeState("demo",properties)
      
       e.layer.setStyle({
@@ -105,7 +106,69 @@ class LeafletMap extends React.PureComponent{
         opacity:1,
       }
     }
-    
+    pfStyle = (feature) =>{
+      let featureName = feature.properties['NAME'];
+      if(this.props.view == "ND"){
+        featureName = feature.properties['DISTRICT'];
+      }
+      let fairnessList = this.props.gerrymander[this.props.state.toLowerCase()];
+      let fairness = fairnessList.find( dist => {
+        let split = dist["NAME"].split(" ");
+        let names = featureName.split(" ");
+        return split[1]==names[1] && split[2]== names[2];
+      } );
+      if(fairness){
+        fairness=fairness[this.props.election];
+        if (fairness === 1){
+          fairness = 0;
+        }else{
+          fairness = fairness.substring(0,fairness.length-1);
+          fairness = parseFloat(fairness);
+          fairness = (1-fairness/100) + 0.3;
+          console.log("FAIRNESS",fairness);
+          
+        }
+        if(this.props.view == "ND" ){
+          if(this.props.distList){
+          let dist = this.props.distList.find(d => d.precincts.find(p=>p.name===feature.properties["NAME"])!==undefined);
+          console.log(dist);
+          if(dist){
+            let rvotes = dist[this.props.election+"R"];
+            let dvotes = dist[this.props.election+"D"];
+            let total = (rvotes + dvotes)?rvotes+dvotes:1;
+            let c = total?"rgb("+rvotes/total * 255+", 0, " + dvotes/total*255 + ")":"gray";
+            return {
+              fillColor: c,
+              fillOpacity: fairness,
+              color:c,
+              weight: 0.5,
+              opacity: 1,
+            }
+          }
+          }else{
+            return{
+              fillColor: "gray",
+              fillOpacity:1,
+              color:'white',
+              weight:0.5,
+              opacity:1,
+            }
+          }
+        }
+        return {
+          ...this.setStyle(feature),
+          fillOpacity: fairness,
+        }
+      }
+      return{
+        fillColor: "gray",
+        fillOpacity:1,
+        color:'white',
+        weight:0.5,
+        opacity:1,
+      }
+      console.log(this.props.gerrymander)
+    }
     blocStyle = (feature) =>{
 
       let data = this.props.phase0Data?this.props.phase0Data.find(item=>{return item['name']===feature.properties['NAME'];
@@ -134,6 +197,46 @@ class LeafletMap extends React.PureComponent{
       }
     }
   }
+
+    demoStyle = (feature) =>{
+      let properties = feature.properties;
+      if(this.props.view==="OG"){
+      
+      let popTotal = Object.keys(demoMap).map(key => properties[key]).reduce( (a,b) => a+b);
+      let percent = properties[this.props.distView]/popTotal;
+      console.log("HERE", percent);
+      return{
+        fillColor: this.props.colorMap[this.props.distView],
+        fillOpacity:percent,
+        color:"black",
+        weight:1,
+        opacity:1,
+      }
+    }else{
+      let featureName = feature.properties['DISTRICT'];
+      let dist = this.props.distList.find(d => d.precincts.find(p=>p.name===feature.properties["NAME"]) !== undefined );
+      if(dist){
+        let demo = this.props.distView;
+        let popTotal = Object.keys(demoMap).map(key => properties[key]).reduce((a,b) => a+b);
+        let percent = dist[demo]/popTotal;
+        return{
+          fillColor: this.props.colorMap[this.props.distView],
+          fillOpacity:percent,
+          color:"black",
+          weight:1,
+          opacity:1,
+        }
+      }
+      
+    }
+    return{
+      fillColor: "gray",
+      fillOpacity: 1,
+      color:"gray",
+      weight:0.5,
+      opacity:1,
+    }
+    }
 
     componentDidMount(){
       let data_server = "http://localhost:5000"
@@ -169,7 +272,7 @@ class LeafletMap extends React.PureComponent{
         feature.eachLayer( layer => {
           layer.off()
           layer.on("click",e=>this.handleClick(e))
-          if(this.props.view !== "ND"){
+          if(this.props.view !== "ND" && this.props.distView ==="OG"){
           layer.on("mouseover",e=>this.onHover(e))
           layer.on("mouseout",e=>this.onHoverOff(e))
           }
@@ -193,10 +296,20 @@ class LeafletMap extends React.PureComponent{
           let style = this.setStyle;
           if(this.props.view === "OD") {
             mapkey = this.props.state.toLowerCase()+"district";
+            if(this.props.distView === "PF"){
+              style = this.pfStyle;
+            }else if(this.props.distView && Object.keys(demoMap).find(key=>this.props.distView==key)){
+              style = this.demoStyle;
+            }
           }else{
             mapkey = this.props.state.toLowerCase()+"precinct";
             if(this.props.view === "ND"){
               style = this.newStyle;
+              if(this.props.distView === "PF"){
+                style = this.pfStyle;
+              }else if(this.props.distView && Object.keys(demoMap).find(key=>this.props.distView==key)){
+                style = this.demoStyle;
+              }
             }else if(this.props.view === "VPB"){
               style = this.blocStyle;
             }

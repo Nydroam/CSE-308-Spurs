@@ -45,6 +45,7 @@ class App extends React.Component {
         "AMIN":"#00ffff",
       },
       phase0Data:null,
+      distView:null,
     }
   }
   resetData = () =>{
@@ -64,6 +65,8 @@ class App extends React.Component {
     let seconds = new Date().getTime();
     this.state.p1data.forEach(l =>{
       let newdist = {};
+      newdist.id = l.id;
+      newdist.precincts = l.precincts;
       newdist.WHITE = l.populationByRace.WHITE;
       newdist.ASIAN = l.populationByRace.ASIAN;
       newdist.BLACK = l.populationByRace.BLACK;
@@ -103,6 +106,7 @@ class App extends React.Component {
       newdist.PRES16R = p16r;
       distlist.push(newdist);
     });
+    this.setState({distList:distlist})
     let newMM =  this.getMMdistricts(distlist);
     console.log("MMdists " + (new Date().getTime()-seconds) + "ms");
     let newGerry = this.calcGerrymander(distlist);
@@ -287,19 +291,19 @@ class App extends React.Component {
   render(){
     return (
       <div className="App flex" >
-        <Sidebar election={this.state.election} demo={this.state.demo} state={this.state.state} view={this.state.view} changeState={this.changeState} properties={this.state.properties} gerrymander={this.state.gerrymander} mmDistricts={this.state.mmDistricts} p1data={this.state.p1data} newMMdistricts={this.state.newMMdistricts} newGerrymander={this.state.newGerrymander} getNewdistricts={this.getNewdistricts}></Sidebar>
-        <Map updateColor={this.updateColor} resetData={this.resetData} tab={this.state.tab} election={this.state.election} phase0Data={this.state.phase0Data} colorMap={this.state.colorMap} state={this.state.state} newdistrict={this.state.newdistrict} view={this.state.view} changeState={this.changeState} updateState={this.updateState}></Map>
+        <Sidebar distList={this.state.distList} distView={this.state.distView} election={this.state.election} demo={this.state.demo} state={this.state.state} view={this.state.view} changeState={this.changeState} properties={this.state.properties} gerrymander={this.state.gerrymander} mmDistricts={this.state.mmDistricts} p1data={this.state.p1data} newMMdistricts={this.state.newMMdistricts} newGerrymander={this.state.newGerrymander} getNewdistricts={this.getNewdistricts}></Sidebar>
+        <Map distList={this.state.distList} distView={this.state.distView} updateColor={this.updateColor} resetData={this.resetData} tab={this.state.tab} gerrymander={this.state.gerrymander} newGerrymander={this.state.newGerrymander} election={this.state.election} phase0Data={this.state.phase0Data} colorMap={this.state.colorMap} state={this.state.state} newdistrict={this.state.newdistrict} view={this.state.view} changeState={this.changeState} updateState={this.updateState}></Map>
         
         <div style={{position:"absolute",bottom:"0",right:"0",zIndex:'1'}}>
         <Panel header="Legend">
-        <div>Demographic Colors</div>
+        <div style={{margin:"5px"}}>Demographic Colors</div>
         {Object.keys(this.state.colorMap).map(key=>
-            <div>
+            <div title={demoMap[key]}>
               <input type="color" value={this.state.colorMap[key]} onChange={ color => { this.updateColor(key,color.target.value)}}/>
               {" " +key}
              </div>
           ) }
-         <div>Party Colors</div>
+         <div style={{margin:"5px"}}>Party Colors</div>
          <div><input style={{pointerEvents:"none"}} type="color" value={"#0000FF"}/> Democratic</div>
          <div><input style={{pointerEvents:"none"}} type="color" value={"#FF0000"}/> Republican</div>
         </Panel>

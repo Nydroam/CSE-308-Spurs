@@ -67,6 +67,11 @@ const demoMap={
     "HISP":"Hispanic",
     "WHITE":"White",   
 }
+const distViews=[
+    {label:"Original",value:"OG"},
+    {label:"Political Fairness",value:"PF"},
+    {label:"White",value:"WHITE"},
+]
 const partyMap={
     "R":"Republican",
     "D":"Democratic",
@@ -78,11 +83,12 @@ class Sidebar extends React.PureComponent{
         super()
         this.state = {
             distNum: 0,
+            distView: "OG",
             mDistNum: 0,
             voteThresh: 50,
             popThresh: 50,
             resultInfo: null,
-            ethnic: null,
+            ethnic: [],
             rangeValues:[0,100],
             tab:0,
             election: "2016P",
@@ -132,7 +138,7 @@ class Sidebar extends React.PureComponent{
     
     onSubmitPhase0 = () => {
         let seconds = new Date().getTime();
-        this.setState({phase0loading:true});
+        this.setState({phase0loading:true,phase1Time:null});
         fetch("http://localhost:8080/spurs/state/runPhase0",
          {method:"POST", body: JSON.stringify(
              {stateId: statesMap[this.props.state],
@@ -141,7 +147,7 @@ class Sidebar extends React.PureComponent{
             voteThresh:this.state.voteThresh/100})}
          ).then( (res) => res.json())
          .then( (data) => { console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
-         console.log(data);this.parsePhase0(data);})
+         console.log(data);this.parsePhase0(data);this.setState("phase0Time",new Date().getTime()-seconds)})
          .catch( (err) => { console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
          console.log(err); this.setState({blockInfo:"Data Retrieval Failed",loading:false});});
        
@@ -163,11 +169,13 @@ class Sidebar extends React.PureComponent{
             item['popPercent'] = data[i]['demographic']['population']/data[i]['precinct']['population'];
             item['demographic'] = data[i]['demographic']['demographicKey']['race'];
             item['demographicPop'] = data[i]['demographic']['population'];
+            item['popPercentB'] = (item['popPercent']*100).toFixed(2) + "%";
             item['party'] = data[i]['party'];
             if(item['party']==='DEMOCRAT')
                 item['party']='DEMOCRATIC';
             item['partyVotes'] = data[i]['votes'];
             item['votePercent'] = data[i]['votes']/data[i]['totalVotes'];
+            item['votePercentB'] = (item['votePercent']*100).toFixed(2) + "%";
             phase0sum[data[i]['demographic']['demographicKey']['race']] += 1;
             phase0data.push(item);
         }
@@ -179,7 +187,7 @@ class Sidebar extends React.PureComponent{
         this.props.changeState("view","ND")
         let seconds = new Date().getTime();
         
-        this.setState({running:true,phase1Done:false});
+        this.setState({running:true,phase1Done:false,phase1Time:null});
         fetch("http://localhost:8080/spurs/state/runPhase1",
              {method:"POST", body: JSON.stringify(
                 {stateId:statesMap[this.props.state],
@@ -213,6 +221,8 @@ class Sidebar extends React.PureComponent{
              }
              this.props.changeState("p1data",data);
              this.props.getNewdistricts();
+             console.log(this.props.p1data);
+             console.log(this.props.distList);
              let len = data.length;
              let map = {}
              for (let i = 0; i < len; i++){
@@ -222,6 +232,7 @@ class Sidebar extends React.PureComponent{
                  }
              }
              console.log("set color data " + (new Date().getTime()-seconds) + "ms");
+             this.setState({"phase1Time": new Date() - seconds});
              this.props.changeState("newdistrict",map)
          }
          this.setState({resultInfo:data,running:false})} )
@@ -290,12 +301,12 @@ class Sidebar extends React.PureComponent{
         return(
             <div id="sidebar">
                 
-                <Dropdown placeholder="Select State" value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value);this.props.changeState("demo",{});this.setState({resultInfo:null})}} disabled={this.state.running}></Dropdown>
+                <Dropdown placeholder="Select State" disabled={this.state.running || this.state.phase0loading} value={this.props.state} options={states} onChange={(e) => {this.props.changeState("state",e.value);this.props.changeState("demo",{});this.setState({resultInfo:null})}}></Dropdown>
                 <Dropdown placeholder="Select View" disabled={this.props.state===null} value={this.props.view} options={views} onChange={(e) => {this.props.changeState("view",e.value)}}></Dropdown>
                
                 <TabView activeIndex={this.state.tab} onTabChange={(e) => {this.setState({tab: e.index});this.props.changeState("tab",e.index) }}>
                     
-                    <TabPanel disabled={this.props.state===null} contentClassName="content" header={this.state.tab===0?" Vote Data":""} leftIcon="pi pi-check-circle" >
+                    <TabPanel disabled={this.props.state===null || this.state.running || this.state.phase0loading} contentClassName="content" header={this.state.tab===0?" Vote Data":""} leftIcon="pi pi-check-circle" >
                         <Dropdown placeholder="Select Election" disabled={this.props.state===null} value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
                         <Fieldset className="fieldset"legend="State Statistics">
                             {Object.keys(partyMap).map(party => 
@@ -323,7 +334,7 @@ class Sidebar extends React.PureComponent{
                         </Fieldset>
                     </TabPanel>
                     
-                    <TabPanel disabled={this.props.state===null} contentClassName="content" header={this.state.tab===1?" Info":""} leftIcon="pi pi-users">
+                    <TabPanel disabled={this.props.state===null || this.state.running || this.state.phase0loading} contentClassName="content" header={this.state.tab===1?" Info":""} leftIcon="pi pi-users">
                         <Fieldset className="fieldset"legend="State Statistics">
                             {Object.keys(demoMap).map(key=>
                                 <React.Fragment>
@@ -344,15 +355,16 @@ class Sidebar extends React.PureComponent{
                         </Fieldset>
                     </TabPanel>
                     
-                    <TabPanel disabled={this.props.state===null}  contentClassName="content" header={this.state.tab===2?" Phase 0":""} leftIcon="pi pi-angle-right">
+                    <TabPanel disabled={this.props.state===null || this.state.running}  contentClassName="content" header={this.state.tab===2?" Phase 0":""} leftIcon="pi pi-angle-right">
                         <div className="center">
-                        <Dropdown placeholder="Select Election" disabled={this.props.state===null} value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
+                        <Dropdown disabled={this.state.phase0loading} placeholder="Select Election" value={this.props.election} options={elections} onChange={(e) => {this.props.changeState("election",e.value)}}></Dropdown>
                         <div className="top-margin">Vote Threshold: {this.state.voteThresh}%</div>
-                        <Slider min={50}name="voteThresh"value={this.state.voteThresh} onChange={(e)=>this.onChangeSlider("voteThresh",e)} style={{width: '90%'}} />
+                        <Slider disabled={this.state.phase0loading} min={50}name="voteThresh"value={this.state.voteThresh} onChange={(e)=>this.onChangeSlider("voteThresh",e)} style={{width: '90%'}} />
                         <div>Population Threshold: {this.state.popThresh}%</div>
-                        <Slider min={50}name="popThresh"value={this.state.popThresh} onChange={(e)=>this.onChangeSlider("popThresh",e)} style={{width: '90%'}} />
-                        <div style={{position:"relative"}}><Button label="Submit" onClick={this.onSubmitPhase0}></Button>
+                        <Slider disabled={this.state.phase0loading} min={50}name="popThresh"value={this.state.popThresh} onChange={(e)=>this.onChangeSlider("popThresh",e)} style={{width: '90%'}} />
+                        <div style={{position:"relative"}}><Button disabled={this.state.phase0loading} label="Submit" onClick={this.onSubmitPhase0}></Button>
                         {this.state.phase0loading?<ProgressSpinner style={{height:"30px",right:"20px", position:"absolute"}}/>:null}</div>
+                        {this.state.phase0Time? <div>Run took {this.state.phase1Time} ms</div>:null}
                         <Fieldset style={{textAlign:"left"}} className="fieldset" legend="Phase 0 Data">
                             {this.state.phase0Summary?<React.Fragment><div>Eligible Precincts: {phase0Summary.eligibleP}</div>
                             <div>Total Precincts: {phase0Summary.totalP}</div>
@@ -371,6 +383,7 @@ class Sidebar extends React.PureComponent{
                             <ProgressBar value={Math.round(phase0Summary.HISP/phase0Summary.eligibleP*100)} /></React.Fragment>
                         :null}
                            <div style={{textAlign:"center"}}>
+                               
                            <Button label="Details" style={{marginTop:"5px"}} disabled={!this.state.phase0Data} onClick={e => this.setState({phase0Visible:true})}></Button>
 
                                </div> 
@@ -379,7 +392,7 @@ class Sidebar extends React.PureComponent{
                         </div>
                     </TabPanel>
                     
-                    <TabPanel  disabled={this.props.state===null}  contentClassName="content" header={this.state.tab===3?" Phase 1/2":""} leftIcon="pi pi-angle-double-right">
+                    <TabPanel  disabled={this.props.state===null || this.state.phase0loading}  contentClassName="content" header={this.state.tab===3?" Phase 1/2":""} leftIcon="pi pi-angle-double-right">
                         <div className="center">
                         <div>Number of Districts Required</div>
                         <InputText name="distNum"value={this.state.distNum} disabled={this.state.running} keyfilter="pint" onChange={(e)=>this.onChangeSlider("distNum",e)} style={{width: '90%'}} />
@@ -406,7 +419,7 @@ class Sidebar extends React.PureComponent{
                         
                             </AccordionTab>
                         </Accordion>
-                        <div>
+                        <div style={{marginBottom:"10px"}}>
                         <Checkbox id="cb1" disabled={this.state.running} onChange={e => this.setState({allowStep: e.checked})} checked={this.state.allowStep}></Checkbox>
                         <label htmlFor="cb1"> Update every iteration</label>
         
@@ -422,8 +435,13 @@ class Sidebar extends React.PureComponent{
                         
                         <Button label="View Results" disabled={!this.state.resultInfo} onClick={e=>this.setState({resultsVisible:true})}></Button>
                         </div>
+                        {!this.state.phase1Time && this.state.running?<ProgressSpinner style={{height:"30px",marginBottom:"20px"}}/>:null}
+
+                        {this.state.phase1Time? <div>Run took {this.state.phase1Time} ms</div>:null}
                         {this.state.phase1Done? <div>Phase 1 Finished</div>:null}
                         <br></br>
+                        <Dropdown style={{position:"relative",bottom:"20px"}} placeholder="Select District View" disabled={this.props.state===null} value={this.props.distView} options={distViews.concat(this.state.ethnic.map(ethnic=>({"label":demoMap[ethnic],"value":ethnic}))) } onChange={(e) => {this.props.changeState("distView"  ,e.value)}}></Dropdown>                 
+
                         <Button label="View Redistricting Rules" onClick={e=>this.setState({rules:true})}></Button>
                         {stateKey==="ristate"?<Dialog header="Rules"visible={this.state.rules} modal={true} onHide={()=>this.setState({rules:false})}>
                         Like all states, Rhode Island must comply with constitutional equal population requirements, and further requires that its state legislative districts be as nearly equal in population "as possible." [R.I. Const. art. VII, § 1; art. VIII, § 1; 2011 R.I. Laws ch. 106, § 2(c); 2011 R.I. Laws ch. 100, § 2(c)]
@@ -449,7 +467,7 @@ class Sidebar extends React.PureComponent{
                         The California constitution further requires that districts be contiguous. To the extent possible, they must also preserve the geographic integrity of cities, counties, neighborhoods, and communities of interest. To the extent practicable, and where so doing does not violate higher-priority constraints, districts must also encourage compactness, defined by lines that do not bypass nearby population in favor of more distant population. Finally, where practicable, and where not in conflict with the criteria above, state Senate and Assembly districts must be nested within each other. [Cal. Const. art. XXI, § 2(d)]
 
                         In drawing maps, the commission may not consider candidate residences, and districts may not be drawn to favor or discriminate against a candidate or party. [Cal. Const. art. XXI, § 2(e)]
-                        </Dialog>:null}                 
+                        </Dialog>:null}
                     </div>
                     </TabPanel>
                     
@@ -498,10 +516,10 @@ class Sidebar extends React.PureComponent{
                         <Column field="name" header="Precinct" />
                         <Column field="demographic" header="Race" />
                         <Column field="demographicPop" header="Race Population"/>
-                        <Column field="popPercent" header="Race %"/>
+                        <Column field="popPercentB" header="Race %"/>
                         <Column field="party" header="Winning Party"/>
                         <Column field="partyVotes" header="Party Votes"/>
-                        <Column field="votePercent" header="Vote %"/>
+                        <Column field="votePercentB" header="Vote %"/>
                 </DataTable>
                     </Dialog>  :null}
                 
