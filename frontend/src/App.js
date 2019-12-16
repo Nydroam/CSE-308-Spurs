@@ -87,6 +87,11 @@ class App extends React.Component {
     });
     let newMM =  this.getMMdistricts(distlist);
     let newGerry = this.calcGerrymander(distlist);
+    count = 1;
+    newGerry.forEach(e=>{
+      e.NAME = "New District " + count;
+      count+=1;
+    })
     this.setState({newMMdistricts:newMM});
     this.setState({newGerrymander:newGerry});
   }

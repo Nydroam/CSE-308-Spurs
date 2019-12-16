@@ -198,8 +198,7 @@ class Sidebar extends React.PureComponent{
          console.log(data);
          console.log("Fetching took " + (new Date().getTime()-seconds) + "ms");
          if(data){
-             this.props.changeState("p1data",data);
-             this.props.getNewdistricts();
+             
              if(this.state.allowStep){
                 if(data["finished"]){
                     this.setState({phase1Done:true})
@@ -208,6 +207,8 @@ class Sidebar extends React.PureComponent{
              }else{
                  this.setState({phase1Done:true})
              }
+             this.props.changeState("p1data",data);
+             this.props.getNewdistricts();
              let len = data.length;
              let map = {}
              for (let i = 0; i < len; i++){
@@ -445,22 +446,43 @@ class Sidebar extends React.PureComponent{
                 </TabView>
                 <Dialog header={this.state.tableView} visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}>
                 <Dropdown value={this.state.tableView} options={tables} onChange={(e)=>{this.setState({tableView:e.value})}}/>
-                {this.state.tableView==="Partisan Fairness"?<DataTable value={v} scrollable={true} scrollHeight={"calc(100vh - 150px)"}>
+                {this.state.tableView==="Partisan Fairness"?<div style={{justifyContent:"space-around",display:"flex",width:"100%"}}>
+                <DataTable header="Old Districts" value={v} scrollable={true} style={{width:"50%"}} scrollHeight={"calc(100vh - 150px)"}>
                     <Column field="NAME" header="District"/>
                     <Column field="SEN16" header="Congressional 2016"/>
                     <Column field="PRES16" header="Presidential 2016"/>
                     <Column field="SEN18" header="Congressional 2018"/>
-                </DataTable>:null}
-                {this.state.tableView==="Majority-Minority Districts"?<DataTable value={m} scrollable={true} scrollHeight={"calc(100vh - 150px)"}>
+                </DataTable>
+                <DataTable header="New Districts" value={this.props.newGerrymander} scrollable={true} style={{width:"50%"}} scrollHeight={"calc(100vh - 150px)"}>
                     <Column field="NAME" header="District"/>
-                    <Column field="maxMinority" header="Dominant Race"/>
-                    <Column field="WHITE" header="White"/>
-                    <Column field="ASIAN" header="Asian"/>
-                    <Column field="BLACK" header="Black"/>
-                    <Column field="NHPI" header="Native Hawaiian/Pacific Islander"/>
-                    <Column field="HISP" header="Hispanic"/>
-                    <Column field="AMIN" header="American Indian"/>
-                </DataTable>:null}
+                    <Column field="SEN16" header="Congressional 2016"/>
+                    <Column field="PRES16" header="Presidential 2016"/>
+                    <Column field="SEN18" header="Congressional 2018"/>
+                </DataTable>
+                </div>:null}
+                {this.state.tableView==="Majority-Minority Districts"?<div style={{justifyContent:"space-around",display:"flex",width:"100%"}}>
+                    <DataTable header="Old Districts" value={m} scrollable={true} style={{width:"50%"}} scrollHeight={"calc(100vh - 150px)"}>
+                        <Column field="NAME" header="District"/>
+                        <Column field="maxMinority" header="Dominant Race"/>
+                        <Column field="WHITE" header="White"/>
+                        <Column field="ASIAN" header="Asian"/>
+                        <Column field="BLACK" header="Black"/>
+                        <Column field="NHPI" header="Native Hawaiian/Pacific Islander"/>
+                        <Column field="HISP" header="Hispanic"/>
+                        <Column field="AMIN" header="American Indian"/>
+                    </DataTable>
+                    {console.log(this.props.newMMdistricts)}
+                    <DataTable header="New Districts" value={this.props.newMMdistricts} style={{width:"50%"}} scrollable={true} scrollHeight={"calc(100vh - 150px)"}>
+                        <Column field="NAME" header="District"/>
+                        <Column field="maxMinority" header="Dominant Race"/>
+                        <Column field="WHITE" header="White"/>
+                        <Column field="ASIAN" header="Asian"/>
+                        <Column field="BLACK" header="Black"/>
+                        <Column field="NHPI" header="Native Hawaiian/Pacific Islander"/>
+                        <Column field="HISP" header="Hispanic"/>
+                        <Column field="AMIN" header="American Indian"/>
+                    </DataTable>
+                    </div>:null}
                 </Dialog>  
                 <Dialog header="Results" visible={this.state.phase0Visible} style={{width:"100vw"}}  modal={true} onHide={()=>this.setState({phase0Visible:false})}>
                 <DataTable value={this.state.phase0Data} scrollable={true} scrollHeight={"calc(100vh - 150px)"}>
