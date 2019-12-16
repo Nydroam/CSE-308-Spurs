@@ -245,6 +245,10 @@ class Sidebar extends React.PureComponent{
         }
       )
     }
+    componentDidUpdate(){
+
+    console.log("SIDEBAR UPDATE")
+    }
     render(){
         let {election,demo,state} = this.props;
         let {phase0Summary} = this.state;
@@ -441,7 +445,7 @@ class Sidebar extends React.PureComponent{
                     </TabPanel>
                     
                 </TabView>
-                <Dialog header={this.state.tableView} visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}>
+                {this.state.resultsVisible?<Dialog header={this.state.tableView} visible={this.state.resultsVisible} style={{width:"100vw"}} modal={true} onHide={()=>this.setState({resultsVisible:false})}>
                 <Dropdown value={this.state.tableView} options={tables} onChange={(e)=>{this.setState({tableView:e.value})}}/>
                 {this.state.tableView==="Partisan Fairness"?<div style={{justifyContent:"space-around",display:"flex",width:"100%"}}>
                 <DataTable header="Old Districts" value={v} scrollable={true} style={{width:"50%"}} scrollHeight={"calc(100vh - 300px)"}>
@@ -479,8 +483,8 @@ class Sidebar extends React.PureComponent{
                         <Column field="AMIN" header="American Indian"/>
                     </DataTable>
                     </div>:null}
-                </Dialog>  
-                <Dialog header="Results" visible={this.state.phase0Visible} style={{width:"100vw"}}  modal={true} onHide={()=>this.setState({phase0Visible:false})}>
+                </Dialog>:null}
+                {this.state.phase0Visible?<Dialog header="Results" visible={this.state.phase0Visible} style={{width:"100vw"}}  modal={true} onHide={()=>this.setState({phase0Visible:false})}>
                 <DataTable value={this.state.phase0Data} scrollable={true} scrollHeight={"calc(100vh - 300px)"}>
                         <Column field="name" header="Precinct" />
                         <Column field="demographic" header="Race" />
@@ -490,7 +494,7 @@ class Sidebar extends React.PureComponent{
                         <Column field="partyVotes" header="Party Votes"/>
                         <Column field="votePercent" header="Vote %"/>
                 </DataTable>
-                    </Dialog>  
+                    </Dialog>  :null}
                 
             </div>
         )
